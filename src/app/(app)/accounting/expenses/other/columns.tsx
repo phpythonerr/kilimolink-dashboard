@@ -53,7 +53,7 @@ export const columns: ColumnDef<ExpenseInterface>[] = [
     accessorKey: "amount",
     header: "Amount",
     cell: ({ row }) => {
-      return `Ksh.${row.getValue("amount").toLocaleString()}`;
+      return `Ksh.${Number(row.getValue("amount")).toLocaleString()}`;
     },
   },
   {

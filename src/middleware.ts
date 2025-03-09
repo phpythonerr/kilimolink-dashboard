@@ -1,7 +1,7 @@
 // middleware.ts - Place this file in your project root
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { encrypt } from "@/lib/crypto";
+// import { encrypt } from "@/lib/crypto";
 // import {
 //   hasRequiredPermissions,
 //   getPermissionRuleForPath,
@@ -138,10 +138,11 @@ export async function middleware(req: NextRequest) {
       timestamp: Date.now(),
     });
 
-    const contextHeader =
-      process.env.NODE_ENV === "production"
-        ? encrypt(contextData, process.env.ENCRYPTION_KEY!)
-        : Buffer.from(contextData).toString("base64");
+    // const contextHeader =
+    //   process.env.NODE_ENV === "production"
+    //     ? encrypt(contextData, process.env.ENCRYPTION_KEY!)
+    //     : Buffer.from(contextData).toString("base64");
+    const contextHeader = Buffer.from(contextData).toString("base64");
 
     responseHeaders.set("X-Auth-Context", contextHeader);
 
