@@ -32,12 +32,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-const formSchema = z.object({
-  customerId: z.string().min(1, "Customer is required"),
-  dateCreated: z.string(),
-  deliveryDate: z.string(),
-});
-
 interface ExpenseType {
   id: string;
   name: string;
