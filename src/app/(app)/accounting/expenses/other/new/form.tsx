@@ -50,7 +50,6 @@ interface FormProps {
 const formSchema = z.object({
   orderDate: z.string(),
   txnDate: z.string(),
-  customerId: z.string().min(1, "Customer is required"),
   amount: z.string().min(1, "Amount is required"),
   txn_reference_code: z.string().min(1, "Transaction code is required"),
 });
@@ -97,91 +96,6 @@ export default function NewExpenseForm({ expenseTypes, vehicles }: FormProps) {
             </FormItem>
           )}
         />
-
-        {/* <FormField
-          control={form.control}
-          name="txnDate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Date Expense Incurred</FormLabel>
-              <FormControl>
-                <Input
-                  type="date"
-                  {...field}
-                  min={new Date().toISOString().split("T")[0]}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="customerId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Customer</FormLabel>
-              <Popover
-                open={customerPopoverOpen}
-                onOpenChange={setCustomerPopoverOpen}
-              >
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className={cn(
-                        "w-full justify-between",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value
-                        ? customers.find(
-                            (customer) => customer?.id === field.value
-                          )?.user_metadata?.business_name
-                        : "Select Customer"}
-                      <ChevronsUpDown className="opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0">
-                  <Command>
-                    <CommandInput
-                      placeholder="Search customer..."
-                      className="h-9"
-                    />
-                    <CommandList>
-                      <CommandEmpty>No customer found.</CommandEmpty>
-                      <CommandGroup>
-                        {customers.map((customer: any) => (
-                          <CommandItem
-                            value={customer?.user_metadata?.business_name}
-                            key={customer?.id}
-                            onSelect={() => {
-                              form.setValue("customerId", customer?.id);
-                              setCustomerPopoverOpen(false);
-                            }}
-                          >
-                            {customer?.user_metadata?.business_name}
-                            <Check
-                              className={cn(
-                                "ml-auto",
-                                customer?.id === field.value
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
 
         <FormField
           control={form.control}
