@@ -40,7 +40,7 @@ export const columns: ColumnDef<RevenuesInterface>[] = [
     accessorKey: "amount",
     header: "Amount",
     cell: ({ row }) => {
-      return `Ksh.${row.getValue("amount").toLocaleString()}`;
+      return `Ksh.${Number(row.getValue("amount")).toLocaleString()}`;
     },
   },
 ];
