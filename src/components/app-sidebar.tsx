@@ -43,7 +43,25 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 
-const navData = [
+interface NavSubItem {
+  title: string;
+  url: string;
+}
+
+interface NavItem {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+  isActive?: boolean;
+  items?: NavSubItem[];
+}
+
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const navData: NavSection[] = [
   {
     title: "Orders",
     items: [
@@ -369,7 +387,18 @@ const navData = [
   },
 ];
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface SidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user?: {
+    name?: string;
+    email?: string;
+    image?: string;
+  };
+}
+
+export function AppSidebar({
+  user,
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -393,7 +422,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ))}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={props.user} />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
