@@ -18,7 +18,12 @@ const breadcrumbs = [
   { label: "Order By Day", href: "/orders/corporate/by-day", current: true },
 ];
 
-export default async function Index({ searchParams }: any) {
+export default async function Index({
+  searchParams,
+}: Promise<{
+  page?: string;
+  pageSize?: string;
+}>) {
   const supabase = await createClient();
 
   let pageSize: number = Number(searchParams.pageSize) || 10;

@@ -19,7 +19,12 @@ const breadcrumbs = [
   { label: "Expenses", href: "/reports/orders/expenses", current: true },
 ];
 
-export default async function Page({ searchParams }: any) {
+export default async function Page({
+  searchParams,
+}: Promise<{
+  page?: string;
+  pageSize?: string;
+}>) {
   const queryParams = await searchParams;
 
   const supabase = await createClient();

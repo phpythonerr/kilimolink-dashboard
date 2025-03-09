@@ -19,7 +19,13 @@ const breadcrumbs = [
   { label: "Corporate Orders", href: "/orders/corporate", current: true },
 ];
 
-export default async function Index({ searchParams }: any) {
+export default async function Index({
+  searchParams,
+}: Promise<{
+  page?: string;
+  pageSize?: string;
+  date: string;
+}>) {
   const queryParams = await searchParams;
 
   const supabase = await createClient();

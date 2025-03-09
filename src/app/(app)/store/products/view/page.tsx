@@ -28,7 +28,7 @@ const breadcrumbs = [
   },
 ];
 
-export default async function Index({ searchParams }: any) {
+export default async function Index({ searchParams }: ) {
   const queryParams = await searchParams;
 
   const product = await getSingleProduct(queryParams.id);

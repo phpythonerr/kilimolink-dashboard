@@ -23,7 +23,12 @@ const breadcrumbs = [
   },
 ];
 
-export default async function Index({ searchParams }: any) {
+export default async function Index({
+  searchParams,
+}: Promise<{
+  page?: string;
+  pageSize?: string;
+}>) {
   const supabase = await createClient();
 
   let pageSize: number = Number(searchParams.pageSize) || 10;
