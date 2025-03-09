@@ -395,10 +395,7 @@ interface SidebarProps extends React.ComponentProps<typeof Sidebar> {
   };
 }
 
-export function AppSidebar({
-  user,
-  ...props
-}: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ user, ...props }: SidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
