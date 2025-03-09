@@ -2,10 +2,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { encrypt } from "@/lib/crypto";
-import {
-  hasRequiredPermissions,
-  getPermissionRuleForPath,
-} from "@/lib/permissions";
+// import {
+//   hasRequiredPermissions,
+//   getPermissionRuleForPath,
+// } from "@/lib/permissions";
 
 // Define allowed organization domains
 const ALLOWED_EMAIL_DOMAINS = ["kilimolink.com"];

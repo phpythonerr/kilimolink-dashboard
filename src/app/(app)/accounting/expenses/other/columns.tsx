@@ -1,7 +1,6 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Info } from "lucide-react";
-import Link from "next/link";
 import {
   HoverCard,
   HoverCardContent,
@@ -11,9 +10,13 @@ import {
 // Define your data type
 export interface ExpenseInterface {
   id: string;
-  date: any;
+  date: Date;
   amount: number;
   txn_reference_code: string;
+  expense_type_id: {
+    name: string;
+  };
+  description: string;
 }
 
 // Define your columns
@@ -29,7 +32,6 @@ export const columns: ColumnDef<ExpenseInterface>[] = [
     accessorKey: "id",
     header: "Expense Type",
     cell: ({ row }) => {
-      const id = row.getValue("id") as string;
       const expense_type = row.original?.expense_type_id?.name as string;
       const description = row.original?.description as string;
       return (

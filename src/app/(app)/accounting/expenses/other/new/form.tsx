@@ -38,24 +38,51 @@ const formSchema = z.object({
   deliveryDate: z.string(),
 });
 
-export default function NewExpenseForm({ expenseTypes, vehicles }: any) {
+interface ExpenseType {
+  id: string;
+  name: string;
+}
+
+interface Vehicle {
+  id: string;
+  registration: string;
+}
+
+interface FormProps {
+  expenseTypes: ExpenseType[];
+  vehicles: Vehicle[];
+}
+
+const formSchema = z.object({
+  orderDate: z.string(),
+  txnDate: z.string(),
+  customerId: z.string().min(1, "Customer is required"),
+  amount: z.string().min(1, "Amount is required"),
+  txn_reference_code: z.string().min(1, "Transaction code is required"),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+export default function NewExpenseForm({ expenseTypes, vehicles }: FormProps) {
   const [customerPopoverOpen, setCustomerPopoverOpen] = useState(false);
-  const { push } = useRouter();
-  const form = useForm<z.infer<typeof formSchema>>({
+  // const { push } = useRouter();
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      orderDate: new Date().toISOString().split("T")[0],
+      txnDate: new Date().toISOString().split("T")[0],
       customerId: "",
-      subsidiary: "",
-      po_number: "",
-      dateCreated: new Date().toISOString().split("T")[0],
-      deliveryDate: "",
+      amount: "",
+      txn_reference_code: "",
     },
   });
 
-  async function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: FormData) {
     const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
   }
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -77,7 +104,7 @@ export default function NewExpenseForm({ expenseTypes, vehicles }: any) {
           )}
         />
 
-        <FormField
+        {/* <FormField
           control={form.control}
           name="txnDate"
           render={({ field }) => (
@@ -160,7 +187,7 @@ export default function NewExpenseForm({ expenseTypes, vehicles }: any) {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         <FormField
           control={form.control}
