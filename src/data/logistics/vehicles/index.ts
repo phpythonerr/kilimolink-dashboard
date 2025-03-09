@@ -2,7 +2,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { cache } from "react";
 
-export async function getVehicles(id: string) {
+export async function getVehicles() {
   const supabase = await createClient();
 
   let { data, error }: any = await supabase
