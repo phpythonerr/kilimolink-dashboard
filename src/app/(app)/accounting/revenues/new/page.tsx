@@ -44,7 +44,7 @@ export default async function Index() {
             <h1 className="font-bold text-xl">Add Revenue</h1>
             <p className="text-sm">Enter the details of the revenue.</p>
           </div>
-          <Suspense fallback={<Loading />}></Suspense>
+          <Suspense fallback={<div>Loading...</div>}></Suspense>
         </div>
       </div>
     </div>

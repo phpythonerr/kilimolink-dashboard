@@ -39,7 +39,7 @@ export default async function Page({ searchParams }) {
         </TabsList>
       </Tabs>
       <div className="py-4">
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<div>Loading...</div>}>
           <Table>
             <TableHeader>
               <TableRow>

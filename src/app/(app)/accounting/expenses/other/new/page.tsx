@@ -48,7 +48,7 @@ export default async function Index() {
             <h1 className="font-bold text-xl">New Expense</h1>
             <p className="text-sm">Enter the details of the new expense.</p>
           </div>
-          <Suspense fallback={<Loading />}>
+          <Suspense fallback={<div>Loading...</div>}>
             <NewExpenseForm expenseTypes={expenseTypes} vehicles={vehicles} />
           </Suspense>
         </div>

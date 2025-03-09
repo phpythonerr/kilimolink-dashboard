@@ -34,7 +34,7 @@ export const columns: ColumnDef<ExpenseInterface>[] = [
     cell: ({ row }) => {
       const expense_type = row.original?.expense_type_id?.name as string;
       const description = row.original?.description as string;
-      return description ? (
+      return (
         <HoverCard>
           <HoverCardTrigger>
             <div className="flex items-center gap-2">
@@ -42,12 +42,10 @@ export const columns: ColumnDef<ExpenseInterface>[] = [
               <Info size={12} />
             </div>
           </HoverCardTrigger>
-          <HoverCardContent className="w-80">
-            <div className="flex">{description}</div>
+          <HoverCardContent>
+            <p>{description}</p>
           </HoverCardContent>
         </HoverCard>
-      ) : (
-        expense_type
       );
     },
   },

@@ -50,7 +50,7 @@ export default async function Index() {
               Enter the details of the new corporate order.
             </p>
           </div>
-          <Suspense fallback={<Loading />}>
+          <Suspense fallback={<div>Loading...</div>}>
             <NewOrderForm customers={customers} />
           </Suspense>
         </div>
