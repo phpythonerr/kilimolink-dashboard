@@ -189,15 +189,6 @@ export default function Form({ products, items, order }: any) {
     <TableBody>
       {orderItems?.map((item: any, index: number) => (
         <TableRow key={`${item?.id}-${index}`}>
-          {item.loading && (
-            <TableCell
-              colSpan={9}
-              className="absolute inset-0 bg-background/50 backdrop-blur-[1px] z-50"
-            >
-              <RowOverlay show={item.loading} />
-            </TableCell>
-          )}
-
           <TableCell>
             <Popover
               open={productPopoverOpenStates[index]}
@@ -469,24 +460,33 @@ export default function Form({ products, items, order }: any) {
           <TableCell className="text-xs">
             {calculateTotals(item).margin}
           </TableCell>
-          <TableCell className="w-10">
-            {deleteLoadingMap[index] ? (
-              <LoaderCircle
-                size={18}
-                key={index}
-                className="animate-spin text-red-700"
-              />
-            ) : (
-              <Button
-                onClick={() => removeItemRow(index, item?.id)}
-                variant="ghost"
-                size="icon"
-                className="cursor-pointer"
-              >
-                <X className="text-red-700" />
-              </Button>
-            )}
-          </TableCell>
+          {item.loading ? (
+            <TableCell
+              colSpan={9}
+              className="absolute inset-0 bg-background/50 backdrop-blur-[1px] z-50"
+            >
+              <RowOverlay show={item.loading} />
+            </TableCell>
+          ) : (
+            <TableCell className="w-10">
+              {deleteLoadingMap[index] ? (
+                <LoaderCircle
+                  size={18}
+                  key={index}
+                  className="animate-spin text-red-700"
+                />
+              ) : (
+                <Button
+                  onClick={() => removeItemRow(index, item?.id)}
+                  variant="ghost"
+                  size="icon"
+                  className="cursor-pointer"
+                >
+                  <X className="text-red-700" />
+                </Button>
+              )}
+            </TableCell>
+          )}
         </TableRow>
       ))}
       <TableRow>

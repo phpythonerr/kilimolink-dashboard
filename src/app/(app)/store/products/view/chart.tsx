@@ -147,7 +147,7 @@ export function Chart({ chartData }: any) {
               </div>
             </CardDescription>
           </div>
-          <div className={cn("grid gap-2")}>
+          {/* <div className={cn("grid gap-2")}>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -184,7 +184,7 @@ export function Chart({ chartData }: any) {
                 />
               </PopoverContent>
             </Popover>
-          </div>
+          </div> */}
         </div>
       </CardHeader>
       <CardContent>

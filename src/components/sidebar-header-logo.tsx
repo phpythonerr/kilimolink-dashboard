@@ -8,11 +8,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import Link from "next/link";
 import { useTheme } from "next-themes";
 
 export function SidebarHeaderLogo() {
   const { theme } = useTheme();
-  console.log(theme);
+  const { open: isOpen } = useSidebar();
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -20,19 +21,20 @@ export function SidebarHeaderLogo() {
           size="lg"
           className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
         >
-          <Image
-            width={133}
-            height={30}
-            // src={
-            //   theme === "light" || theme === "undefined"
-            //     ? "/img/logo/logo-primary.svg"
-            //     : "/img/logo/logo-white-primary.svg"
-            // }
-            src="/img/logo/logo-primary.svg"
-            alt="Kilimolink"
-            priority
-            className=""
-          />
+          <Link href="/">
+            <Image
+              width={Boolean(isOpen) ? 133 : 30}
+              height={30}
+              src={
+                Boolean(isOpen)
+                  ? "/img/logo/logo-primary.svg"
+                  : "/img/logo/kilimolink-logo-symbol-green.svg"
+              }
+              alt="Kilimolink"
+              priority
+              className=""
+            />
+          </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>
