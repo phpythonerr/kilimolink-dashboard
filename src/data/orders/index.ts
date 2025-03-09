@@ -1,5 +1,5 @@
 "use server";
-import { createClient } from "@/lib/supabase/admin/server";
+import { createClient } from "@/lib/supabase/server";
 import { cache } from "react";
 
 export async function getOrder(id: string) {

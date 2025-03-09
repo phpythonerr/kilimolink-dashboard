@@ -15,6 +15,7 @@ import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
 import Loading from "@/components/loading";
 import { getExpenseTypes } from "@/data/accounting/expenses";
 import { getVehicles } from "@/data/logistics/vehicles";
+import NewExpenseForm from "./form";
 
 export const metadata: Metadata = {
   title: "Add Expense",
@@ -47,7 +48,9 @@ export default async function Index() {
             <h1 className="font-bold text-xl">New Expense</h1>
             <p className="text-sm">Enter the details of the new expense.</p>
           </div>
-          <Suspense fallback={<Loading />}></Suspense>
+          <Suspense fallback={<Loading />}>
+            <NewExpenseForm expenseTypes={expenseTypes} vehicles={vehicles} />
+          </Suspense>
         </div>
       </div>
     </div>
