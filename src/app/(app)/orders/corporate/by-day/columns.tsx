@@ -43,7 +43,7 @@ export const columns: ColumnDef<User>[] = [
     accessorKey: "total",
     header: "Total Sales",
     cell: ({ row }) => {
-      return `Ksh.${row.getValue("total").toLocaleString()}`;
+      return `Ksh.${Number(row.getValue("total")).toLocaleString()}`;
     },
   },
 ];
