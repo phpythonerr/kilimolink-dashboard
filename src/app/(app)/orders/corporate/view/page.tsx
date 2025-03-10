@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: "",
 };
 
-interface SearchParams extends Record<string, string | string[] | undefined> {}
+interface SearchParams extends Record<string> {}
 
 interface PageProps {
   searchParams: Promise<SearchParams>;

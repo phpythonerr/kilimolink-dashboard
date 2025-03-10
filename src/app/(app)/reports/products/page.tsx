@@ -19,7 +19,7 @@ const breadcrumbs = [
   { label: "Products", href: "/reports/products", current: true },
 ];
 
-interface SearchParams extends Record<string, string | string[] | undefined> {}
+interface SearchParams extends Record<string> {}
 
 interface PageProps {
   searchParams: Promise<SearchParams>;
