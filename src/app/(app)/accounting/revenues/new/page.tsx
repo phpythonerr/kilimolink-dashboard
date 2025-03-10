@@ -13,7 +13,10 @@ import {
 } from "@/components/ui/breadcrumb";
 import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
 import Loading from "@/components/loading";
+import { getRevenueTypes } from "@/data/accounting/revenues";
+import { getOrdersList } from "@/data/orders";
 import { getUsers } from "@/data/users";
+import NewRevenueForm from "./form";
 
 export const metadata: Metadata = {
   title: "Add Revenue",
@@ -33,6 +36,21 @@ const breadcrumbs = [
 ];
 
 export default async function Index() {
+  const revenueTypes = await getRevenueTypes();
+  const orders = await getOrdersList();
+  const userIds = [...new Set(orders?.map((item) => item.user))];
+
+  const users = await getUsers();
+
+  const userMap = {};
+  users?.forEach((user) => {
+    userMap[user.id] = user;
+  });
+
+  const enhancedData = orders?.map((item) => ({
+    ...item,
+    user_obj: userMap[item.user] || { name: "Unknown User" },
+  }));
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
@@ -44,7 +62,9 @@ export default async function Index() {
             <h1 className="font-bold text-xl">Add Revenue</h1>
             <p className="text-sm">Enter the details of the revenue.</p>
           </div>
-          <Suspense fallback={<div>Loading...</div>}></Suspense>
+          <Suspense fallback={<div>Loading...</div>}>
+            <NewRevenueForm revenueTypes={revenueTypes} orders={enhancedData} />
+          </Suspense>
         </div>
       </div>
     </div>

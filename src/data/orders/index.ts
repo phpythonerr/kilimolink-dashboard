@@ -5,7 +5,7 @@ import { cache } from "react";
 export async function getOrder(id: string) {
   const supabase = await createClient();
 
-  let { data: order, error }: any = await supabase
+  let { data, error }: any = await supabase
     .from("orders_order")
     .select("*")
     .eq("id", id)
@@ -13,5 +13,18 @@ export async function getOrder(id: string) {
 
   if (error) return { error: error };
 
-  return order;
+  return data;
+}
+
+export async function getOrdersList() {
+  const supabase = await createClient();
+
+  let { data, error }: any = await supabase
+    .from("orders_order")
+    .select("*")
+    .order("delivery_date", { ascending: false });
+
+  if (error) return { error: error };
+
+  return data;
 }

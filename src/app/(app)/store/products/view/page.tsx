@@ -43,7 +43,7 @@ export default async function Index({ searchParams }: any) {
 
   const chartData: [] = [];
 
-  priceHistory?.map((item) =>
+  priceHistory?.map((item: any) =>
     chartData.push({
       date: item?.date,
       price: item?.total,
