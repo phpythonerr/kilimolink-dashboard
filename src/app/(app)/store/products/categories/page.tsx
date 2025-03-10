@@ -29,7 +29,7 @@ interface PageProps {
   searchParams: Promise<SearchParams>;
 }
 
-export default async function Index({ searchParams }: PageProps) {
+export default async function Index({ searchParams }: any) {
   const queryParams = await searchParams;
 
   const supabase = await createClient();
