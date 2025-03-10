@@ -21,7 +21,13 @@ export const metadata: Metadata = {
   description: "",
 };
 
-export default async function Index({ searchParams }) {
+interface SearchParams extends Record<string, string | string[] | undefined> {}
+
+interface PageProps {
+  searchParams: Promise<SearchParams>;
+}
+
+export default async function Index({ searchParams }: PageProps) {
   const supabase = await createClient();
 
   const queryParams = await searchParams;
