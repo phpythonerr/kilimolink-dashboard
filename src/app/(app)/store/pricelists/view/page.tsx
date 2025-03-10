@@ -1,4 +1,4 @@
-interface SearchParams extends Record<string> {}
+interface SearchParams extends Record<string, string> {}
 
 interface PageProps {
   searchParams: Promise<SearchParams>;
