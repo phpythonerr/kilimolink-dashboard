@@ -32,6 +32,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createRevenue } from "./actions";
 
@@ -40,18 +47,29 @@ interface RevenueType {
   name: string;
 }
 
+interface Order {
+  id: string;
+  order_number: string;
+  user_obj: {
+    user_metadata: {
+      business?: string;
+    };
+  };
+}
+
 interface FormProps {
-  revenueTypes: ExpenseType[];
+  revenueTypes: RevenueType[];
+  orders: Order[];
 }
 
 const formSchema = z.object({
-  deliveryDate: z.string(),
-  revenueType: z.string(),
-  amount: z.string(),
-  vat_rule: z.string(),
-  description: z.string(),
+  deliveryDate: z.string().min(1, "Date is required"),
+  revenueType: z.string().min(1, "Revenue Type is required"),
+  amount: z.string().min(1, "Amount is required"),
+  vatRule: z.string().min(1, "VAT Rule is required"),
+  description: z.string().min(1, "Description is required"),
   invoiceable: z.boolean().default(false).optional(),
-  orderID: z.string().default(""),
+  orderID: z.string().min(1, "Order Number is required"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -67,7 +85,7 @@ export default function NewRevenueForm({ revenueTypes, orders }: FormProps) {
       deliveryDate: "",
       revenueType: "",
       amount: "",
-      vat_rule: "",
+      vatRule: "",
       description: "",
       invoiceable: false,
       orderID: "",
@@ -76,43 +94,33 @@ export default function NewRevenueForm({ revenueTypes, orders }: FormProps) {
 
   const invoiceable = form.watch("invoiceable");
 
+  // In your form component
   async function onSubmit(data: FormData) {
     try {
       setIsSubmitting(true);
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, value);
+        formData.append(key, String(value));
       });
 
       const response = await createRevenue(formData);
-      if (response.success) {
-        form.reset({
-          deliveryDate: "",
-          revenueType: "",
-          amount: "",
-          vat_rule: "",
-          description: "",
-          invoiceable: false,
-          orderID: "",
-        });
 
-        toast.success(
-          "Revenue added successfully. You will be redirected shortly"
-        );
-        push("/accounting/revenues");
-      }
-      if (response.error) {
+      if (!response.success) {
         if (response.code === "VALIDATION_ERROR") {
-          // Handle validation errors
           form.setError(response.field as any, {
             message: response.error,
           });
         } else {
-          // Handle other errors
           toast.error(response.error);
         }
+        return;
       }
-    } catch (err) {
+
+      toast.success("Revenue created successfully");
+      form.reset();
+      push("/accounting/revenues");
+    } catch (error) {
+      toast.error("An error occurred while saving");
     } finally {
       setIsSubmitting(false);
     }
@@ -218,6 +226,30 @@ export default function NewRevenueForm({ revenueTypes, orders }: FormProps) {
 
         <FormField
           control={form.control}
+          name="vatRule"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>VAT Rule</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="None"></SelectItem>
+                  <SelectItem value="Exempt">Exempt</SelectItem>
+                  <SelectItem value="16">General Rate (16%)</SelectItem>
+                  <SelectItem value="Zero">Zero Rated</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="description"
           render={({ field }) => (
             <FormItem>
@@ -276,7 +308,20 @@ export default function NewRevenueForm({ revenueTypes, orders }: FormProps) {
                                 ?.order_number
                             } ${
                               orders.find((order) => order?.id === field.value)
-                                ?.user_obj?.user_metadata?.business || ""
+                                ?.user_obj?.user_metadata?.business_name &&
+                              ` - ${
+                                orders.find(
+                                  (order) => order?.id === field.value
+                                )?.user_obj?.user_metadata?.business_name
+                              }`
+                            } ${
+                              orders.find((order) => order?.id === field.value)
+                                ?.branch &&
+                              `(${
+                                orders.find(
+                                  (order) => order?.id === field.value
+                                )?.branch
+                              })`
                             }`
                           : "Select Order"}
                         <ChevronsUpDown className="opacity-50" />
@@ -295,8 +340,9 @@ export default function NewRevenueForm({ revenueTypes, orders }: FormProps) {
                           {orders.map((order: any) => (
                             <CommandItem
                               value={`${order?.order_number} ${
-                                order?.user_obj?.user_metadata?.business || ""
-                              }`}
+                                order?.user_obj?.user_metadata?.business_name &&
+                                ` - ${order?.user_obj?.user_metadata?.business_name}`
+                              } ${order?.branch && ` (${order?.branch})`}`}
                               key={order?.id}
                               onSelect={() => {
                                 form.setValue("orderID", order?.id);
@@ -304,8 +350,9 @@ export default function NewRevenueForm({ revenueTypes, orders }: FormProps) {
                               }}
                             >
                               {`${order?.order_number} ${
-                                order?.user_obj?.user_metadata?.business || ""
-                              }`}
+                                order?.user_obj?.user_metadata?.business_name &&
+                                ` - ${order?.user_obj?.user_metadata?.business_name}`
+                              } ${order?.branch && ` (${order?.branch})`}`}
                               <Check
                                 className={cn(
                                   "ml-auto",

@@ -1,11 +1,20 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-import { Info } from "lucide-react";
+import { Info, MoreHorizontal } from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Define your data type
 export interface ExpenseInterface {
@@ -65,4 +74,30 @@ export const columns: ColumnDef<ExpenseInterface>[] = [
       return row.getValue("txn_reference_code");
     },
   },
+  // {
+  //   id: "actions",
+  //   header: "Actions",
+  //   cell: ({ row }) => {
+  //     const id = row.original.id;
+
+  //     return (
+  //       <DropdownMenu>
+  //         <DropdownMenuTrigger asChild>
+  //           <Button variant="ghost" className="h-8 w-8 p-0">
+  //             <span className="sr-only">Open menu</span>
+  //             <MoreHorizontal className="h-4 w-4" />
+  //           </Button>
+  //         </DropdownMenuTrigger>
+  //         <DropdownMenuContent align="end">
+  //           <DropdownMenuItem asChild>
+  //             <Link href={`/accounting/expenses/other/edit?id=${id}`}>
+  //               Edit
+  //             </Link>
+  //           </DropdownMenuItem>
+  //           <DropdownMenuItem>Delete</DropdownMenuItem>
+  //         </DropdownMenuContent>
+  //       </DropdownMenu>
+  //     );
+  //   },
+  // },
 ];
