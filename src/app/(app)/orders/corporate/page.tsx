@@ -56,7 +56,7 @@ export default async function Index({ searchParams }: any) {
 
   totalPages = totalOrders && Math.ceil(totalOrders / pageSize);
 
-  const userIds = [...new Set(orders?.map((item) => item.user))];
+  const userIds = [...new Set(orders?.map((item: any) => item.user))];
 
   const users = await getUsers();
 
@@ -65,7 +65,7 @@ export default async function Index({ searchParams }: any) {
     userMap[user.id] = user;
   });
 
-  const enhancedData = orders?.map((item) => ({
+  const enhancedData = orders?.map((item: any) => ({
     ...item,
     user_obj: userMap[item.user] || { name: "Unknown User" },
   }));

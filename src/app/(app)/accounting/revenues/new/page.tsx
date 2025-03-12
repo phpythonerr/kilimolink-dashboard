@@ -38,7 +38,7 @@ const breadcrumbs = [
 export default async function Index() {
   const revenueTypes = await getRevenueTypes();
   const orders = await getOrdersList();
-  const userIds = [...new Set(orders?.map((item) => item.user))];
+  const userIds = [...new Set(orders?.map((item: any) => item.user))];
 
   const users = await getUsers();
 
@@ -47,7 +47,7 @@ export default async function Index() {
     userMap[user.id] = user;
   });
 
-  const enhancedData = orders?.map((item) => ({
+  const enhancedData = orders?.map((item: any) => ({
     ...item,
     user_obj: userMap[item.user] || { name: "Unknown User" },
   }));

@@ -36,7 +36,7 @@ export default async function Page({ searchParams }: any) {
   });
 
   const chartData = data
-    ?.map((item) => ({
+    ?.map((item: any) => ({
       date: item?.expense_date,
       price: item?.total_expense,
     }))
