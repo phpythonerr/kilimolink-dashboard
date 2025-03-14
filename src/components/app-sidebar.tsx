@@ -24,6 +24,7 @@ import {
   ChartNoAxesCombined,
   Truck,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { getAuthorizedNavItems } from "@/lib/permissions";
 import { navigationItems } from "@/config/navigation";
