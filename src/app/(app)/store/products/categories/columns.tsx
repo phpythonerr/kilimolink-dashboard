@@ -18,9 +18,7 @@ export const columns: ColumnDef<CategoriesInterface>[] = [
     header: "Name",
     size: 400,
     cell: ({ row }) => {
-      const image = row.original.image;
-      const id = row.original.id;
-      const name = row.getValue("name");
+      const { image, id, name } = row.original;
       return (
         <div className="w-10">
           <Link href={`/store/products?category=${id}`}>
