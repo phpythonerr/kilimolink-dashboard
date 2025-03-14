@@ -105,7 +105,7 @@ export default function NewOrderForm({ customers }: any) {
                     >
                       {field.value
                         ? customers.find(
-                            (customer) => customer?.id === field.value
+                            (customer: any) => customer?.id === field.value
                           )?.user_metadata?.business_name
                         : "Select Customer"}
                       <ChevronsUpDown className="opacity-50" />

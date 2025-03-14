@@ -178,7 +178,7 @@ export default function NewExpenseForm({ expenseTypes, vehicles }: FormProps) {
                     >
                       {field.value
                         ? expenseTypes.find(
-                            (expType) => expType?.id === field.value
+                            (expType: any) => expType?.id === field.value
                           )?.name
                         : "Select Expense Type"}
                       <ChevronsUpDown className="opacity-50" />
@@ -248,7 +248,7 @@ export default function NewExpenseForm({ expenseTypes, vehicles }: FormProps) {
                       >
                         {field.value
                           ? vehicles.find(
-                              (vehicle) => vehicle?.id === field.value
+                              (vehicle: any) => vehicle?.id === field.value
                             )?.registration
                           : "Select Vehicle"}
                         <ChevronsUpDown className="opacity-50" />

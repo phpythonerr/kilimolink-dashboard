@@ -206,7 +206,7 @@ export default function Form({ products, items, order }: any) {
                 >
                   {item?.commodity_id && item?.commodity_id !== "no_item"
                     ? products.find(
-                        (product) => product?.id === item?.commodity_id
+                        (product: any) => product?.id === item?.commodity_id
                       )?.name
                     : "Select Product"}
                   <ChevronsUpDown className="opacity-50" />
@@ -259,7 +259,7 @@ export default function Form({ products, items, order }: any) {
                                   item?.oum !== "no_uom"
                                     ? item?.uom
                                     : products.find(
-                                        (product) =>
+                                        (product: any) =>
                                           product?.id === item?.commodity_id
                                       )?.quantity_unit
                                 );

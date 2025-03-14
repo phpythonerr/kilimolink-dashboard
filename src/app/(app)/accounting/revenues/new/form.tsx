@@ -165,7 +165,7 @@ export default function NewRevenueForm({ revenueTypes, orders }: FormProps) {
                     >
                       {field.value
                         ? revenueTypes.find(
-                            (revType) => revType?.id === field.value
+                            (revType: any) => revType?.id === field.value
                           )?.name
                         : "Select RevenueType"}
                       <ChevronsUpDown className="opacity-50" />
@@ -305,22 +305,25 @@ export default function NewRevenueForm({ revenueTypes, orders }: FormProps) {
                       >
                         {field.value
                           ? `${
-                              orders.find((order) => order?.id === field.value)
-                                ?.order_number
+                              orders.find(
+                                (order: any) => order?.id === field.value
+                              )?.order_number
                             } ${
-                              orders.find((order) => order?.id === field.value)
-                                ?.user_obj?.user_metadata?.business_name &&
+                              orders.find(
+                                (order: any) => order?.id === field.value
+                              )?.user_obj?.user_metadata?.business_name &&
                               ` - ${
                                 orders.find(
-                                  (order) => order?.id === field.value
+                                  (order: any) => order?.id === field.value
                                 )?.user_obj?.user_metadata?.business_name
                               }`
                             } ${
-                              orders.find((order) => order?.id === field.value)
-                                ?.branch &&
+                              orders.find(
+                                (order: any) => order?.id === field.value
+                              )?.branch &&
                               `(${
                                 orders.find(
-                                  (order) => order?.id === field.value
+                                  (order: any) => order?.id === field.value
                                 )?.branch
                               })`
                             }`
