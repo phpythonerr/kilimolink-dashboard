@@ -52,7 +52,7 @@ interface Order {
   order_number: string;
   user_obj: {
     user_metadata: {
-      business?: string;
+      business_name?: string;
     };
   };
 }
