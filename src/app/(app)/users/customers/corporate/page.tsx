@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { User, PostgrestError } from "@supabase/supabase-js";
+import { User, ApiError } from "@supabase/supabase-js";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,7 @@ interface AdminListUsersResponse {
     nextPage?: number | null;
     lastPage?: number | null;
   };
-  error: AuthError | null;
+  error: ApiError | null;
 }
 
 export default async function Index({ searchParams }: any) {
