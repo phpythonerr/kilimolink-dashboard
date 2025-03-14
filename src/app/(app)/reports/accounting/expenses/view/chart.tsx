@@ -118,7 +118,18 @@ function formatCurrency(amount: number): string {
   });
 }
 
-export function Chart({ chartData, expenseName }: any) {
+interface ChartData {
+  date: string;
+  price: number;
+}
+
+export function Chart({
+  chartData,
+  expenseName,
+}: {
+  chartData: ChartData[];
+  expenseName: string;
+}) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: new Date(2022, 0, 20),
     to: addDays(new Date(2022, 0, 20), 20),
@@ -253,12 +264,11 @@ export function Chart({ chartData, expenseName }: any) {
             />
             <Area
               dataKey="price"
-              type="natural"
+              type="monotone"
               fill="var(--chart-6)"
               fillOpacity={0.4}
               stroke="var(--chart-6)"
-              baseValue={minBound}
-              maxValue={maxBound}
+              baseLine={minBound}
             />
           </AreaChart>
         </ChartContainer>
