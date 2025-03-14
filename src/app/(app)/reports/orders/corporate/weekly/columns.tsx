@@ -4,27 +4,30 @@ import { Info } from "lucide-react";
 import Link from "next/link";
 
 // Define your data type
-export interface RevenuesInterface {
+export interface WeeklyReport {
   id: string;
-  date: any;
-  amount: number;
-  revenue_type_id: {
-    name: string;
-  };
+  week_start_date: string;
+  total_buying_price: number;
+  total_selling_price: number;
+  total_expenses: number;
+  total_commissions: number;
+  total_other_revenue: number;
 }
 
 // Define your columns
-export const columns: ColumnDef<RevenuesInterface>[] = [
+export const columns: ColumnDef<WeeklyReport>[] = [
   {
     accessorKey: "week_start_date",
     header: "Week",
     cell: ({ row }) => {
-      const week_start_date = row.getValue("week_start_date");
-      return `${new Date(week_start_date).toDateString()} - ${new Date(
-        new Date(week_start_date).setDate(
-          new Date(week_start_date).getDate() + 6
-        )
-      ).toDateString()}`;
+      const week_start_date = row.getValue("week_start_date") as string;
+      if (!week_start_date) return "-";
+
+      const startDate = new Date(week_start_date);
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+
+      return `${startDate.toDateString()} - ${endDate.toDateString()}`;
     },
   },
   {
