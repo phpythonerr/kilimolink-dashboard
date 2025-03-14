@@ -245,12 +245,11 @@ export function Chart({ chartData }: ChartProps) {
             />
             <Area
               dataKey="price"
-              type="natural"
+              type="monotone"
               fill="var(--chart-6)"
               fillOpacity={0.4}
               stroke="var(--chart-6)"
-              baseValue={minBound}
-              maxValue={maxBound}
+              baseLine={minBound}
             />
           </AreaChart>
         </ChartContainer>
