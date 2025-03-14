@@ -8,8 +8,8 @@ import { createClient } from "@/lib/supabase/server";
 
 const FormSchema = z.object({
   customerId: z.string(),
-  subsidiary: z.string(),
-  po_number: z.string(),
+  subsidiary: z.string().optional(),
+  po_number: z.string().optional(),
   dateCreated: z.string(),
   deliveryDate: z.string(),
 });
