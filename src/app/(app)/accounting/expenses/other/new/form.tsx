@@ -52,7 +52,7 @@ interface FormProps {
 const formSchema = z.object({
   deliveryDate: z.string().default(""),
   txnDate: z.string().default(""),
-  expenseType: z.string(),
+  expense_type: z.string().min(1, "Expense type is required"),
   object_identifier: z.string(),
   amount: z.string().min(1, "Amount is required"),
   txn_reference_code: z.string().optional(),
@@ -71,7 +71,7 @@ export default function NewExpenseForm({ expenseTypes, vehicles }: FormProps) {
     defaultValues: {
       deliveryDate: "",
       txnDate: "",
-      expenseType: "",
+      expense_type: "",
       object_identifier: "",
       amount: "",
       txn_reference_code: "",
@@ -79,7 +79,7 @@ export default function NewExpenseForm({ expenseTypes, vehicles }: FormProps) {
     },
   });
 
-  const selectedExpenseType = form.watch("expenseType");
+  const selectedExpenseType = form.watch("expense_type");
 
   async function onSubmit(data: FormData) {
     try {
@@ -158,7 +158,7 @@ export default function NewExpenseForm({ expenseTypes, vehicles }: FormProps) {
         />
         <FormField
           control={form.control}
-          name="expenseType"
+          name="expense_type"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Expense Type</FormLabel>

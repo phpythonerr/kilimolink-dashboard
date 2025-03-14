@@ -32,7 +32,7 @@ export async function createExpense(formData: FormData) {
   try {
     // Extract and validate form data
     const validatedData = expenseSchema.parse({
-      expenseType: formData.get("expenseType"),
+      expenseType: formData.get("expense_type"),
       amount: formData.get("amount"),
       deliveryDate: formData.get("deliveryDate"),
       txn_reference_code: formData.get("txn_reference_code"),
