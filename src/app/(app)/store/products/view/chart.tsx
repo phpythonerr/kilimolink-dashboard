@@ -156,8 +156,9 @@ export function Chart({ chartData }: ChartProps) {
                   <div className="flex items-center gap-2 leading-none">
                     <span>{`Prices are ${priceChange?.message}`}</span>
                     <span>
-                      {priceChange?.percentageChange != 0 &&
-                        (priceChange?.percentageChange >= 0 ? (
+                      {priceChange.percentageChange !== null &&
+                        priceChange.percentageChange !== 0 &&
+                        (priceChange.percentageChange > 0 ? (
                           <TrendingUp className="h-4 w-4 text-red-800" />
                         ) : (
                           <TrendingDown className="h-4 w-4 text-green-800" />
