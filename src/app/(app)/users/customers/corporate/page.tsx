@@ -31,7 +31,7 @@ interface PageProps {
 
 interface AdminListUsersResponse {
   data: {
-    users: User[];
+    users: User[];SupabaseUser[];
     aud: string;
   } & {
     nextPage?: number | null;
