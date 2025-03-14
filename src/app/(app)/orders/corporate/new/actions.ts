@@ -18,7 +18,7 @@ type OrderInput = z.infer<typeof FormSchema>;
 
 export async function createOrder(formData: FormData) {
   const supabase = await createClient();
-  const hasPerm = await hasPermission("orders.corporate.create");
+  // const hasPerm = await hasPermission("orders.corporate.create");
 
   // if (!hasPerm) {
   //   return { error: "You don't have permission to create a corporate order" };
@@ -30,6 +30,11 @@ export async function createOrder(formData: FormData) {
     const po_number = formData.get("po_number");
     const dateCreated = formData.get("dateCreated");
     const deliveryDate = formData.get("deliveryDate");
+
+    // Validate required fields
+    if (!customerId || !dateCreated || !deliveryDate) {
+      return { error: "Missing required fields" };
+    }
 
     // Get individual values from FormData
     const data: OrderInput = {
