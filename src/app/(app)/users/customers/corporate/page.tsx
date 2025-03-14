@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { User, PostgrestError } from "@supabase/supabase-js";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -27,27 +28,37 @@ interface PageProps {
   searchParams: Promise<SearchParams>;
 }
 
+interface AdminListUsersResponse {
+  data: {
+    users: User[];
+    aud: string;
+  };
+  error: PostgrestError | null;
+  response: Response;
+}
+
 export default async function Index({ searchParams }: any) {
   const supabase = await createClient();
 
   const queryParams = await searchParams;
 
-  let pageSize: number = Number(queryParams.pageSize) || 10;
-
-  let totalPages: number = 0;
-
-  let page: number = 1;
+  const pageSize = Number(searchParams.pageSize) || 10;
+  const page = Number(searchParams.page) || 1;
 
   const {
-    data: { users, total },
+    data: { users },
     error,
-    response,
-  } = await supabase.auth.admin.listUsers({
+  } = (await supabase.auth.admin.listUsers({
     page: page,
     perPage: pageSize,
-  });
+  })) as AdminListUsersResponse;
 
-  totalPages = total && Math.ceil(total / pageSize);
+  if (error) {
+    console.error("Error fetching users:", error);
+  }
+
+  // Calculate total pages
+  const totalPages = users ? Math.ceil(users.length / pageSize) : 0;
 
   return (
     <div className="p-4">
