@@ -2,13 +2,19 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
-// Define your data type
-export interface User {
+export interface ProductReport {
+  id: string;
+  name: string;
   item: string;
+  total_quantity: number;
+  quantity_unit: string;
+  avg_buying_price: number;
+  avg_buying_price_last_month: number;
+  avg_buying_price_this_month: number;
 }
 
 // Define your columns
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<ProductReport>[] = [
   {
     accessorKey: "name",
     header: "Item",
