@@ -40,7 +40,10 @@ export default async function Page({ searchParams }: any) {
       date: item?.expense_date,
       price: item?.total_expense,
     }))
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    .sort(
+      (a: any, b: any) =>
+        new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
 
   return (
     <div className="p-4">
