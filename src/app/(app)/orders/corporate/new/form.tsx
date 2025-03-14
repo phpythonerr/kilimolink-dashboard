@@ -76,7 +76,7 @@ export default function NewOrderForm({ customers }: any) {
       }
     } catch (error) {
       // Handle error
-      toast?.error("Error submitting form:", error);
+      toast?.error(`Error submitting form: ${error}`);
     }
   }
 
