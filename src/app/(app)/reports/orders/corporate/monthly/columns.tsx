@@ -4,14 +4,6 @@ import { Info } from "lucide-react";
 import Link from "next/link";
 
 // Define your data type
-export interface RevenuesInterface {
-  id: string;
-  date: any;
-  amount: number;
-  revenue_type_id: {
-    name: string;
-  };
-}
 
 const months = [
   "January",
@@ -55,7 +47,18 @@ const operationCosts =
   miscellaneous;
 
 // Define your columns
-export const columns: ColumnDef<RevenuesInterface>[] = [
+
+export interface MonthlyReport {
+  id: string;
+  month_start_date: string;
+  purchases: number;
+  total_expenses: number;
+  sales: number;
+  total_commissions: number;
+  total_other_revenue: number;
+}
+
+export const columns: ColumnDef<MonthlyReport>[] = [
   {
     accessorKey: "month_start_date",
     header: "Month",
@@ -118,7 +121,7 @@ export const columns: ColumnDef<RevenuesInterface>[] = [
   },
   {
     accessorKey: "profit",
-    header: "Purchases",
+    header: "Profit",
     cell: ({ row }) => {
       const sp = row.original.sales;
       const or = row.original.total_other_revenue;
@@ -136,7 +139,7 @@ export const columns: ColumnDef<RevenuesInterface>[] = [
   },
   {
     accessorKey: "margin",
-    header: "Purchases",
+    header: "Margin",
     cell: ({ row }) => {
       const sp = row.original.sales;
       const or = row.original.total_other_revenue;
