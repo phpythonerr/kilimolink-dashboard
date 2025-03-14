@@ -9,7 +9,6 @@ import {
   getSingleProduct,
   getSingleProductPriceHistory,
 } from "@/data/products";
-import { columns } from "./columns";
 import { Chart } from "./chart";
 
 export const metadata: Metadata = {
