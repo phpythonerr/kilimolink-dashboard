@@ -144,7 +144,7 @@ export default function NewRevenueForm({ revenueTypes, orders }: FormProps) {
 
         <FormField
           control={form.control}
-          name="expenseType"
+          name="revenueType"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Revenue Type</FormLabel>
