@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 
-export default async function Menu({ active }) {
+export default async function Menu({ active }: any) {
   return (
     <div className="p-4">
       <Tabs defaultValue={active} className="w-auto">
