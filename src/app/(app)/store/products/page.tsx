@@ -82,7 +82,7 @@ export default async function Index({ searchParams }: any) {
       </div>
       <Suspense fallback={<div>Loading...</div>}>
         <DataTable
-          data={all || []}
+          data={products || []}
           columns={columns}
           pageCount={totalPages}
           currentPage={page}
