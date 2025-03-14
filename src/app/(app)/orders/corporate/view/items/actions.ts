@@ -348,7 +348,7 @@ export const deleteItem = async (item_id: string, order_id: string) => {
     .eq("id", item_id);
 
   if (!error) {
-    if (orderId) {
+    if (order_id) {
       await updateOrderTotal(supabase, order_id);
     }
 
