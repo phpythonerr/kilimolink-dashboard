@@ -4,28 +4,33 @@ import { Info } from "lucide-react";
 import Link from "next/link";
 
 // Define your data type
-export interface RevenuesInterface {
+export interface ExpenseInterface {
   id: string;
-  date: any;
+  date: string;
   amount: number;
-  revenue_type_id: {
+  total: number;
+  last_month: number;
+  this_month: number;
+  name: string;
+  expense_type_id: {
+    id: string;
     name: string;
   };
 }
 
 // Define your columns
-export const columns: ColumnDef<RevenuesInterface>[] = [
+export const columns: ColumnDef<ExpenseInterface>[] = [
   {
     accessorKey: "expense_type_id",
     header: "Item",
     cell: ({ row }) => {
-      const expense_type_id = row.getValue("expense_type_id");
+      const expense_type = row.original.expense_type_id;
       return (
         <Link
           className="text-primary"
-          href={`/reports/accounting/expenses/view?id=${expense_type_id}`}
+          href={`/reports/accounting/expenses/view?id=${expense_type?.id}`}
         >
-          {row.original.name}
+          {expense_type.name}
         </Link>
       );
     },
