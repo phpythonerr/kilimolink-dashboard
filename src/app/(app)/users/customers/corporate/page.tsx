@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { User } from "@supabase/supabase-js";
+import { User as SupabaseUser } from "@supabase/supabase-js";
 import type { AuthError } from "@supabase/supabase-js";
 import { Suspense } from "react";
 import Link from "next/link";
@@ -45,8 +45,8 @@ export default async function Index({ searchParams }: any) {
 
   const queryParams = await searchParams;
 
-  const pageSize = Number(searchParams.pageSize) || 10;
-  const page = Number(searchParams.page) || 1;
+  const pageSize = Number(queryParams.pageSize) || 10;
+  const page = Number(queryParams.page) || 1;
 
   const { data, error } = (await supabase.auth.admin.listUsers({
     page: page,
@@ -56,6 +56,14 @@ export default async function Index({ searchParams }: any) {
   if (error) {
     console.error("Error fetching users:", error);
   }
+
+  const mappedUsers: User[] = data.users.map((user: SupabaseUser) => ({
+    id: user.id,
+    email: user.email || "",
+    user_metadata: user.user_metadata || {},
+    created_at: user.created_at,
+    status: user.banned ? "inactive" : "active",
+  }));
 
   // Calculate total pages
   const totalPages = data.users ? Math.ceil(data.users.length / pageSize) : 0;
@@ -123,7 +131,7 @@ export default async function Index({ searchParams }: any) {
           }
         >
           <DataTable
-            data={data.users || []}
+            data={mappedUsers || []}
             columns={columns}
             pageCount={10}
             currentPage={page}
