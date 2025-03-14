@@ -94,7 +94,7 @@ export default function NewExpenseForm({ expenseTypes, vehicles }: FormProps) {
         form.reset({
           deliveryDate: "",
           txnDate: "",
-          expenseType: "",
+          expense_type: "",
           object_identifier: "",
           amount: "",
           txn_reference_code: "",
