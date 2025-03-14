@@ -40,6 +40,19 @@ import {
   deleteItem,
 } from "./actions";
 
+interface OrderItem {
+  id: string;
+  buying_price: string | number;
+  selling_price: string | number;
+  quantity: string | number;
+  uom: string;
+  commodity_id: string;
+  note: string;
+  customer: string;
+  uom_options?: string[];
+  loading: boolean;
+}
+
 export default function Form({ products, items, order }: any) {
   const [deleteLoadingMap, setDeleteLoadingMap] = useState<{
     [key: string]: boolean;
@@ -75,7 +88,7 @@ export default function Form({ products, items, order }: any) {
     });
   }
 
-  const [orderItems, setOrderItems] = useState<[]>(items_arr);
+  const [orderItems, setOrderItems] = useState<OrderItem[]>(items_arr);
 
   const [productPopoverOpenStates, setProductPopverOpenStates] = useState(
     orderItems.map(() => false)
