@@ -5,21 +5,21 @@ import Link from "next/link";
 import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 
-// Define your data type
-export interface RevenuesInterface {
+export interface ProductInterface {
+  id: string;
   name: string;
+  image: string;
+  quantity_unit: string;
 }
 
 // Define your columns
-export const columns: ColumnDef<RevenuesInterface>[] = [
+export const columns: ColumnDef<ProductInterface>[] = [
   {
     accessorKey: "name",
     header: "Name",
     size: 400,
     cell: ({ row }) => {
-      const image = row.original.image;
-      const id = row.original.id;
-      const name = row.getValue("name");
+      const { image, id, name } = row.original;
       return (
         <div className="w-10">
           <Link href={`/store/products/view?id=${id}`}>
