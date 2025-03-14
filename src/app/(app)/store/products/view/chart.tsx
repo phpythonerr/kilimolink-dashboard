@@ -38,7 +38,24 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-function calculatePriceChange(data) {
+interface PriceData {
+  date: string;
+  price: number;
+}
+
+interface PriceChangeResult {
+  thisMonthAvg: number;
+  lastMonthAvg: number;
+  percentageChange: number | null;
+  message: string;
+}
+
+interface ChartBounds {
+  minBound: number;
+  maxBound: number;
+}
+
+function calculatePriceChange(data: PriceData[]) {
   // Get current date
   const currentDate = new Date();
 
@@ -101,7 +118,7 @@ function calculatePriceChange(data) {
   return result;
 }
 
-function calculateChartBounds(data: any[]) {
+function calculateChartBounds(data: PriceData[]) {
   const prices = data.map((item) => item.price);
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
@@ -113,7 +130,11 @@ function calculateChartBounds(data: any[]) {
   };
 }
 
-export function Chart({ chartData }: any) {
+interface ChartProps {
+  chartData: PriceData[];
+}
+
+export function Chart({ chartData }: ChartProps) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: new Date(2022, 0, 20),
     to: addDays(new Date(2022, 0, 20), 20),
