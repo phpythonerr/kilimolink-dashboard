@@ -17,13 +17,22 @@ const ProductUpdateSchema = z.object({
   buying_price: z.string().optional(),
 });
 
-async function updateOrderTotal(supabase: any, orderId: string) {
+async function updateOrderTotal(
+  supabase: any,
+  orderId: FormDataEntryValue | null
+): Promise<{ error?: string; success?: boolean; total?: number }> {
+  if (!orderId) {
+    return { error: "Order ID is required" };
+  }
+
+  const orderIdString = orderId.toString();
+
   try {
     // Get all items for this order
     const { data: orderItems, error: itemsError } = await supabase
       .from("orders_orderitems")
       .select("selling_price, quantity")
-      .eq("order_id", orderId);
+      .eq("order_id", orderIdString);
 
     if (itemsError) throw itemsError;
 
@@ -150,7 +159,9 @@ export async function updateProduct(fd: FormData) {
         return { error: newItemError.message };
       }
 
-      await updateOrderTotal(supabase, validatedData.order_id);
+      if (validatedData.order_id) {
+        await updateOrderTotal(supabase, validatedData.order_id);
+      }
 
       revalidatePath("/orders/corporate/view/items");
       return {
@@ -185,8 +196,9 @@ export async function updateProduct(fd: FormData) {
       };
     }
 
-    await updateOrderTotal(supabase, validatedData.order_id);
-
+    if (validatedData.order_id) {
+      await updateOrderTotal(supabase, validatedData.order_id);
+    }
     revalidatePath("/orders/corporate/view/items");
     return {
       success: true,
@@ -226,7 +238,9 @@ export async function updateQty(fd: FormData) {
 
     if (error) return { error: error };
 
-    await updateOrderTotal(supabase, fd.get("order_id"));
+    if (orderId) {
+      await updateOrderTotal(supabase, orderId);
+    }
 
     revalidatePath("/orders/corporate/view/items");
     return { success: true };
@@ -280,7 +294,10 @@ export async function updateUnitCost(fd: FormData) {
 
     if (error) return { error: error };
 
-    await updateOrderTotal(supabase, orderId);
+    if (orderId) {
+      await updateOrderTotal(supabase, orderId);
+    }
+
     revalidatePath("/orders/corporate/view/items");
     return { success: true };
   } catch (error) {
@@ -310,7 +327,9 @@ export async function updateUnitPrice(fd: FormData) {
 
     if (error) return { error: error };
 
-    await updateOrderTotal(supabase, orderId);
+    if (orderId) {
+      await updateOrderTotal(supabase, orderId);
+    }
 
     revalidatePath("/orders/corporate/view/items");
     return { success: true };
@@ -330,7 +349,10 @@ export const deleteItem = async (item_id: string, order_id: string) => {
     .eq("id", item_id);
 
   if (!error) {
-    await updateOrderTotal(supabase, order_id);
+    if (orderId) {
+      await updateOrderTotal(supabase, order_id);
+    }
+
     return {
       success: true,
     };
