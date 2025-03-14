@@ -63,8 +63,8 @@ export default async function Index({ searchParams }: any) {
 
   const users = await getUsers();
 
-  const userMap = {};
-  users?.forEach((user) => {
+  const userMap: any = {};
+  users?.forEach((user: any) => {
     userMap[user.id] = user;
   });
 
