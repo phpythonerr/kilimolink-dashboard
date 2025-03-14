@@ -7,11 +7,11 @@ import { hasPermission } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
 
 const FormSchema = z.object({
-  customerId: z.string(),
-  subsidiary: z.string().optional(),
-  po_number: z.string().optional(),
-  dateCreated: z.string(),
-  deliveryDate: z.string(),
+  customerId: z.string().min(1, "Customer is required"),
+  subsidiary: z.string().optional().nullable(),
+  po_number: z.string().optional().nullable(),
+  dateCreated: z.string().min(1, "Date created is required"),
+  deliveryDate: z.string().min(1, "Delivery date is required"),
 });
 
 type OrderInput = z.infer<typeof FormSchema>;
@@ -25,14 +25,20 @@ export async function createOrder(formData: FormData) {
   // }
 
   try {
+    const customerId = formData.get("customerId");
+    const subsidiary = formData.get("subsidiary");
+    const po_number = formData.get("po_number");
+    const dateCreated = formData.get("dateCreated");
+    const deliveryDate = formData.get("deliveryDate");
+
     // Get individual values from FormData
-    const data = {
-      customerId: formData.get("customerId"),
-      subsidiary: formData.get("subsidiary"),
-      po_number: formData.get("po_number"),
-      dateCreated: formData.get("dateCreated"),
-      deliveryDate: formData.get("deliveryDate"),
-    } as OrderInput;
+    const data: OrderInput = {
+      customerId: customerId.toString(),
+      subsidiary: subsidiary?.toString() || null,
+      po_number: po_number?.toString() || null,
+      dateCreated: dateCreated.toString(),
+      deliveryDate: deliveryDate.toString(),
+    };
 
     // Validate the data
     const validatedData = FormSchema.parse(data);
@@ -70,8 +76,11 @@ export async function createOrder(formData: FormData) {
   } catch (error) {
     console.log(error);
     if (error instanceof z.ZodError) {
-      return { error: error.message };
+      return { error: error.errors[0].message };
     }
-    return { error: JSON.stringify(error) };
+    return {
+      error:
+        error instanceof Error ? error.message : "An unknown error occurred",
+    };
   }
 }
