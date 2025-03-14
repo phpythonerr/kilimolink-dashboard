@@ -208,13 +208,21 @@ export async function updateProduct(fd: FormData) {
 export async function updateQty(fd: FormData) {
   const supabase = await createClient();
 
+  const itemId = fd.get("item_id");
+  const orderId = fd.get("order_id");
+  const quantity = fd.get("quantity");
+
+  if (!itemId || !orderId) {
+    return { error: "Missing required fields" };
+  }
+
   try {
     const { error } = await supabase
       .from("orders_orderitems")
       .update({
-        quantity: fd.get("quantity"),
+        quantity: quantity,
       })
-      .eq("id", fd.get("item_id"));
+      .eq("id", itemId);
 
     if (error) return { error: error };
 
@@ -253,18 +261,26 @@ export async function updateUoM(uom: string, item_id: string) {
 
 export async function updateUnitCost(fd: FormData) {
   const supabase = await createClient();
+  const itemId = fd.get("item_id");
+  const orderId = fd.get("order_id");
+  const buyingPrice = fd.get("buying_price");
+
+  if (!itemId || !orderId) {
+    return { error: "Missing required fields" };
+  }
 
   try {
     const { error } = await supabase
       .from("orders_orderitems")
+      .from("orders_orderitems")
       .update({
-        buying_price: fd.get("buying_price"),
+        buying_price: buyingPrice,
       })
-      .eq("id", fd.get("item_id"));
+      .eq("id", itemId);
 
     if (error) return { error: error };
 
-    await updateOrderTotal(supabase, fd.get("order_id"));
+    await updateOrderTotal(supabase, orderId);
     revalidatePath("/orders/corporate/view/items");
     return { success: true };
   } catch (error) {
@@ -276,18 +292,25 @@ export async function updateUnitCost(fd: FormData) {
 
 export async function updateUnitPrice(fd: FormData) {
   const supabase = await createClient();
+  const itemId = fd.get("item_id");
+  const orderId = fd.get("order_id");
+  const sellingPrice = fd.get("selling_price");
+
+  if (!itemId || !orderId) {
+    return { error: "Missing required fields" };
+  }
 
   try {
     const { error } = await supabase
       .from("orders_orderitems")
       .update({
-        selling_price: fd.get("selling_price"),
+        selling_price: sellingPrice,
       })
-      .eq("id", fd.get("item_id"));
+      .eq("id", itemId);
 
     if (error) return { error: error };
 
-    await updateOrderTotal(supabase, fd.get("order_id"));
+    await updateOrderTotal(supabase, orderId);
 
     revalidatePath("/orders/corporate/view/items");
     return { success: true };
