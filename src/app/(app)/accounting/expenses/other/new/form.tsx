@@ -199,7 +199,7 @@ export default function NewExpenseForm({ expenseTypes, vehicles }: FormProps) {
                             value={expType?.name}
                             key={expType?.id}
                             onSelect={() => {
-                              form.setValue("expenseType", expType?.id);
+                              form.setValue("expense_type", expType?.id);
                               setExpenseTypePopoverOpen(false);
                             }}
                           >
