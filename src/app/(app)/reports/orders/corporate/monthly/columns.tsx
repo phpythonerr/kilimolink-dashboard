@@ -63,10 +63,13 @@ export const columns: ColumnDef<MonthlyReport>[] = [
     accessorKey: "month_start_date",
     header: "Month",
     cell: ({ row }) => {
-      const month_start_date = row.getValue("month_start_date");
-      return `${months[new Date(month_start_date).getMonth()]} ${new Date(
-        month_start_date
-      ).getFullYear()}`;
+      const date = row.getValue("month_start_date") as string;
+      if (!date) return "-";
+
+      const parsedDate = new Date(date);
+      if (isNaN(parsedDate.getTime())) return "Invalid date";
+
+      return `${months[parsedDate.getMonth()]} ${parsedDate.getFullYear()}`;
     },
   },
   {
