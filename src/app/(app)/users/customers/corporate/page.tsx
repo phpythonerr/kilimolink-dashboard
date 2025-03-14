@@ -39,14 +39,16 @@ export default async function Index({ searchParams }: any) {
   let page: number = 1;
 
   const {
-    data: { users, total },
+    data: { users },
     error,
   } = await supabase.auth.admin.listUsers({
     page: page,
     perPage: pageSize,
   });
 
-  totalPages = total && Math.ceil(total / pageSize);
+  // totalPages = totaltotal && Math.ceil(total / pageSize);
+
+  totalPages = 1;
 
   return (
     <div className="p-4">
