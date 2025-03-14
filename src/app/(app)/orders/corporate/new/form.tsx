@@ -36,6 +36,8 @@ import { createOrder } from "./actions";
 
 const formSchema = z.object({
   customerId: z.string().min(1, "Customer is required"),
+  subsidiary: z.string().default("").optional(),
+  po_number: z.string().default("").optional(),
   dateCreated: z.string(),
   deliveryDate: z.string(),
 });
