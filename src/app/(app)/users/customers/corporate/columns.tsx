@@ -2,14 +2,18 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
-// Define your data type
+interface UserMetadata {
+  business_name?: string;
+  first_name?: string;
+}
+
+// Update User interface with all required properties
 export interface User {
-  order_number: string;
-  name: string;
+  id: string;
   email: string;
-  role: string;
-  status: "active" | "inactive";
+  user_metadata: UserMetadata;
   created_at: string;
+  status: "active" | "inactive";
 }
 
 // Define your columns
