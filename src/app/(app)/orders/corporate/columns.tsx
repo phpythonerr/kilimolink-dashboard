@@ -3,17 +3,29 @@ import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
 // Define your data type
-export interface User {
+interface UserMetadata {
+  business_name?: string;
+}
+
+interface UserObject {
+  name?: string;
+  user_metadata: UserMetadata;
+}
+
+export interface Order {
+  id: string;
   order_number: string;
-  name: string;
-  email: string;
-  role: string;
-  status: "active" | "inactive";
-  created_at: string;
+  user: string;
+  user_obj: UserObject;
+  branch?: string;
+  total: number;
+  status: "pending" | "processing" | "in-transit" | "completed" | "cancelled";
+  created: string;
+  delivery_date: string;
 }
 
 // Define your columns
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<Order>[] = [
   {
     accessorKey: "order_number",
     header: "Order #",
