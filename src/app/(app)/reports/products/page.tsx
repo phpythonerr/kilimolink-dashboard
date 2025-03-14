@@ -41,7 +41,8 @@ export default async function Index({ searchParams }: any) {
   let { data: allRows, error: allRowsError } = await query;
 
   const filteredProducts = allRows?.filter(
-    (product) => product?.total_quantity !== null && product?.total_quantity > 0
+    (product: any) =>
+      product?.total_quantity !== null && product?.total_quantity > 0
   );
 
   let totalRows = filteredProducts?.length;

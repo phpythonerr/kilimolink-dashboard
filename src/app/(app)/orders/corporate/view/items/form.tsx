@@ -166,7 +166,7 @@ export default function Form({ products, items, order }: any) {
   const getAvailableProducts = (currentItemId: string) => {
     const selectedIds = getSelectedProductIds();
     return products.filter(
-      (product) =>
+      (product: any) =>
         product.id === currentItemId || !selectedIds.includes(product.id)
     );
   };

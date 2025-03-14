@@ -59,12 +59,12 @@ function calculatePriceChange(data) {
   lastDayLastMonth.setDate(lastDayLastMonth.getDate() - 1);
 
   // Filter data for this month and last month
-  const thisMonthData = data.filter((item) => {
+  const thisMonthData = data.filter((item: any) => {
     const itemDate = new Date(item.date);
     return itemDate >= firstDayThisMonth && itemDate <= currentDate;
   });
 
-  const lastMonthData = data.filter((item) => {
+  const lastMonthData = data.filter((item: any) => {
     const itemDate = new Date(item.date);
     return itemDate >= firstDayLastMonth && itemDate < firstDayThisMonth;
   });

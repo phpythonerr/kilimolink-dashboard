@@ -47,12 +47,12 @@ function calculatePriceChange(data: any[]) {
   sixtyDaysAgo.setDate(currentDate.getDate() - 60);
 
   // Filter data for current 30-day period and previous 30-day period
-  const currentPeriodData = data.filter((item) => {
+  const currentPeriodData = data.filter((item: any) => {
     const itemDate = new Date(item.date);
     return itemDate >= thirtyDaysAgo && itemDate <= currentDate;
   });
 
-  const previousPeriodData = data.filter((item) => {
+  const previousPeriodData = data.filter((item: any) => {
     const itemDate = new Date(item.date);
     return itemDate >= sixtyDaysAgo && itemDate < thirtyDaysAgo;
   });
