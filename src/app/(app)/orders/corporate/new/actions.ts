@@ -33,11 +33,11 @@ export async function createOrder(formData: FormData) {
 
     // Get individual values from FormData
     const data: OrderInput = {
-      customerId: customerId.toString(),
+      customerId: customerId?.toString(),
       subsidiary: subsidiary?.toString() || null,
       po_number: po_number?.toString() || null,
-      dateCreated: dateCreated.toString(),
-      deliveryDate: deliveryDate.toString(),
+      dateCreated: dateCreated?.toString(),
+      deliveryDate: deliveryDate?.toString(),
     };
 
     // Validate the data
@@ -61,10 +61,6 @@ export async function createOrder(formData: FormData) {
       })
       .select("id")
       .single();
-
-    console.log(newOrder);
-
-    console.log(newOrderError);
 
     if (newOrderError) {
       return {
