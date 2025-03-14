@@ -27,6 +27,16 @@ const breadcrumbs = [
   },
 ];
 
+interface PriceHistory {
+  date: string;
+  total: number;
+}
+
+interface ChartDataPoint {
+  date: string;
+  price: number;
+}
+
 interface SearchParams extends Record<string, string> {}
 
 interface PageProps {
@@ -40,9 +50,9 @@ export default async function Index({ searchParams }: any) {
 
   const priceHistory = await getSingleProductPriceHistory(queryParams.id);
 
-  const chartData: [] = [];
+  const chartData: ChartDataPoint[] = [];
 
-  priceHistory?.map((item: any) =>
+  priceHistory?.map((item: PriceHistory) =>
     chartData.push({
       date: item?.date,
       price: item?.total,
