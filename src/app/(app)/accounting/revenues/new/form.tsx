@@ -50,6 +50,7 @@ interface RevenueType {
 interface Order {
   id: string;
   order_number: string;
+  branch: string;
   user_obj: {
     user_metadata: {
       business_name?: string;
