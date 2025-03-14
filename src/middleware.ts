@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/middleware";
+import { updateSession } from "@/lib/supabase/middleware";
+import { createClient } from "@/lib/supabase/server";
 
 // Define allowed organization domains
 const ALLOWED_EMAIL_DOMAINS = ["kilimolink.com"];
@@ -10,8 +11,10 @@ const PUBLIC_ROUTES = ["/auth/login"];
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
 
+  await updateSession(request);
+
   // Create Supabase client
-  const supabase = await createClient();
+  let supabase = await createClient();
 
   // Check if the request is for a public asset
   if (
@@ -36,8 +39,7 @@ export async function middleware(req: NextRequest) {
     // Get user data
     const {
       data: { user },
-      error,
-    } = await supabase.auth.getUser();
+    }: any = await supabase.auth.getUser();
 
     // If no user or error, redirect to login
     if (error || !user) {
