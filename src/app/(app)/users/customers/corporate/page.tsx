@@ -41,7 +41,7 @@ export default async function Index({ searchParams }: any) {
   const {
     data: { users },
     error,
-  } = await supabase.auth.admin.listUsers({
+  }: any = await supabase.auth.admin.listUsers({
     page: page,
     perPage: pageSize,
   });
