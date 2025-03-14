@@ -31,7 +31,7 @@ export const columns: ColumnDef<User>[] = [
         >{`${
           business_name ||
           row.original.email ||
-          row.orginal.user_metadata.first_name ||
+          row.original.user_metadata.first_name ||
           "Business"
         }`}</Link>
       );
