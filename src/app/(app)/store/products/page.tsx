@@ -29,45 +29,46 @@ export default async function Index({ searchParams }: any) {
 
   const supabase = await createClient();
 
-  let pageSize: number = Number(queryParams.pageSize) || 10;
+  const pageSize = Number(searchParams.pageSize) || 10;
+  let page = Number(searchParams.page) || 1;
+  let totalPages = 0;
 
-  let totalPages: number = 0;
+  let query = supabase
+    .from("commodities_commodity")
+    .select("id, name, classification, selling_price, quantity_unit, image");
 
-  let page: number = 1;
-
-  let query;
-
-  if (queryParams.category) {
-    query = supabase
-      .from("commodities_commodity")
-      .select("id, name, classification, selling_price, image")
-      .eq("category_id", queryParams.category)
-      .order("name", { ascending: true });
-  } else {
-    query = supabase
-      .from("commodities_commodity")
-      .select("id, name, classification, selling_price, quantity_unit, image")
-      .order("name", { ascending: true });
+  if (searchParams.category) {
+    query = query.eq("category_id", searchParams.category);
   }
 
-  let { data: allRows, error: allRowsError } = await query;
+  query = query.order("name", { ascending: true });
 
-  let totalRows = allRows?.length;
+  const { data: allRows, error: allRowsError } = await query;
 
-  if (queryParams?.page && /^-?\d+$/.test(queryParams?.page)) {
-    page = Number(queryParams?.page);
-    let offsetStart = Number(pageSize) * Number(Number(page) - 1);
-
-    let offsetEnd = Number(pageSize) * Number(Number(page) - 1) + pageSize;
-
-    query = query.range(offsetStart + 1, offsetEnd);
-  } else {
-    query = query.range(0, pageSize);
+  if (allRowsError) {
+    console.error("Error fetching rows:", allRowsError);
+    throw new Error("Failed to fetch products");
   }
 
-  let { data: all, error } = await query;
+  // Calculate total pages with proper type checking
+  const totalRows = allRows?.length || 0;
+  totalPages = Math.ceil(totalRows / pageSize);
 
-  totalPages = totalRows && Math.ceil(totalRows / pageSize);
+  // Handle pagination
+  if (page > 0) {
+    const offsetStart = pageSize * (page - 1);
+    const offsetEnd = offsetStart + pageSize - 1;
+    query = query.range(offsetStart, offsetEnd);
+  } else {
+    query = query.range(0, pageSize - 1);
+  }
+
+  const { data: products, error } = await query;
+
+  if (error) {
+    console.error("Error fetching products:", error);
+    throw new Error("Failed to fetch products");
+  }
 
   return (
     <div className="p-4">
