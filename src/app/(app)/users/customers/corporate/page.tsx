@@ -32,9 +32,11 @@ interface AdminListUsersResponse {
   data: {
     users: User[];
     aud: string;
+  } & {
+    nextPage?: number | null;
+    lastPage?: number | null;
   };
-  error: PostgrestError | null;
-  response: Response;
+  error: AuthError | null;
 }
 
 export default async function Index({ searchParams }: any) {
@@ -45,20 +47,17 @@ export default async function Index({ searchParams }: any) {
   const pageSize = Number(searchParams.pageSize) || 10;
   const page = Number(searchParams.page) || 1;
 
-  const {
-    data: { users },
-    error,
-  } = (await supabase.auth.admin.listUsers({
+  const { data, error } = (await supabase.auth.admin.listUsers({
     page: page,
     perPage: pageSize,
-  })) as AdminListUsersResponse;
+  })) as unknown as AdminListUsersResponse;
 
   if (error) {
     console.error("Error fetching users:", error);
   }
 
   // Calculate total pages
-  const totalPages = users ? Math.ceil(users.length / pageSize) : 0;
+  const totalPages = data.users ? Math.ceil(data.users.length / pageSize) : 0;
 
   return (
     <div className="p-4">
@@ -123,7 +122,7 @@ export default async function Index({ searchParams }: any) {
           }
         >
           <DataTable
-            data={users || []}
+            data={data.users || []}
             columns={columns}
             pageCount={10}
             currentPage={page}
