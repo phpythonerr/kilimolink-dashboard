@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { User as SupabaseUser } from "@supabase/supabase-js";
-import type { AuthError } from "@supabase/supabase-js";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -29,44 +27,26 @@ interface PageProps {
   searchParams: Promise<SearchParams>;
 }
 
-interface AdminListUsersResponse {
-  data: {
-    users: SupabaseUser[];
-    aud: string;
-  } & {
-    nextPage?: number | null;
-    lastPage?: number | null;
-  };
-  error: AuthError | null;
-}
-
 export default async function Index({ searchParams }: any) {
   const supabase = await createClient();
 
   const queryParams = await searchParams;
 
-  const pageSize = Number(queryParams.pageSize) || 10;
-  const page = Number(queryParams.page) || 1;
+  let pageSize: number = Number(queryParams.pageSize) || 10;
 
-  const { data, error } = (await supabase.auth.admin.listUsers({
+  let totalPages: number = 0;
+
+  let page: number = 1;
+
+  const {
+    data: { users, total },
+    error,
+  } = await supabase.auth.admin.listUsers({
     page: page,
     perPage: pageSize,
-  })) as unknown as AdminListUsersResponse;
+  });
 
-  if (error) {
-    console.error("Error fetching users:", error);
-  }
-
-  const mappedUsers: User[] = data.users.map((user: SupabaseUser) => ({
-    id: user.id,
-    email: user.email || "",
-    user_metadata: user.user_metadata || {},
-    created_at: user.created_at,
-    status: user.banned ? "inactive" : "active",
-  }));
-
-  // Calculate total pages
-  const totalPages = data.users ? Math.ceil(data.users.length / pageSize) : 0;
+  totalPages = total && Math.ceil(total / pageSize);
 
   return (
     <div className="p-4">
@@ -131,7 +111,7 @@ export default async function Index({ searchParams }: any) {
           }
         >
           <DataTable
-            data={mappedUsers || []}
+            data={users || []}
             columns={columns}
             pageCount={10}
             currentPage={page}
