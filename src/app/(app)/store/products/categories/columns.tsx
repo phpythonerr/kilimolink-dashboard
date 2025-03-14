@@ -5,13 +5,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 
-// Define your data type
-export interface RevenuesInterface {
+export interface CategoriesInterface {
+  id: string;
   name: string;
+  image: string;
 }
 
 // Define your columns
-export const columns: ColumnDef<RevenuesInterface>[] = [
+export const columns: ColumnDef<CategoriesInterface>[] = [
   {
     accessorKey: "name",
     header: "Name",
