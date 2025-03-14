@@ -285,7 +285,7 @@ export async function updateUnitCost(fd: FormData) {
 
   try {
     const { error } = await supabase
-      .from("orders_orderitems")\
+      .from("orders_orderitems")
       .update({
         buying_price: buyingPrice,
       })
