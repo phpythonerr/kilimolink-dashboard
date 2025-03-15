@@ -52,14 +52,14 @@ export function NavUser({ user }: NavUserProps) {
 
     await toast.promise(signOut(), {
       loading: "Logging out...",
-      success: (res) => {
+      success: (res: any) => {
         if (res.success) {
           push(res.redirect);
           return res.message;
         }
         throw new Error(res.error || "Failed to log out");
       },
-      error: (err) => {
+      error: (err: any) => {
         return err instanceof Error ? err.message : "An error occurred";
       },
       finally: () => {

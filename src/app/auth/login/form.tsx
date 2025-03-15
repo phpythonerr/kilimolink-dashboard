@@ -63,7 +63,7 @@ export function LoginForm({
 
     await toast.promise(signIn(data), {
       loading: "Logging in...",
-      success: (res) => {
+      success: (res: any) => {
         if (res.success) {
           push("/");
           return (
@@ -73,7 +73,7 @@ export function LoginForm({
         }
         throw new Error(res.error || "Failed to log in. Please try again.");
       },
-      error: (err) => {
+      error: (err: any) => {
         return err instanceof Error ? err.message : "An error occurred";
       },
       finally: () => {
