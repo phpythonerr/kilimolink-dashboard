@@ -404,9 +404,12 @@ interface SidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function AppSidebar({ user, ...props }: SidebarProps) {
   const userProfile: UserProfile = {
-    name: user?.name ?? "Guest User",
+    name:
+      (`${user.user_metadata.first_name} ${user.user_metadata.last_name}` ||
+        user.user_metadata.business_name) ??
+      "Guest User",
     email: user?.email ?? "",
-    avatar: user?.image ?? "/img/default-avatar.png",
+    avatar: user?.user_metadata?.avatar ?? "/img/default-avatar.png",
   };
 
   return (
@@ -432,7 +435,7 @@ export function AppSidebar({ user, ...props }: SidebarProps) {
         ))}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser user={userProfile} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
