@@ -23,8 +23,6 @@ type SearchParams = Promise<{
   page?: string;
   pageSize?: string;
   search?: string;
-  minQuantity?: string;
-  maxQuantity?: string;
   category?: string;
 }>;
 
@@ -41,8 +39,6 @@ export default async function Index({
   const pageSize = Number(queryParams.pageSize) || 10;
   const page = Number(queryParams.page) || 1;
   const search = queryParams.search?.toLowerCase();
-  const minQuantity = Number(queryParams.minQuantity) || 0;
-  const maxQuantity = Number(queryParams.maxQuantity) || Infinity;
   const category = queryParams.category;
 
   // Initial query
@@ -58,10 +54,7 @@ export default async function Index({
 
   // Apply filters
   const filteredProducts = allRows?.filter((product: any) => {
-    const hasQuantity =
-      product?.total_quantity !== null &&
-      product?.total_quantity >= minQuantity &&
-      (maxQuantity === Infinity || product?.total_quantity <= maxQuantity);
+    const hasQuantity = product?.total_quantity !== null;
 
     const matchesSearch =
       !search ||

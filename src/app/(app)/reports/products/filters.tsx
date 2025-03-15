@@ -17,8 +17,6 @@ import { Search, X } from "lucide-react";
 
 const FilterSchema = z.object({
   search: z.string().optional(),
-  minQuantity: z.string().optional(),
-  maxQuantity: z.string().optional(),
 });
 
 type FilterValues = z.infer<typeof FilterSchema>;
@@ -31,16 +29,12 @@ export function ProductFilters() {
     resolver: zodResolver(FilterSchema),
     defaultValues: {
       search: searchParams.get("search") || "",
-      minQuantity: searchParams.get("minQuantity") || "",
-      maxQuantity: searchParams.get("maxQuantity") || "",
     },
   });
 
   function onSubmit(data: FilterValues) {
     const params = new URLSearchParams();
     if (data.search) params.set("search", data.search);
-    if (data.minQuantity) params.set("minQuantity", data.minQuantity);
-    if (data.maxQuantity) params.set("maxQuantity", data.maxQuantity);
 
     router.push(`?${params.toString()}`);
   }
@@ -53,43 +47,19 @@ export function ProductFilters() {
           name="search"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Search</FormLabel>
               <FormControl>
-                <Input placeholder="Search products..." {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="minQuantity"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Min Quantity</FormLabel>
-              <FormControl>
-                <Input type="number" {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="maxQuantity"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Max Quantity</FormLabel>
-              <FormControl>
-                <Input type="number" {...field} />
+                <Input placeholder="Search Products..." {...field} />
               </FormControl>
             </FormItem>
           )}
         />
         <div className="flex items-end space-x-2">
-          <Button type="submit">
+          <Button type="submit" className="cursor-pointer">
             <Search className="mr-2 h-4 w-4" />
             Filter
           </Button>
           <Button
+            className="cursor-pointer"
             variant="outline"
             onClick={() => {
               form.reset();
