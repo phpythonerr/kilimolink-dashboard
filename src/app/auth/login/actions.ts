@@ -51,7 +51,7 @@ export const signOut = async () => {
 
     return {
       success: true,
-      redirect: "/login",
+      redirect: "/auth/login",
       message: "Successfully logged out",
     };
   } catch (error) {

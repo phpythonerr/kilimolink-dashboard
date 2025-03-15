@@ -57,7 +57,7 @@ export function NavUser({ user }: NavUserProps) {
           push(res.redirect);
           return res.message;
         }
-        throw new Error(res.error || "Failed to log out");
+        return new Error(res.error || "Failed to log out");
       },
       error: (err: any) => {
         return err instanceof Error ? err.message : "An error occurred";
