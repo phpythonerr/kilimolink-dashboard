@@ -51,7 +51,9 @@ export default async function Page({ searchParams }: any) {
         <AppBreadCrumbs items={breadcrumbs} />
       </div>
       <Suspense fallback={<div>Loading...</div>}>
-        <Chart chartData={chartData} expenseName={data[0].expense_name} />
+        <div>
+          <Chart chartData={chartData} expenseName={data[0].expense_name} />
+        </div>
       </Suspense>
     </div>
   );

@@ -211,7 +211,7 @@ export function Chart({
         </div>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        <ChartContainer config={chartConfig} className="h-[70vh]">
           <AreaChart
             accessibilityLayer
             data={chartData}
