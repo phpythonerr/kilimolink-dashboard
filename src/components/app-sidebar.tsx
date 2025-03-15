@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { getAuthorizedNavItems } from "@/lib/permissions";
+// import { getAuthorizedNavItems } from "@/lib/permissions";
 
 import { NavQuickActions } from "@/components/nav-quick-actions";
 import { NavUser } from "@/components/nav-user";

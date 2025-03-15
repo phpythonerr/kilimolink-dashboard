@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { hasPermission } from "@/lib/permissions";
+// import { hasPermission } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
 
 const FormSchema = z.object({
