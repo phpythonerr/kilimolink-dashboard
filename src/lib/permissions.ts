@@ -10,19 +10,19 @@ interface UserRole {
   role_id: string;
 }
 
+interface PermissionRecord {
+  name: string;
+}
+
 interface RolePermission {
-  permissions: {
-    name: string;
-  }[];
+  permissions: PermissionRecord[];
   roles: {
     id: string;
   }[];
 }
 
 interface UserPermission {
-  permissions: {
-    name: string;
-  } | null;
+  permissions: PermissionRecord;
 }
 
 export interface NavItem {
@@ -84,8 +84,8 @@ export const getUserPermissions = cache(async (): Promise<string[]> => {
   const permissions = new Set<string>();
 
   if (rolePermissions) {
-    (rolePermissions as unknown as RolePermission[]).forEach((rp) => {
-      rp.permissions.forEach((permission) => {
+    (rolePermissions as unknown as RolePermission[]).forEach((rp: any) => {
+      rp.permissions.forEach((permission: any) => {
         if (permission.name) {
           permissions.add(permission.name);
         }
@@ -93,7 +93,7 @@ export const getUserPermissions = cache(async (): Promise<string[]> => {
     });
   }
 
-  ((userPermissions as UserPermission[]) || []).forEach((up) => {
+  ((userPermissions as UserPermission[]) || []).forEach((up: any) => {
     if (up.permissions?.name) {
       permissions.add(up.permissions.name);
     }
