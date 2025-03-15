@@ -19,11 +19,10 @@ export const columns: ColumnDef<ProductReport>[] = [
     accessorKey: "name",
     header: "Item",
     cell: ({ row }) => {
-      const name = row.getValue("name") as string;
-      const id = row.original.id as string;
+      const { id, name } = row.original;
       return (
         <Link
-          href={`/orders/corporate/view?id=${id}`}
+          href={`/store/products/view?id=${id}`}
           className="text-primary"
         >{`${name}`}</Link>
       );
