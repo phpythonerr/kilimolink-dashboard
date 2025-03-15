@@ -1,24 +1,43 @@
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import { cache } from "react";
+import { LucideIcon } from "lucide-react";
 
 // Define types
 export type Permission = string;
 
+interface UserRole {
+  role_id: string;
+}
+
+interface RolePermission {
+  permissions: {
+    name: string;
+  } | null;
+  roles?: {
+    id: string;
+  };
+}
+
+interface UserPermission {
+  permissions: {
+    name: string;
+  } | null;
+}
+
 export interface NavItem {
   title: string;
   url: string;
-  icon?: React.ComponentType<{ className?: string }>;
-  permission: Permission;
+  icon?: LucideIcon;
+  permission?: Permission;
+  isActive?: boolean;
   items?: NavItem[];
 }
 
 // Create a cached function to get user permissions
-export const getUserPermissions = cache(async () => {
-  const cookieStore = cookies();
+export const getUserPermissions = cache(async (): Promise<string[]> => {
   const supabase = await createClient();
 
-  // Get current user
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -26,11 +45,14 @@ export const getUserPermissions = cache(async () => {
   if (!user) return [];
 
   // Get user's role-based permissions
-
-  const { data: userRoleIds, error: userRoleIdsError } = await supabase
+  const { data: userRoleIds } = await supabase
     .from("user_roles")
     .select("role_id")
     .eq("user_id", user.id);
+
+  if (!userRoleIds?.length) return [];
+
+  const roleIds = userRoleIds.map((role: UserRole) => role.role_id);
 
   const { data: rolePermissions } = await supabase
     .from("role_permissions")
@@ -44,7 +66,7 @@ export const getUserPermissions = cache(async () => {
       )
     `
     )
-    .in("roles.id", userRoleIds);
+    .in("roles.id", roleIds);
 
   // Get user's additional permissions
   const { data: userPermissions } = await supabase
@@ -61,13 +83,13 @@ export const getUserPermissions = cache(async () => {
   // Combine and deduplicate permissions
   const permissions = new Set<string>();
 
-  rolePermissions?.forEach((rp) => {
+  ((rolePermissions as RolePermission[]) || []).forEach((rp) => {
     if (rp.permissions?.name) {
       permissions.add(rp.permissions.name);
     }
   });
 
-  userPermissions?.forEach((up) => {
+  ((userPermissions as UserPermission[]) || []).forEach((up) => {
     if (up.permissions?.name) {
       permissions.add(up.permissions.name);
     }
@@ -77,17 +99,19 @@ export const getUserPermissions = cache(async () => {
 });
 
 // Check if user has a specific permission
-export async function hasPermission(permission: Permission): Promise<boolean> {
-  const permissions: any = await getUserPermissions();
+export async function hasPermission(permission?: Permission): Promise<boolean> {
+  if (!permission) return true;
+
+  const permissions = await getUserPermissions();
 
   // Check exact permission
   if (permissions.includes(permission)) return true;
 
   // Check wildcard permissions (e.g., "reports.*" would match "reports.finance.orders.view")
-  const parts: any = permission?.split(".");
-  for (let i = 1; i <= parts?.length; i++) {
-    const partialPermission = [...parts?.slice(0, i), "*"].join(".");
-    if (permissions?.includes(partialPermission)) return true;
+  const parts = permission.split(".");
+  for (let i = 1; i <= parts.length; i++) {
+    const partialPermission = [...parts.slice(0, i), "*"].join(".");
+    if (permissions.includes(partialPermission)) return true;
   }
 
   return false;
@@ -103,11 +127,14 @@ export async function getAuthorizedNavItems(
     if (await hasPermission(item.permission)) {
       const authorizedItem = { ...item };
 
-      if (item.items && item.items.length > 0) {
+      if (item.items?.length) {
         authorizedItem.items = await getAuthorizedNavItems(item.items);
       }
 
-      authorizedItems.push(authorizedItem);
+      // Only add items that have no subitems or have authorized subitems
+      if (!item.items || authorizedItem.items?.length) {
+        authorizedItems.push(authorizedItem);
+      }
     }
   }
 
