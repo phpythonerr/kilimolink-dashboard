@@ -17,32 +17,47 @@ export const signIn = async (formData: any) => {
     };
   }
 
-  if (data?.user?.user_metadata?.status === "pending-approval") {
+  if (data?.user?.user_metadata?.user_type !== "staff") {
+    await supabase.auth.signOut();
     return {
       success: true,
-      redirect: "/pending-approval",
-      message: "Account pending approval",
-    };
-  } else {
-    const { data: mfa, error: mfaError } =
-      await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    let redirect: string;
-    if (data?.user?.user_metadata?.user_type === "staff") {
-      redirect = "https://staff.kilimolink.com";
-    } else {
-      redirect = `/app/${data?.user?.user_metadata?.user_type}`;
-    }
-    return {
-      success: true,
-      mfa: mfa,
-      redirect: redirect,
-      message: "Login successful. You will be redirected shortly",
+      redirect: "/auth/login",
+      message: "Invalid Login Credentials",
     };
   }
+  const { data: mfa, error: mfaError } =
+    await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+
+  return {
+    success: true,
+    mfa: mfa,
+    redirect: "/",
+    message: "Login successful. You will be redirected shortly",
+  };
 };
 
 export const signOut = async () => {
   const supabase = await createClient();
 
-  await supabase.auth.signOut();
+  try {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+
+    return {
+      success: true,
+      redirect: "/login",
+      message: "Successfully logged out",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to sign out",
+    };
+  }
 };

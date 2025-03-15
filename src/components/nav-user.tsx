@@ -8,6 +8,7 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { signOut } from "@/app/auth/login/actions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -40,6 +41,7 @@ interface NavUserProps {
 }
 
 export function NavUser({ user }: NavUserProps) {
+  const { push } = useRouter();
   const { isMobile } = useSidebar();
   const [submitting, setSubmitting] = useState<boolean>(false);
 
@@ -49,12 +51,16 @@ export function NavUser({ user }: NavUserProps) {
     setSubmitting(true);
 
     await toast.promise(signOut(), {
-      loading: "Signing out...",
-      success: () => {
-        return "Successfully signed out";
+      loading: "Logging out...",
+      success: (res) => {
+        if (res.success) {
+          push(res.redirect);
+          return res.message;
+        }
+        throw new Error(res.error || "Failed to log out");
       },
       error: (err) => {
-        return err?.message || "Failed to sign out";
+        return err instanceof Error ? err.message : "An error occurred";
       },
       finally: () => {
         setSubmitting(false);
