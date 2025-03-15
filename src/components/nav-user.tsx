@@ -118,7 +118,7 @@ export function NavUser({ user }: NavUserProps) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Button variant="ghost" onClick={handleSignOut}>
+              <Button variant="ghost" onClick={() => handleSignOut()}>
                 <LogOut />
                 {submitting ? "Signing out..." : "Log out"}
               </Button>
