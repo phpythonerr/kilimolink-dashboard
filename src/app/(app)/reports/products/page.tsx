@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
 import { createClient } from "@/lib/supabase/admin/server";
 import { DataTable } from "@/components/app-datatable";
-import { getUsers } from "@/data/users";
+import { ProductFilters } from "./filters";
 import { columns } from "./columns";
 
 export const metadata: Metadata = {
   title: "Product Reports",
-  description: "",
+  description: "View and analyze product sales and inventory",
 };
 
 const breadcrumbs = [
@@ -19,59 +19,80 @@ const breadcrumbs = [
   { label: "Products", href: "/reports/products", current: true },
 ];
 
-interface SearchParams extends Record<string, string> {}
-
-interface PageProps {
-  searchParams: Promise<SearchParams>;
+interface SearchParams extends Record<string, string> {
+  page?: string;
+  pageSize?: string;
+  search?: string;
+  minQuantity?: string;
+  maxQuantity?: string;
+  category?: string;
 }
 
-export default async function Index({ searchParams }: any) {
-  const queryParams = await searchParams;
+interface PageProps {
+  searchParams: SearchParams;
+}
 
+export default async function Index({ searchParams }: Promise<PageProps>) {
   const supabase = await createClient();
 
-  let pageSize: number = Number(queryParams.pageSize) || 10;
+  // Parse query parameters
+  const pageSize = Number(searchParams.pageSize) || 10;
+  const page = Number(searchParams.page) || 1;
+  const search = searchParams.search?.toLowerCase();
+  const minQuantity = Number(searchParams.minQuantity) || 0;
+  const maxQuantity = Number(searchParams.maxQuantity) || Infinity;
+  const category = searchParams.category;
 
-  let totalPages: number = 0;
+  // Initial query
+  let query = supabase.rpc("product_sales_analysis_v2");
 
-  let page: number = 1;
+  // Get total count first
+  const { data: allRows, error: countError } = await query;
 
-  let query: any = supabase.rpc("product_sales_analysis_v2");
-
-  let { data: allRows, error: allRowsError } = await query;
-
-  const filteredProducts = allRows?.filter(
-    (product: any) =>
-      product?.total_quantity !== null && product?.total_quantity > 0
-  );
-
-  let totalRows = filteredProducts?.length;
-
-  if (queryParams?.page && /^-?\d+$/.test(queryParams?.page)) {
-    page = Number(queryParams?.page);
-    let offsetStart = Number(pageSize) * Number(Number(page) - 1);
-
-    let offsetEnd = Number(pageSize) * Number(Number(page) - 1) + pageSize;
-
-    query = query.range(offsetStart + 1, offsetEnd);
-  } else {
-    query = query.range(0, pageSize);
+  if (countError) {
+    console.error("Error fetching products:", countError);
+    throw new Error("Failed to fetch products");
   }
 
-  let { data: all, error } = await query;
+  // Apply filters
+  const filteredProducts = allRows?.filter((product: any) => {
+    const hasQuantity =
+      product?.total_quantity !== null &&
+      product?.total_quantity >= minQuantity &&
+      (maxQuantity === Infinity || product?.total_quantity <= maxQuantity);
 
-  totalPages = totalRows && Math.ceil(totalRows / pageSize);
+    const matchesSearch =
+      !search ||
+      product?.name?.toLowerCase().includes(search) ||
+      product?.category?.toLowerCase().includes(search);
+
+    const matchesCategory = !category || product?.category === category;
+
+    return hasQuantity && matchesSearch && matchesCategory;
+  });
+
+  // Calculate pagination
+  const totalRows = filteredProducts?.length || 0;
+  const totalPages = Math.ceil(totalRows / pageSize);
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+
+  // Get paginated data
+  const paginatedProducts = filteredProducts?.slice(startIndex, endIndex);
 
   return (
-    <div className="p-4">
-      <div className="flex items-center justify-between mb-4">
+    <div className="p-4 space-y-6">
+      <div className="flex items-center justify-between">
         <AppBreadCrumbs items={breadcrumbs} />
         <div>
           <Button size="sm" asChild>
-            <Link href="/orders/corporate/new">New Order</Link>
+            <Link href="/store/products/new">New Product</Link>
           </Button>
         </div>
       </div>
+
+      <ProductFilters />
+
       <Suspense
         fallback={
           <div className="w-full h-96 flex justify-center items-center">
@@ -100,7 +121,7 @@ export default async function Index({ searchParams }: any) {
         }
       >
         <DataTable
-          data={filteredProducts || []}
+          data={paginatedProducts || []}
           columns={columns}
           pageCount={totalPages}
           currentPage={page}
