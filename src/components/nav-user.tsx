@@ -9,6 +9,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { signOut } from "@/app/auth/login/actions";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
