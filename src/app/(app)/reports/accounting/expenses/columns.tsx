@@ -24,13 +24,13 @@ export const columns: ColumnDef<ExpenseInterface>[] = [
     accessorKey: "expense_type_id",
     header: "Item",
     cell: ({ row }) => {
-      const expense_type = row.original.expense_type_id;
+      const { expense_type_id, name } = row.original;
       return (
         <Link
           className="text-primary"
-          href={`/reports/accounting/expenses/view?id=${expense_type?.id}`}
+          href={`/reports/accounting/expenses/view?id=${expense_type_id}`}
         >
-          {expense_type.name}
+          {name}
         </Link>
       );
     },
