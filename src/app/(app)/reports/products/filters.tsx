@@ -54,11 +54,12 @@ export function ProductFilters() {
           )}
         />
         <div className="flex items-end space-x-2">
-          <Button type="submit" className="cursor-pointer">
-            <Search className="mr-2 h-4 w-4" />
+          <Button size="sm" type="submit" className="cursor-pointer">
+            <Search className="mr-1 h-4 w-4" />
             Filter
           </Button>
           <Button
+            size="sm"
             className="cursor-pointer"
             variant="outline"
             onClick={() => {
@@ -66,7 +67,7 @@ export function ProductFilters() {
               router.push("?");
             }}
           >
-            <X className="mr-2 h-4 w-4" />
+            <X className="mr-1 h-4 w-4" />
             Reset
           </Button>
         </div>
