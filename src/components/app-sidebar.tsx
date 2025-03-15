@@ -388,25 +388,25 @@ const navData: NavSection[] = [
   },
 ];
 
-interface UserProfile {
-  name: string;
-  email: string;
-  avatar: string;
+interface UserMetadata {
+  first_name?: string;
+  last_name?: string;
+  business_name?: string;
+  avatar?: string;
 }
 
 interface SidebarProps extends React.ComponentProps<typeof Sidebar> {
   user?: {
-    name?: string;
     email?: string;
-    image?: string;
+    user_metadata?: UserMetadata;
   };
 }
 
 export function AppSidebar({ user, ...props }: SidebarProps) {
   const userProfile: UserProfile = {
     name:
-      (`${user.user_metadata.first_name} ${user.user_metadata.last_name}` ||
-        user.user_metadata.business_name) ??
+      (`${user?.user_metadata?.first_name} ${user?.user_metadata?.last_name}` ||
+        user?.user_metadata?.business_name) ??
       "Guest User",
     email: user?.email ?? "",
     avatar: user?.user_metadata?.avatar ?? "/img/default-avatar.png",

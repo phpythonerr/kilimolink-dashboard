@@ -61,10 +61,10 @@ export function NavUser({ user }: NavUserProps) {
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">
-                  {`${user.user_metadata.first_name} ${user.user_metadata.last_name}` ||
-                    user.user_metadata.business_name}
+                  {`${user?.user_metadata.first_name} ${user?.user_metadata?.last_name}` ||
+                    user?.user_metadata?.business_name}
                 </span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate text-xs">{user?.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -90,10 +90,10 @@ export function NavUser({ user }: NavUserProps) {
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">
-                    {`${user.user_metadata.first_name} ${user.user_metadata.last_name}` ||
-                      user.user_metadata.business_name}
+                    {`${user?.user_metadata?.first_name} ${user?.user_metadata?.last_name}` ||
+                      user?.user_metadata?.business_name}
                   </span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate text-xs">{user?.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
