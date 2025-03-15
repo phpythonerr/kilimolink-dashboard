@@ -8,7 +8,9 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react";
-
+import { signOut } from "@/app/auth/login/actions";
+import { toast } from "sonner";
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -38,6 +40,26 @@ interface NavUserProps {
 
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
+  const [submitting, setSubmitting];
+
+  const handleSignOut = async () => {
+    if (submitting) return;
+
+    setSubmitting(true);
+
+    await toast.promise(signOut(), {
+      loading: "Signing out...",
+      success: () => {
+        return "Successfully signed out";
+      },
+      error: (err) => {
+        return err?.message || "Failed to sign out";
+      },
+      finally: () => {
+        setSubmitting(false);
+      },
+    });
+  };
 
   return (
     <SidebarMenu>
@@ -95,9 +117,11 @@ export function NavUser({ user }: NavUserProps) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOut />
-              Log out
+            <DropdownMenuItem asChild>
+              <Button variant="ghost" onClick={handleSignOut}>
+                <LogOut />
+                {submitting ? "Signing out..." : "Log out"}
+              </Button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

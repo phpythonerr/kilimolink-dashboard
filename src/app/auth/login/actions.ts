@@ -40,3 +40,9 @@ export const signIn = async (formData: any) => {
     };
   }
 };
+
+export const signOut = async () => {
+  const supabase = await createClient();
+
+  await supabase.auth.signOut();
+};
