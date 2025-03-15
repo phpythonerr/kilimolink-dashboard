@@ -19,29 +19,31 @@ const breadcrumbs = [
   { label: "Products", href: "/reports/products", current: true },
 ];
 
-interface SearchParams extends Record<string, string> {
+type SearchParams = Promise<{
   page?: string;
   pageSize?: string;
   search?: string;
   minQuantity?: string;
   maxQuantity?: string;
   category?: string;
-}
+}>;
 
-interface PageProps {
+export default async function Index({
+  searchParams,
+}: {
   searchParams: SearchParams;
-}
-
-export default async function Index({ searchParams }: Promise<PageProps>) {
+}) {
   const supabase = await createClient();
 
+  const queryParams = await searchParams;
+
   // Parse query parameters
-  const pageSize = Number(searchParams.pageSize) || 10;
-  const page = Number(searchParams.page) || 1;
-  const search = searchParams.search?.toLowerCase();
-  const minQuantity = Number(searchParams.minQuantity) || 0;
-  const maxQuantity = Number(searchParams.maxQuantity) || Infinity;
-  const category = searchParams.category;
+  const pageSize = Number(queryParams.pageSize) || 10;
+  const page = Number(queryParams.page) || 1;
+  const search = queryParams.search?.toLowerCase();
+  const minQuantity = Number(queryParams.minQuantity) || 0;
+  const maxQuantity = Number(queryParams.maxQuantity) || Infinity;
+  const category = queryParams.category;
 
   // Initial query
   let query = supabase.rpc("product_sales_analysis_v2");
