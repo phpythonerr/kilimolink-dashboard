@@ -388,6 +388,12 @@ const navData: NavSection[] = [
   },
 ];
 
+interface UserProfile {
+  name: string;
+  email: string;
+  avatar: string;
+}
+
 interface SidebarProps extends React.ComponentProps<typeof Sidebar> {
   user?: {
     name?: string;
@@ -397,6 +403,12 @@ interface SidebarProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 export function AppSidebar({ user, ...props }: SidebarProps) {
+  const userProfile: UserProfile = {
+    name: user?.name ?? "Guest User",
+    email: user?.email ?? "",
+    avatar: user?.image ?? "/img/default-avatar.png",
+  };
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
