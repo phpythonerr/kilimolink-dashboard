@@ -215,7 +215,11 @@ export default function NewOrderForm({ customers }: any) {
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={submitting}>
+        <Button
+          type="submit"
+          className="w-full cursor-pointer"
+          disabled={submitting}
+        >
           {submitting ? (
             <>
               <Loader2 className="animate-spin" />

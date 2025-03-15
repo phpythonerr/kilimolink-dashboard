@@ -334,6 +334,7 @@ export default function Form({ products, items, order }: any) {
           <TableCell>
             <Input
               type="text"
+              disabled={item?.id === "no_item"}
               defaultValue={item?.quantity || ""}
               className="w-16 text-xs"
               onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -369,6 +370,7 @@ export default function Form({ products, items, order }: any) {
           </TableCell>
           <TableCell>
             <Select
+              disabled={item?.id === "no_item"}
               onValueChange={async (value: string) => {
                 const newItems = [...orderItems];
                 newItems[index]["uom"] = value || "no_uom";
@@ -401,6 +403,7 @@ export default function Form({ products, items, order }: any) {
           <TableCell>
             <Input
               type="text"
+              disabled={item?.id === "no_item"}
               defaultValue={item?.buying_price || ""}
               className="w-20 text-xs"
               onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -437,6 +440,7 @@ export default function Form({ products, items, order }: any) {
           <TableCell>
             <Input
               type="text"
+              disabled={item?.id === "no_item"}
               defaultValue={item?.selling_price || ""}
               className="w-20 text-xs"
               onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
