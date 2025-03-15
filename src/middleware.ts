@@ -11,9 +11,7 @@ const PUBLIC_ROUTES = ["/auth/login"];
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
 
-  return NextResponse.redirect(
-    new URL("/auth/login?error=auth_error", req.url)
-  );
+  return res;
 }
 
 export const config = {
