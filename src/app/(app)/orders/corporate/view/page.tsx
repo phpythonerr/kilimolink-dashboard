@@ -1,4 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Info } from "lucide-react";
+
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -28,6 +31,15 @@ export default async function Page({ searchParams }: any) {
           </TabsTrigger>
         </TabsList>
       </Tabs>
+      <div className="py-4">
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertTitle>Under Development</AlertTitle>
+          <AlertDescription>
+            Order Items are available under the 'Items' Tab
+          </AlertDescription>
+        </Alert>
+      </div>
     </div>
   );
 }
