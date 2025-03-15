@@ -352,7 +352,9 @@ export default function Form({ products, items, order }: any) {
               type="text"
               disabled={item?.id === "no_item"}
               defaultValue={item?.quantity || ""}
-              className="w-16 text-xs"
+              className={`w-16 text-xs ${
+                item?.id === "no_item" && "cursor-not-allowed"
+              }`}
               onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
                 handleNumberInput(e, item?.quantity)
               }
@@ -421,7 +423,9 @@ export default function Form({ products, items, order }: any) {
               type="text"
               disabled={item?.id === "no_item"}
               defaultValue={item?.buying_price || ""}
-              className="w-20 text-xs"
+              className={`w-20 text-xs ${
+                item?.id === "no_item" && "cursor-not-allowed"
+              }`}
               onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
                 handleNumberInput(e, item?.buying_price)
               }
@@ -458,7 +462,9 @@ export default function Form({ products, items, order }: any) {
               type="text"
               disabled={item?.id === "no_item"}
               defaultValue={item?.selling_price || ""}
-              className="w-20 text-xs"
+              className={`w-20 text-xs ${
+                item?.id === "no_item" && "cursor-not-allowed"
+              }`}
               onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
                 handleNumberInput(e, item?.selling_price)
               }
