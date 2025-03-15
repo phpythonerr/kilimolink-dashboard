@@ -13,10 +13,10 @@ interface UserRole {
 interface RolePermission {
   permissions: {
     name: string;
-  } | null;
-  roles?: {
+  }[];
+  roles: {
     id: string;
-  };
+  }[];
 }
 
 interface UserPermission {
@@ -83,11 +83,15 @@ export const getUserPermissions = cache(async (): Promise<string[]> => {
   // Combine and deduplicate permissions
   const permissions = new Set<string>();
 
-  ((rolePermissions as RolePermission[]) || []).forEach((rp) => {
-    if (rp.permissions?.name) {
-      permissions.add(rp.permissions.name);
-    }
-  });
+  if (rolePermissions) {
+    (rolePermissions as unknown as RolePermission[]).forEach((rp) => {
+      rp.permissions.forEach((permission) => {
+        if (permission.name) {
+          permissions.add(permission.name);
+        }
+      });
+    });
+  }
 
   ((userPermissions as UserPermission[]) || []).forEach((up) => {
     if (up.permissions?.name) {
