@@ -57,28 +57,29 @@ export function LoginForm({
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    try {
-      setSubmitting(true);
-      let res = await signIn(data);
-      if (res.success) {
-        toast.success(res?.message);
-        push("/");
-        // if (
-        //   res?.mfa?.nextLevel === "aal2" &&
-        //   res?.mfa?.nextLevel !== res?.mfa?.currentLevel
-        // ) {
-        //   push("/auth/login/otp");
-        // } else {
-        //   push(res?.redirect);
-        // }
-      } else {
-        toast.error(res?.error);
-      }
-    } catch (err) {
-      toast.error(err);
-    } finally {
-      setSubmitting(false);
-    }
+    if (submitting) return;
+
+    setSubmitting(true);
+
+    await toast.promise(signIn(data), {
+      loading: "Logging in...",
+      success: (res) => {
+        if (res.success) {
+          push("/");
+          return (
+            res.message ||
+            "Successfully logged in. You will be redirected shortly..."
+          );
+        }
+        throw new Error(res.error || "Failed to log in. Please try again.");
+      },
+      error: (err) => {
+        return err instanceof Error ? err.message : "An error occurred";
+      },
+      finally: () => {
+        setSubmitting(false);
+      },
+    });
   }
 
   return (
