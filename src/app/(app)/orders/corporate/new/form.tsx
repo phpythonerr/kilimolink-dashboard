@@ -194,11 +194,7 @@ export default function NewOrderForm({ customers }: any) {
             <FormItem>
               <FormLabel>Date Created</FormLabel>
               <FormControl>
-                <Input
-                  type="date"
-                  {...field}
-                  max={new Date().toISOString().split("T")[0]}
-                />
+                <Input type="date" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -212,11 +208,7 @@ export default function NewOrderForm({ customers }: any) {
             <FormItem>
               <FormLabel>Delivery Date</FormLabel>
               <FormControl>
-                <Input
-                  type="date"
-                  {...field}
-                  min={new Date().toISOString().split("T")[0]}
-                />
+                <Input type="date" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
