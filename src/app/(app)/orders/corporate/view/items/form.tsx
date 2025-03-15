@@ -173,28 +173,44 @@ export default function Form({ products, items, order }: any) {
 
   const formatNumber = (value: string | number) => {
     if (!value) return "";
-    // Allow numbers and one decimal point
-    return value
-      .toString()
-      .replace(/[^\d.]/g, "") // Allow only digits and decimal point
-      .replace(/\.(?=.*\.)/g, ""); // Remove extra decimal points
+
+    // Remove all non-numeric characters except decimal point
+    const cleaned = value.toString().replace(/[^\d.]/g, "");
+
+    // Ensure only one decimal point
+    const parts = cleaned.split(".");
+    if (parts.length > 2) {
+      return parts[0] + "." + parts.slice(1).join("");
+    }
+
+    return cleaned;
   };
 
   const handleNumberInput = (
     e: React.ChangeEvent<HTMLInputElement>,
     currentValue: string
   ) => {
-    const formatted = formatNumber(e.target.value);
-    const parts = formatted.split(".");
+    let formatted = formatNumber(e.target.value);
 
-    if (formatted === "" || formatted === "0") {
-      e.target.value = "";
-    } else if (parts[1]?.length > 2) {
-      // Limit to 2 decimal places
-      e.target.value = `${parts[0]}.${parts[1].slice(0, 2)}`;
-    } else {
-      e.target.value = formatted;
+    // Handle special cases
+    if (formatted === ".") {
+      e.target.value = "0.";
+      return;
     }
+
+    if (formatted === "") {
+      e.target.value = "";
+      return;
+    }
+
+    // Handle decimal places
+    const parts = formatted.split(".");
+    if (parts[1]?.length > 2) {
+      // Limit to 2 decimal places
+      formatted = `${parts[0]}.${parts[1].slice(0, 2)}`;
+    }
+
+    e.target.value = formatted;
   };
 
   if (!products || !order) {
