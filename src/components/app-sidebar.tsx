@@ -388,6 +388,12 @@ const navData: NavSection[] = [
   },
 ];
 
+interface UserProfile {
+  name: string;
+  email: string;
+  avatar: string;
+}
+
 interface UserMetadata {
   first_name?: string;
   last_name?: string;
