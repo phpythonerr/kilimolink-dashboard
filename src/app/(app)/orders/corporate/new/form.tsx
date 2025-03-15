@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
@@ -43,6 +43,7 @@ const formSchema = z.object({
 });
 
 export default function NewOrderForm({ customers }: any) {
+  const [submitting, setSubmitting] = useState<boolean>(false);
   const [customerPopoverOpen, setCustomerPopoverOpen] = useState(false);
   const { push } = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -57,6 +58,10 @@ export default function NewOrderForm({ customers }: any) {
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
+    if (submitting) return;
+
+    setSubmitting(true);
+
     const formData = new FormData();
     formData.append("customerId", data.customerId);
     formData.append("subsidiary", data.subsidiary || "");
@@ -64,20 +69,23 @@ export default function NewOrderForm({ customers }: any) {
     formData.append("dateCreated", data.dateCreated);
     formData.append("deliveryDate", data.deliveryDate);
 
-    try {
-      const res = await createOrder(formData);
-      if (res?.success) {
-        toast.success(
-          "Order created successfully. Please proceed to enter the ordered items. You will be redirected shortly"
-        );
-        push(`/orders/corporate/view/items?id=${res?.id}`);
-      } else {
-        toast?.error(res?.error);
-      }
-    } catch (error) {
-      // Handle error
-      toast?.error(`Error submitting form: ${error}`);
-    }
+    await toast.promise(createOrder(formData), {
+      loading: "Creating order...",
+      success: (res) => {
+        if (res?.success) {
+          push(`/orders/corporate/view/items?id=${res?.id}`);
+          return "Order created successfully. Redirecting to add items...";
+        }
+        throw new Error(res?.error || "Failed to create order");
+      },
+      error: (err) => {
+        setSubmitting(false);
+        return err instanceof Error ? err.message : "Failed to create order";
+      },
+      finally: () => {
+        setSubmitting(false);
+      },
+    });
   }
 
   return (
@@ -215,7 +223,16 @@ export default function NewOrderForm({ customers }: any) {
           )}
         />
 
-        <Button type="submit">Continue &raquo;</Button>
+        <Button type="submit" className="w-full" disabled={submitting}>
+          {submitting ? (
+            <>
+              <Loader2 className="animate-spin" />
+              Please wait
+            </>
+          ) : (
+            "Continue"
+          )}
+        </Button>
       </form>
     </Form>
   );
