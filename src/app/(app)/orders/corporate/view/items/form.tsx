@@ -173,7 +173,11 @@ export default function Form({ products, items, order }: any) {
 
   const formatNumber = (value: string | number) => {
     if (!value) return "";
-    return value.toString().replace(/[^\d]/g, "");
+    // Allow numbers and one decimal point
+    return value
+      .toString()
+      .replace(/[^\d.]/g, "") // Allow only digits and decimal point
+      .replace(/\.(?=.*\.)/g, ""); // Remove extra decimal points
   };
 
   const handleNumberInput = (
@@ -181,8 +185,13 @@ export default function Form({ products, items, order }: any) {
     currentValue: string
   ) => {
     const formatted = formatNumber(e.target.value);
+    const parts = formatted.split(".");
+
     if (formatted === "" || formatted === "0") {
       e.target.value = "";
+    } else if (parts[1]?.length > 2) {
+      // Limit to 2 decimal places
+      e.target.value = `${parts[0]}.${parts[1].slice(0, 2)}`;
     } else {
       e.target.value = formatted;
     }
