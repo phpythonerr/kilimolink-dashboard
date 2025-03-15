@@ -12,6 +12,7 @@ import {
 import Loading from "@/components/loading";
 import Link from "next/link";
 import Form from "./form";
+import { getUserById } from "@/data/users";
 import { getOrder } from "@/data/orders";
 import { getProducts, getProductItems } from "@/data/products";
 
@@ -31,6 +32,13 @@ export default async function Page({ searchParams }: any) {
   const products = await getProducts();
   const items = await getProductItems(id);
   const order = await getOrder(id);
+  const user = order ? await getUserById(order?.user) : null;
+
+  const enabledCategories = user?.user?.user_metadata?.enabled_categories || [];
+
+  const filteredProducts = products.filter((product: any) =>
+    enabledCategories.includes(product.category_id)
+  );
 
   return (
     <div className="p-4">
@@ -61,7 +69,7 @@ export default async function Page({ searchParams }: any) {
                 <TableHead className="w-10"></TableHead>
               </TableRow>
             </TableHeader>
-            <Form products={products} items={items} order={order} />
+            <Form products={filteredProducts} items={items} order={order} />
           </Table>
         </Suspense>
       </div>
