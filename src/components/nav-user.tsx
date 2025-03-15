@@ -40,7 +40,7 @@ interface NavUserProps {
 
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
-  const [submitting, setSubmitting];
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
   const handleSignOut = async () => {
     if (submitting) return;
