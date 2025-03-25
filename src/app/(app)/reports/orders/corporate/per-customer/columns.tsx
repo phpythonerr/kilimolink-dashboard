@@ -3,18 +3,26 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Info } from "lucide-react";
 import Link from "next/link";
 
-// Define your data type
-export interface RevenuesInterface {
+interface UserMetadata {
+  business_name?: string;
+  // Add other metadata fields if needed
+}
+
+interface User {
   id: string;
-  date: any;
-  amount: number;
-  revenue_type_id: {
-    name: string;
-  };
+  user_metadata: UserMetadata;
+}
+
+export interface CustomerReport {
+  user: User;
+  purchases: number;
+  sales: number;
+  profit: number;
+  margin: number;
 }
 
 // Define your columns
-export const columns: ColumnDef<RevenuesInterface>[] = [
+export const columns: ColumnDef<CustomerReport>[] = [
   {
     accessorKey: "customer",
     header: "Customer",
