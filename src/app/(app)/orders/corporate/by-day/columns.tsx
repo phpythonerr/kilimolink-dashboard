@@ -46,4 +46,39 @@ export const columns: ColumnDef<User>[] = [
       return `Ksh.${Number(row.getValue("total")).toLocaleString()}`;
     },
   },
+  {
+    accessorKey: "total_buying",
+    header: "Total Buying",
+    cell: ({ row }) => {
+      const { total_buying_price } = row.original;
+      return `Ksh.${Number(total_buying_price).toLocaleString()}`;
+    },
+  },
+  {
+    accessorKey: "other_revenues",
+    header: "Other Revenues",
+    cell: ({ row }) => {
+      const { revenue } = row.original;
+      return `Ksh.${Number(revenue).toLocaleString()}`;
+    },
+  },
+  {
+    accessorKey: "expenses",
+    header: "Expenses",
+    cell: ({ row }) => {
+      const { expenses } = row.original;
+      return `Ksh.${Number(expenses).toLocaleString()}`;
+    },
+  },
+  {
+    accessorKey: "profits",
+    header: "Profit",
+    cell: ({ row }) => {
+      const { total_selling_price, total_buying_price, revenue, expenses } =
+        row.original;
+      const profit =
+        total_selling_price + revenue - (total_buying_price + expenses);
+      return `Ksh.${Number(profit).toLocaleString()}`;
+    },
+  },
 ];

@@ -3,11 +3,21 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
+import {
+  Table,
+  TableCaption,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableHeader,
+  TableCell,
+} from "@/components/ui/table";
 import { createClient } from "@/lib/supabase/admin/server";
 import { DataTable } from "@/components/app-datatable";
 import { getUsers } from "@/data/users";
 import { columns } from "../../columns";
-import Menu from "./menu";
+import ItemTableRow from "./table-row";
+import Menu from "../menu";
 
 export const metadata: Metadata = {
   title: "Corporate Orders",
@@ -18,7 +28,8 @@ const breadcrumbs = [
   { label: "Home", href: "/" },
   { label: "Orders", href: "/orders" },
   { label: "Corporate", href: "/orders/corporate" },
-  { label: "Order By Day", href: "/orders/corporate/by-day", current: true },
+  { label: "Order By Day", href: "/orders/corporate/by-day" },
+  { label: "CoG", href: "/orders/corporate/by-day/cog", current: true },
 ];
 
 interface SearchParams extends Record<string, string> {}
@@ -38,40 +49,11 @@ export default async function Index({ searchParams }: any) {
 
   let page: number = 1;
 
-  let query: any = supabase
-    .from("orders_order")
-    .select("*")
-    .eq("delivery_date", queryParams?.date)
-    .order("order_number", { ascending: false });
-
-  if (queryParams?.page && /^-?\d+$/.test(queryParams?.page)) {
-    page = Number(queryParams?.page);
-    let offsetStart = Number(pageSize) * Number(Number(page) - 1);
-
-    let offsetEnd = Number(pageSize) * Number(Number(page) - 1) + pageSize;
-
-    query = query.range(offsetStart + 1, offsetEnd);
-  } else {
-    query = query.range(0, pageSize);
-  }
-
-  let { data: orders, count: totalOrders, error } = await query;
-
-  totalPages = totalOrders && Math.ceil(totalOrders / pageSize);
-
-  const userIds = [...new Set(orders?.map((item: any) => item.user))];
-
-  const users = await getUsers();
-
-  const userMap: any = {};
-  users?.forEach((user: any) => {
-    userMap[user.id] = user;
+  const query: any = supabase.rpc("date_order_items", {
+    selected_date: queryParams?.date,
   });
 
-  const enhancedData = orders?.map((item: any) => ({
-    ...item,
-    user_obj: userMap[item.user] || { name: "Unknown User" },
-  }));
+  const { data, error } = await query;
 
   return (
     <div className="p-4">
@@ -84,7 +66,7 @@ export default async function Index({ searchParams }: any) {
         </div>
       </div>
       <div className="my-3">
-        <Menu active="orders" date={queryParams?.date} />
+        <Menu active="cog" date={queryParams?.date} />
       </div>
       <Suspense
         fallback={
@@ -113,13 +95,18 @@ export default async function Index({ searchParams }: any) {
           </div>
         }
       >
-        <DataTable
-          data={enhancedData || []}
-          columns={columns}
-          pageCount={totalPages}
-          currentPage={page}
-          pageSize={pageSize}
-        />
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Item</TableHead>
+              <TableHead>Qty</TableHead>
+              <TableHead>Avg. Buying Price</TableHead>
+              <TableHead>Avg. Selling Price</TableHead>
+              <TableHead>Avg. Margin</TableHead>
+            </TableRow>
+          </TableHeader>
+          <ItemTableRow items={data} />
+        </Table>
       </Suspense>
     </div>
   );

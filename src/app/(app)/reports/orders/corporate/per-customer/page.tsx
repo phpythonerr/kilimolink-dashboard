@@ -6,6 +6,7 @@ import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
 import { createClient } from "@/lib/supabase/server";
 import { DataTable } from "@/components/app-datatable";
 import { columns } from "./columns";
+import { getUsers } from "@/data/users";
 import Menu from "../menu";
 
 export const metadata: Metadata = {
@@ -15,8 +16,14 @@ export const metadata: Metadata = {
 
 const breadcrumbs = [
   { label: "Home", href: "/" },
-  { label: "Logistics", href: "/logistic" },
-  { label: "Vehicles", href: "/logistics/vehicles", current: true },
+  { label: "Reports", href: "/reports" },
+  { label: "Orders", href: "/reports/orders/" },
+  { label: "Corporate", href: "/reports/orders/corporate" },
+  {
+    label: "Per Customer",
+    href: "/reports/orders/per-customer",
+    current: true,
+  },
 ];
 
 interface SearchParams extends Record<string, string> {}
@@ -36,7 +43,7 @@ export default async function Page({ searchParams }: any) {
 
   let page: number = 1;
 
-  let query: any = supabase.rpc("v2_get_weekly_reports");
+  let query: any = supabase.rpc("get_customer_reports_since_first_september");
 
   let { data: allRows, error: allRowsError } = await query;
 
@@ -56,6 +63,15 @@ export default async function Page({ searchParams }: any) {
   let { data: all, error } = await query;
 
   totalPages = totalRows && Math.ceil(totalRows / pageSize);
+
+  const users = await getUsers();
+
+  const enrichedData =
+    all?.map((record: any) => ({
+      ...record,
+      user: users.find((user: any) => user.id === record.customer),
+    })) || [];
+
   return (
     <div className="p-4 flex flex-col gap-2">
       <div className="flex items-center justify-between mb-4">
@@ -67,7 +83,7 @@ export default async function Page({ searchParams }: any) {
       <div>
         <Suspense fallback={<div>Loading...</div>}>
           <DataTable
-            data={all || []}
+            data={enrichedData || []}
             columns={columns}
             pageCount={totalPages}
             currentPage={page}

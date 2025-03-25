@@ -28,32 +28,27 @@ interface PageProps {
 export default async function Index({ searchParams }: any) {
   const supabase = await createClient();
 
-  let pageSize: number = Number(searchParams.pageSize) || 10;
+  const queryParams = await searchParams;
+
+  let pageSize: number = Number(queryParams.pageSize) || 10;
 
   let totalPages: number = 0;
 
   let page: number = 1;
 
-  let query: any = supabase.rpc("get_orders_by_day");
+  // let query: any = supabase.rpc("get_order_summary_by_day_v3");
 
-  let { data: allOrders, error: allOrdersError } = await query;
+  // let { count: totalOrders } = await query;
 
-  let totalOrders = allOrders?.length;
-
-  if (searchParams?.page && /^-?\d+$/.test(searchParams?.page)) {
-    page = Number(searchParams?.page);
-    let offsetStart = Number(pageSize) * Number(Number(page) - 1);
-
-    let offsetEnd = Number(pageSize) * Number(Number(page) - 1) + pageSize;
-
-    query = query.range(offsetStart + 1, offsetEnd);
-  } else {
-    query = query.range(0, pageSize);
+  if (queryParams?.page && /^-?\d+$/.test(queryParams?.page)) {
+    page = Number(queryParams?.page);
   }
+  let { data: orders, error } = await supabase.rpc("get_daily_summary", {
+    page: page,
+    page_size: pageSize,
+  });
 
-  let { data: orders, error } = await query;
-
-  totalPages = totalOrders && Math.ceil(totalOrders / pageSize);
+  // totalPages = totalOrders && Math.ceil(totalOrders / pageSize);
 
   return (
     <div className="p-4">
@@ -65,6 +60,7 @@ export default async function Index({ searchParams }: any) {
           </Button>
         </div>
       </div>
+
       <Suspense fallback={<div>Loading...</div>}>
         <DataTable
           data={orders || []}

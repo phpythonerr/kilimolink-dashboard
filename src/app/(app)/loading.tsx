@@ -5,7 +5,7 @@ export default function Loading() {
     <div className="flex flex-col space-y-3 p-4">
       <div className="space-y-2">
         {[...Array(10)].map((item: any, i: number) => (
-          <Skeleton key={i} className="h-4 w-full" />
+          <Skeleton key={i} className="h-10 w-full" />
         ))}
       </div>
     </div>

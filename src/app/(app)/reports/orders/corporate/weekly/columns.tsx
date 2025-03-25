@@ -77,7 +77,7 @@ export const columns: ColumnDef<WeeklyReport>[] = [
   },
   {
     accessorKey: "profit",
-    header: "Purchases",
+    header: "Profits",
     cell: ({ row }) => {
       const sp = row.original.total_selling_price;
       const or = row.original.total_other_revenue;
@@ -93,7 +93,7 @@ export const columns: ColumnDef<WeeklyReport>[] = [
   },
   {
     accessorKey: "margin",
-    header: "Purchases",
+    header: "Margin",
     cell: ({ row }) => {
       const sp = row.original.total_selling_price;
       const or = row.original.total_other_revenue;

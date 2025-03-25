@@ -16,39 +16,50 @@ export interface RevenuesInterface {
 // Define your columns
 export const columns: ColumnDef<RevenuesInterface>[] = [
   {
-    accessorKey: "registration",
-    header: "Registration",
+    accessorKey: "customer",
+    header: "Customer",
     cell: ({ row }) => {
-      const id = row.original.id as string;
+      const { id, user_metadata } = row.original.user;
       return (
         <Link
-          href={`/logistics/vehicles/view?id=${id}`}
+          href={`/users/customers/corporate/view?id=${id}`}
           className="text-primary"
         >
-          {row.getValue("registration")}
+          {user_metadata?.business_name}
         </Link>
       );
     },
   },
   {
-    accessorKey: "chasis_no",
-    header: "Chasis No.",
+    accessorKey: "purchases",
+    header: "Purchases",
     cell: ({ row }) => {
-      return row.getValue("chasis_no");
+      const purchases = row.original.purchases;
+      return Number(Number(purchases).toFixed(2)).toLocaleString();
     },
   },
   {
-    accessorKey: "vehicle_type",
-    header: "Vehicle Type",
+    accessorKey: "sales",
+    header: "Sales",
     cell: ({ row }) => {
-      return row.getValue("vehicle_type");
+      const sales = row.original.sales;
+      return Number(Number(sales).toFixed(2)).toLocaleString();
     },
   },
   {
-    accessorKey: "capacity",
-    header: "Capacity",
+    accessorKey: "profit",
+    header: "Profit",
     cell: ({ row }) => {
-      return row.getValue("capacity");
+      const profit = row.original.profit;
+      return Number(Number(profit).toFixed(2)).toLocaleString();
+    },
+  },
+  {
+    accessorKey: "margin",
+    header: "Margin",
+    cell: ({ row }) => {
+      const margin = row.original.margin;
+      return `${Number(Number(margin).toFixed(2)).toLocaleString()}%`;
     },
   },
 ];

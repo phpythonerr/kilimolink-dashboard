@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/admin/server";
 import { DataTable } from "@/components/app-datatable";
 import { getUsers } from "@/data/users";
 import { columns } from "../../columns";
-import Menu from "./menu";
+import Menu from "../menu";
 
 export const metadata: Metadata = {
   title: "Corporate Orders",
@@ -18,7 +18,12 @@ const breadcrumbs = [
   { label: "Home", href: "/" },
   { label: "Orders", href: "/orders" },
   { label: "Corporate", href: "/orders/corporate" },
-  { label: "Order By Day", href: "/orders/corporate/by-day", current: true },
+  { label: "Order By Day", href: "/orders/corporate/by-day" },
+  {
+    label: "Expenses",
+    href: "/orders/corporate/by-day/expenses",
+    current: true,
+  },
 ];
 
 interface SearchParams extends Record<string, string> {}
@@ -84,7 +89,7 @@ export default async function Index({ searchParams }: any) {
         </div>
       </div>
       <div className="my-3">
-        <Menu active="orders" date={queryParams?.date} />
+        <Menu active="expenses" date={queryParams?.date} />
       </div>
       <Suspense
         fallback={
@@ -112,15 +117,7 @@ export default async function Index({ searchParams }: any) {
             </div>
           </div>
         }
-      >
-        <DataTable
-          data={enhancedData || []}
-          columns={columns}
-          pageCount={totalPages}
-          currentPage={page}
-          pageSize={pageSize}
-        />
-      </Suspense>
+      ></Suspense>
     </div>
   );
 }
