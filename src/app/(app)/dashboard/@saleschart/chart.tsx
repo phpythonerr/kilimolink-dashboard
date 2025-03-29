@@ -22,7 +22,7 @@ interface SalesChartProps {
 }
 
 export function SalesChart({ data }: SalesChartProps) {
-  const [hiddenSeries, setHiddenSeries] = useState<Set<string>>(new Set());
+  const [hiddenSeries, setHiddenSeries] = useState<Set<any>>(new Set());
 
   const toggleSeries = (dataKey: string) => {
     const newHidden = new Set(hiddenSeries);
