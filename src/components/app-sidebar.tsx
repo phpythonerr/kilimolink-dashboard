@@ -85,44 +85,44 @@ const navData: NavSection[] = [
           },
         ],
       },
-      {
-        title: "Vendor Orders",
-        url: "#",
-        icon: Store,
-        items: [
-          {
-            title: "All Orders",
-            url: "/orders/vendors",
-          },
-          {
-            title: "Orders By Day",
-            url: "/orders/vendors/by-day",
-          },
-          {
-            title: "Upcoming Orders",
-            url: "/orders/vendors/upcoming",
-          },
-        ],
-      },
-      {
-        title: "Individual Orders",
-        url: "#",
-        icon: User,
-        items: [
-          {
-            title: "All Orders",
-            url: "/orders/individuals",
-          },
-          {
-            title: "Orders By Day",
-            url: "/orders/individuals/by-day",
-          },
-          {
-            title: "Upcoming Orders",
-            url: "/orders/individuals/upcoming",
-          },
-        ],
-      },
+      // {
+      //   title: "Vendor Orders",
+      //   url: "#",
+      //   icon: Store,
+      //   items: [
+      //     {
+      //       title: "All Orders",
+      //       url: "/orders/vendors",
+      //     },
+      //     {
+      //       title: "Orders By Day",
+      //       url: "/orders/vendors/by-day",
+      //     },
+      //     {
+      //       title: "Upcoming Orders",
+      //       url: "/orders/vendors/upcoming",
+      //     },
+      //   ],
+      // },
+      // {
+      //   title: "Individual Orders",
+      //   url: "#",
+      //   icon: User,
+      //   items: [
+      //     {
+      //       title: "All Orders",
+      //       url: "/orders/individuals",
+      //     },
+      //     {
+      //       title: "Orders By Day",
+      //       url: "/orders/individuals/by-day",
+      //     },
+      //     {
+      //       title: "Upcoming Orders",
+      //       url: "/orders/individuals/upcoming",
+      //     },
+      //   ],
+      // },
     ],
   },
   {
@@ -187,14 +187,14 @@ const navData: NavSection[] = [
             title: "Corporate",
             url: "/reports/orders/corporate",
           },
-          {
-            title: "Vendors",
-            url: "/reports/orders/vendors",
-          },
-          {
-            title: "Individuals",
-            url: "/reports/orders/individuals",
-          },
+          // {
+          //   title: "Vendors",
+          //   url: "/reports/orders/vendors",
+          // },
+          // {
+          //   title: "Individuals",
+          //   url: "/reports/orders/individuals",
+          // },
         ],
       },
       {
@@ -345,14 +345,14 @@ const navData: NavSection[] = [
             title: "Corporate Customers",
             url: "/users/customers/corporate",
           },
-          {
-            title: "Vendor Customers",
-            url: "/users/customers/vendors",
-          },
-          {
-            title: "Individual Customers",
-            url: "/users/customers/individual",
-          },
+          // {
+          //   title: "Vendor Customers",
+          //   url: "/users/customers/vendors",
+          // },
+          // {
+          //   title: "Individual Customers",
+          //   url: "/users/customers/individual",
+          // },
         ],
       },
       {

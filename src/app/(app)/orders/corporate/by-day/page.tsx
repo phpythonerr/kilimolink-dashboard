@@ -36,17 +36,17 @@ export default async function Index({ searchParams }: any) {
 
   let page: number = 1;
 
-  // let query: any = supabase.rpc("get_order_summary_by_day_v3");
-
-  // let { count: totalOrders } = await query;
-
   if (queryParams?.page && /^-?\d+$/.test(queryParams?.page)) {
     page = Number(queryParams?.page);
   }
-  let { data: orders, error } = await supabase.rpc("get_daily_summary", {
+  let { data: orders, error } = await supabase.rpc("get_daily_summary_v3", {
     page: page,
     page_size: pageSize,
   });
+
+  console.log(orders);
+
+  console.log(error);
 
   // totalPages = totalOrders && Math.ceil(totalOrders / pageSize);
 
