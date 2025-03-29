@@ -21,10 +21,12 @@ interface SalesChartProps {
   data: RawChartData[];
 }
 
-export function SalesChart({ data }: SalesChartProps) {
-  const [hiddenSeries, setHiddenSeries] = useState<Set<any>>(new Set());
+type SeriesKey = "purchases" | "sales" | "profits";
 
-  const toggleSeries = (dataKey: string) => {
+export function SalesChart({ data }: SalesChartProps) {
+  const [hiddenSeries, setHiddenSeries] = useState<Set<SeriesKey>>(new Set());
+
+  const toggleSeries = (dataKey: SeriesKey) => {
     const newHidden = new Set(hiddenSeries);
     if (newHidden.has(dataKey)) {
       newHidden.delete(dataKey);
@@ -113,7 +115,7 @@ export function SalesChart({ data }: SalesChartProps) {
           }}
         />
         <Legend
-          onClick={(e) => toggleSeries(e.dataKey)}
+          onClick={(e) => toggleSeries(e.dataKey as SeriesKey)}
           wrapperStyle={{ cursor: "pointer" }}
         />
         <Bar
