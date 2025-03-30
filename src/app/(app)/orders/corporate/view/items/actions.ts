@@ -17,6 +17,55 @@ const ProductUpdateSchema = z.object({
   buying_price: z.string().optional(),
 });
 
+async function calculateCommission(
+  supabase: any,
+  orderTotal: number,
+  orderId: string
+): Promise<{ error?: string; success?: boolean }> {
+  try {
+    // Get User
+    const { data: order, error: orderError } = await supabase
+      .from("orders_order")
+      .select("user")
+      .eq("id", orderId)
+      .single();
+
+    const { user } = await getUserById(order?.user);
+
+    const metadata = user.user_metadata;
+
+    // Check if user is eligible for commission
+    if (!metadata?.has_commission) {
+      return { success: true };
+    }
+
+    // Calculate commission
+    let commissionAmount = 0;
+    if (metadata.commission_type === "fixed") {
+      commissionAmount = metadata.commission_amount || 0;
+    } else if (metadata.commission_type === "Percentage") {
+      commissionAmount = (orderTotal * (metadata.commission_amount || 0)) / 100;
+    }
+
+    // Update order with commission details
+    const { error: updateError } = await supabase
+      .from("orders_order")
+      .update({
+        commission_amount: metadata.commission_amount,
+        commission_type: metadata.commission_type,
+        commission_value: commissionAmount.toFixed(2),
+      })
+      .eq("id", orderId);
+
+    if (updateError) return { error: updateError.message };
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to calculate commission:", error);
+    return { error: "Failed to calculate commission" };
+  }
+}
+
 async function updateOrderTotal(
   supabase: any,
   orderId: FormDataEntryValue | null
@@ -50,6 +99,14 @@ async function updateOrderTotal(
       .eq("id", orderId);
 
     if (updateError) return { error: updateError };
+
+    const commissionResult = await calculateCommission(
+      supabase,
+      orderTotal,
+      orderIdString
+    );
+
+    console.log(commissionResult);
 
     return { success: true, total: orderTotal };
   } catch (error) {

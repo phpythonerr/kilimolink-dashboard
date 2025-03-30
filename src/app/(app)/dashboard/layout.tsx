@@ -23,7 +23,7 @@ export default function Layout({
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {revenue}
         {profits}
         {saleslast30days}
@@ -31,9 +31,7 @@ export default function Layout({
       </div>
 
       {/* Sales Chart */}
-      <div className="rounded-xl border bg-card text-card-foreground p-6">
-        {saleschart}
-      </div>
+      <div>{saleschart}</div>
 
       {/* Additional Content */}
     </div>

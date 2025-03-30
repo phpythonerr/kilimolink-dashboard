@@ -29,6 +29,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import Link from "next/link";
 
 interface UserProfile {
   name: string;
@@ -114,20 +115,34 @@ export function NavUser({ user }: NavUserProps) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
+              <DropdownMenuItem asChild>
+                <Link href="#">
+                  <div className="flex flex-1 items-center gap-2">
+                    <BadgeCheck />
+                    Account
+                  </div>
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
+              <DropdownMenuItem asChild>
+                <Link href="#">
+                  <div className="flex flex-1 items-center gap-2">
+                    <Bell />
+                    Notifications
+                  </div>
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Button variant="ghost" onClick={() => handleSignOut()}>
-                <LogOut />
-                {submitting ? "Signing out..." : "Log out"}
+              <Button
+                className="w-full flex"
+                variant="ghost"
+                onClick={() => handleSignOut()}
+              >
+                <div className="flex flex-1 items-center gap-2">
+                  <LogOut />
+                  {submitting ? "Signing out..." : "Log out"}
+                </div>
               </Button>
             </DropdownMenuItem>
           </DropdownMenuContent>
