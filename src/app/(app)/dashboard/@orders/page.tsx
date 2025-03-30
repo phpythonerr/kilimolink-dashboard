@@ -12,13 +12,14 @@ import {
 export default async function Page() {
   const supabase = await createClient();
 
+  const today = new Date().toISOString().split("T")[0];
+
   const { data, count, error } = await supabase
     .from("orders_order")
     .select("*", { count: "exact", head: true });
 
-  console.log(count);
-
-  const todayCount = 10;
+  const todayOrders = data?.filter((order) => order.created === today) || [];
+  const todayCount = todayOrders.length;
 
   return (
     <Card className="@container/card">
@@ -34,13 +35,13 @@ export default async function Page() {
             variant={todayCount > 0 ? "default" : "secondary"}
             className="flex gap-1 rounded-lg text-xs"
           >
-            {/* {todayCount} today */}
+            {todayCount} today
           </Badge>
         </div>
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1 text-sm">
         <div className="line-clamp-1 flex gap-2 font-medium">
-          {/* {todayCount} new orders today */}
+          {todayCount} new orders today
         </div>
         {/* <div className="text-muted-foreground">
           {percentageChange}% of total orders
