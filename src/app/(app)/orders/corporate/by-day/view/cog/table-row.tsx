@@ -7,7 +7,7 @@ import { updateUnitCost } from "./actions";
 import Link from "next/link";
 
 export default function ItemTableRow({ item, date }: any) {
-  let [price, setPrice] = useState<number>(item?.buying_price);
+  let [price, setPrice] = useState<any>(item?.buying_price);
 
   const formatNumber = (value: string | number) => {
     if (!value) return "";
