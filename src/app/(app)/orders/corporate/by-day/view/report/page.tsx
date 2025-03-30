@@ -152,7 +152,7 @@ export default async function Index({ searchParams }: any) {
               </Table>
               <Table>
                 <TableBody>
-                  <TableRow className="bg-gray-100 lg:bg-green-200 lg:dark:bg-green-900">
+                  <TableRow className="bg-gray-100 dark:bg-inherit lg:bg-green-200 lg:dark:bg-green-900">
                     <TableCell className="font-medium w-full lg:px-3">
                       Total
                     </TableCell>
@@ -191,7 +191,7 @@ export default async function Index({ searchParams }: any) {
               </Table>
               <Table>
                 <TableBody>
-                  <TableRow className="bg-gray-100 lg:bg-red-200 lg:dark:bg-red-900">
+                  <TableRow className="bg-gray-100 dark:bg-inherit lg:bg-red-200 lg:dark:bg-red-900">
                     <TableCell className="font-medium w-full lg:px-3">
                       Total
                     </TableCell>
