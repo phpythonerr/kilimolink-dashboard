@@ -6,11 +6,13 @@ import Link from "next/link";
 // Define your data type
 export interface RevenuesInterface {
   id: string;
-  date: any;
-  amount: number;
-  revenue_type_id: {
-    name: string;
-  };
+  registration: string;
+  total_transport: number;
+  transport_last_month: number;
+  transport_this_month: number;
+  total_fuel: number;
+  fuel_last_month: number;
+  fuel_this_month: number;
 }
 
 // Define your columns
