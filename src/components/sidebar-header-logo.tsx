@@ -27,7 +27,11 @@ export function SidebarHeaderLogo() {
               height={30}
               src={
                 Boolean(isOpen)
-                  ? "/img/logo/logo-primary.svg"
+                  ? theme === "dark"
+                    ? "/img/logo/logo-white.svg"
+                    : "/img/logo/logo-primary.svg"
+                  : theme === "dark"
+                  ? "/img/logo/logo-symbol-white.svg"
                   : "/img/logo/kilimolink-logo-symbol-green.svg"
               }
               alt="Kilimolink"

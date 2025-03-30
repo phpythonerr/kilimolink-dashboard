@@ -125,7 +125,7 @@ export default async function Index({ searchParams }: any) {
         }
       >
         <div className="flex flex-col lg:flex-row gap-3 lg:gap-0">
-          <div className="flex-1 flex flex-col lg:bg-green-50">
+          <div className="flex-1 flex flex-col lg:bg-green-50 lg:dark:bg-green-950">
             <div className="py-4 lg:px-3">
               <h3 className="font-medium text-lg">Revenues</h3>
             </div>
@@ -152,7 +152,7 @@ export default async function Index({ searchParams }: any) {
               </Table>
               <Table>
                 <TableBody>
-                  <TableRow className="bg-gray-100 lg:bg-green-200">
+                  <TableRow className="bg-gray-100 lg:bg-green-200 lg:dark:bg-green-900">
                     <TableCell className="font-medium w-full lg:px-3">
                       Total
                     </TableCell>
@@ -164,7 +164,7 @@ export default async function Index({ searchParams }: any) {
               </Table>
             </div>
           </div>
-          <div className="flex-1 flex flex-col lg:bg-red-50">
+          <div className="flex-1 flex flex-col lg:bg-red-50 lg:dark:bg-red-950">
             <div className="py-4 lg:px-3">
               <h3 className="font-medium text-lg">Expenses</h3>
             </div>
@@ -191,7 +191,7 @@ export default async function Index({ searchParams }: any) {
               </Table>
               <Table>
                 <TableBody>
-                  <TableRow className="bg-gray-100 lg:bg-red-200">
+                  <TableRow className="bg-gray-100 lg:bg-red-200 lg:dark:bg-red-900">
                     <TableCell className="font-medium w-full lg:px-3">
                       Total
                     </TableCell>
