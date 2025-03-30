@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Dashboard",
-  description: "",
+  description: "Business performance overview",
 };
 
 export default function Layout({
@@ -21,21 +21,22 @@ export default function Layout({
   saleslast30days: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-      {/* <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-        <div className="rounded-xl border bg-card text-card-foreground shadow">
-          {revenue}
-        </div>
-        <div className="rounded-xl border bg-card text-card-foreground shadow">
-          {profits}
-        </div>
-        <div className="rounded-xl border bg-card text-card-foreground shadow">
-          {orders}
-        </div>
-      </div> */}
+    <div className="flex flex-1 flex-col gap-4 p-4">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {revenue}
+        {profits}
+        {orders}
+        {saleslast30days}
+      </div>
+
+      {orders}
+      {/* Sales Chart */}
       <div className="rounded-xl border bg-card text-card-foreground p-6">
         {saleschart}
       </div>
+
+      {/* Additional Content */}
     </div>
   );
 }

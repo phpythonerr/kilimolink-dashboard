@@ -1,6 +1,21 @@
 "use client";
 
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+
+import {
   Bar,
   BarChart,
   ResponsiveContainer,
@@ -22,6 +37,27 @@ interface SalesChartProps {
 }
 
 type SeriesKey = "purchases" | "sales" | "profits";
+
+const formatYAxisValue = (value: number): string => {
+  if (value >= 1000000000) {
+    return `${(value / 1000000000).toFixed(1)}B`;
+  }
+  if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(1)}M`;
+  }
+  if (value >= 1000) {
+    return `${(value / 1000).toFixed(1)}K`;
+  }
+  return value.toString();
+};
+
+const formatXAxisDate = (dateStr: string): string => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+};
 
 export function SalesChart({ data }: SalesChartProps) {
   const [hiddenSeries, setHiddenSeries] = useState<Set<SeriesKey>>(new Set());
@@ -65,14 +101,15 @@ export function SalesChart({ data }: SalesChartProps) {
       >
         <XAxis
           dataKey="delivery_date"
-          tickFormatter={(value) => new Date(value).toLocaleDateString()}
+          tickFormatter={formatXAxisDate}
           stroke="#888888"
           fontSize={12}
         />
         <YAxis
           stroke="#888888"
-          fontSize={12}
-          tickFormatter={(value) => `Ksh${value.toLocaleString()}`}
+          fontSize={10}
+          tickFormatter={(value) => formatYAxisValue(value)}
+          width={20}
         />
         <Tooltip
           content={({ active, payload, label }) => {

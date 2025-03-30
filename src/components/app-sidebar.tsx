@@ -244,10 +244,10 @@ const navData: NavSection[] = [
             title: "Vehicles",
             url: "/reports/logistics/vehicles",
           },
-          {
-            title: "Fuel",
-            url: "/reports/logistics/fuel",
-          },
+          // {
+          //   title: "Fuel",
+          //   url: "/reports/logistics/fuel",
+          // },
         ],
       },
     ],
