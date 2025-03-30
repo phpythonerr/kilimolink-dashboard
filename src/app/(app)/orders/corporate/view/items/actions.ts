@@ -32,7 +32,7 @@ async function calculateCommission(
 
     const { user } = await getUserById(order?.user);
 
-    const metadata = user.user_metadata;
+    const metadata = user?.user_metadata;
 
     // Check if user is eligible for commission
     if (!metadata?.has_commission) {
@@ -41,23 +41,24 @@ async function calculateCommission(
 
     // Calculate commission
     let commissionAmount = 0;
-    if (metadata.commission_type === "fixed") {
-      commissionAmount = metadata.commission_amount || 0;
-    } else if (metadata.commission_type === "Percentage") {
-      commissionAmount = (orderTotal * (metadata.commission_amount || 0)) / 100;
+    if (metadata?.commission_type === "fixed") {
+      commissionAmount = metadata?.commission_amount || 0;
+    } else if (metadata?.commission_type === "Percentage") {
+      commissionAmount =
+        (orderTotal * (metadata?.commission_amount || 0)) / 100;
     }
 
     // Update order with commission details
     const { error: updateError } = await supabase
       .from("orders_order")
       .update({
-        commission_amount: metadata.commission_amount,
-        commission_type: metadata.commission_type,
+        commission_amount: metadata?.commission_amount,
+        commission_type: metadata?.commission_type,
         commission_value: commissionAmount.toFixed(2),
       })
       .eq("id", orderId);
 
-    if (updateError) return { error: updateError.message };
+    if (updateError) return { error: updateError?.message };
 
     return { success: true };
   } catch (error) {
