@@ -29,10 +29,9 @@ export default async function Page() {
     <Card className="@container/card">
       <CardHeader className="relative">
         <CardDescription className="flex items-center gap-2">
-          <PackageIcon className="size-4" />
           Total Orders
         </CardDescription>
-        <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
+        <CardTitle className="@[250px]/card:text-xl text-lg font-semibold tabular-nums">
           {totalCount.toLocaleString()}
         </CardTitle>
         <div className="absolute right-4 top-4">
@@ -48,9 +47,9 @@ export default async function Page() {
         <div className="line-clamp-1 flex gap-2 font-medium">
           {todayCount} new orders today
         </div>
-        <div className="text-muted-foreground">
+        {/* <div className="text-muted-foreground">
           {percentageChange}% of total orders
-        </div>
+        </div> */}
       </CardFooter>
     </Card>
   );

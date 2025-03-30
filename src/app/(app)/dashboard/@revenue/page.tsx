@@ -1,4 +1,5 @@
 import { TrendingDownIcon, TrendingUpIcon } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -9,13 +10,30 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function Page() {
+export default async function Page() {
+  const supabase = await createClient();
+
+  let { data: orderItemsSumSale, error: orderItemsSumSaleError }: any =
+    await supabase.rpc("get_total_revenue_on_goods");
+
+  let { data: revenue, error: revenueError }: any = await supabase
+    .from("finance_revenue")
+    .select("amount");
+
   return (
     <Card className="@container/card">
       <CardHeader className="relative">
-        <CardDescription>Total Revenue</CardDescription>
-        <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
-          $1,250.00
+        <CardDescription>Total Revenue (All Time)</CardDescription>
+        <CardTitle className="@[250px]/card:text-xl text-lg font-semibold tabular-nums">
+          {Number(
+            Number(orderItemsSumSale) +
+              Number(
+                revenue?.reduce(
+                  (total: number, item: any) => total + item.amount,
+                  0
+                )
+              )
+          ).toLocaleString()}
         </CardTitle>
         <div className="absolute right-4 top-4">
           <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
@@ -26,11 +44,11 @@ export default function Page() {
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1 text-sm">
         <div className="line-clamp-1 flex gap-2 font-medium">
-          Trending up this month <TrendingUpIcon className="size-4" />
+          Trending down this month <TrendingDownIcon className="size-4" />
         </div>
-        <div className="text-muted-foreground">
+        {/* <div className="text-muted-foreground">
           Visitors for the last 6 months
-        </div>
+        </div> */}
       </CardFooter>
     </Card>
   );

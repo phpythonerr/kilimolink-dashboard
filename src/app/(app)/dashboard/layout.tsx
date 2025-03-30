@@ -26,11 +26,10 @@ export default function Layout({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {revenue}
         {profits}
-        {orders}
         {saleslast30days}
+        {orders}
       </div>
 
-      {orders}
       {/* Sales Chart */}
       <div className="rounded-xl border bg-card text-card-foreground p-6">
         {saleschart}
