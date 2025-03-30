@@ -28,7 +28,7 @@ export default async function Page() {
           Total Orders
         </CardDescription>
         <CardTitle className="@[250px]/card:text-xl text-lg font-semibold tabular-nums">
-          {count.toLocaleString()}
+          {count?.toLocaleString()}
         </CardTitle>
         <div className="absolute right-4 top-4">
           <Badge
