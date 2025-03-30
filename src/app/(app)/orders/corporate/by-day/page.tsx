@@ -44,11 +44,12 @@ export default async function Index({ searchParams }: any) {
     page_size: pageSize,
   });
 
-  console.log(orders);
+  let { data: totalDays, error: totalDaysError } = await supabase.rpc(
+    "orders_by_day_count"
+  );
 
-  console.log(error);
-
-  // totalPages = totalOrders && Math.ceil(totalOrders / pageSize);
+  totalPages =
+    totalDays[0].dates_count && Math.ceil(totalDays[0].dates_count / pageSize);
 
   return (
     <div className="p-4">
