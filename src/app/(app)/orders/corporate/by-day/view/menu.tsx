@@ -16,11 +16,11 @@ export default async function Menu({ active, date }: any) {
               CoG
             </Link>
           </TabsTrigger>
-          <TabsTrigger value="expenses" asChild>
+          {/* <TabsTrigger value="expenses" asChild>
             <Link href={`/orders/corporate/by-day/view/expenses?date=${date}`}>
               Expenses
             </Link>
-          </TabsTrigger>
+          </TabsTrigger> */}
           <TabsTrigger value="report" asChild>
             <Link href={`/orders/corporate/by-day/view/report?date=${date}`}>
               Report

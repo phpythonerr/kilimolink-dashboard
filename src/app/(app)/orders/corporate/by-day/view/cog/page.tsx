@@ -105,7 +105,15 @@ export default async function Index({ searchParams }: any) {
               <TableHead>Avg. Margin</TableHead>
             </TableRow>
           </TableHeader>
-          <ItemTableRow items={data} />
+          <TableBody>
+            {data?.map((item: any, index: any) => (
+              <ItemTableRow
+                key={item?.commodity_id}
+                item={item}
+                date={queryParams?.date}
+              />
+            ))}
+          </TableBody>
         </Table>
       </Suspense>
     </div>

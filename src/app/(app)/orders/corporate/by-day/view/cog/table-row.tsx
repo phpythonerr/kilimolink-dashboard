@@ -1,8 +1,14 @@
-import { TableBody, TableRow, TableCell } from "@/components/ui/table";
+"use client";
+import { useState } from "react";
+import { TableRow, TableCell } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { updateUnitCost } from "./actions";
 import Link from "next/link";
 
-export default function ItemTableRow({ items }: any) {
+export default function ItemTableRow({ item, date }: any) {
+  let [price, setPrice] = useState<number>(item?.buying_price);
+
   const formatNumber = (value: string | number) => {
     if (!value) return "";
 
@@ -42,39 +48,58 @@ export default function ItemTableRow({ items }: any) {
       formatted = `${parts[0]}.${parts[1].slice(0, 2)}`;
     }
 
+    setPrice(Number(formatted));
+
     e.target.value = formatted;
   };
 
   return (
-    <TableBody>
-      {items?.map((item: any, index: any) => (
-        <TableRow key={item?.commodity_id + index}>
-          <TableCell>
-            <Link
-              className="text-primary"
-              href={`/store/products/view?id=${item?.commodity_id}`}
-            >
-              {item?.name}
-            </Link>
-          </TableCell>
-          <TableCell>{`${item?.total_quantity} ${item?.quantity_unit}`}</TableCell>
-          <TableCell>
-            <Input
-              type="text"
-              defaultValue={item?.buying_price || ""}
-              className={`w-20 text-xs ${
-                item?.id === "no_item" && "cursor-not-allowed"
-              }`}
-              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleNumberInput(e, item?.buying_price)
+    <TableRow>
+      <TableCell>
+        <Link
+          className="text-primary"
+          href={`/store/products/view?id=${item?.commodity_id}`}
+        >
+          {item?.name}
+        </Link>
+      </TableCell>
+      <TableCell>{`${item?.total_quantity} ${item?.quantity_unit}`}</TableCell>
+      <TableCell>
+        <Input
+          type="text"
+          defaultValue={price || 0}
+          className={`w-20 text-xs ${
+            item?.id === "no_item" && "cursor-not-allowed"
+          }`}
+          onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+            handleNumberInput(e, price)
+          }
+          onBlur={async (e) => {
+            // if (e.target.value !== price.toString()) {
+            try {
+              const fd = new FormData();
+              fd.append("buying_price", e.target.value);
+              fd.append("delivery_date", date);
+              fd.append("commodity_id", item?.commodity_id);
+              const res = await updateUnitCost(fd);
+              if (res?.success) {
+                toast.success(
+                  `Price of ${item?.name} updated to Ksh.${price} per unit`
+                );
+              } else {
+                toast.error(res?.error);
               }
-              onBlur={async (e) => {}}
-            />
-          </TableCell>
-          <TableCell>{Number(item?.selling_price).toFixed(2)}</TableCell>
-          <TableCell></TableCell>
-        </TableRow>
-      ))}
-    </TableBody>
+            } catch (err) {
+              toast.error(JSON.stringify(err));
+            }
+            // }
+          }}
+        />
+      </TableCell>
+      <TableCell>{Number(item?.selling_price).toFixed(2)}</TableCell>
+      <TableCell>{`${Number(
+        ((item?.selling_price - price) / item?.selling_price) * 100
+      ).toFixed(2)}%`}</TableCell>
+    </TableRow>
   );
 }
