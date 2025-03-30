@@ -22,17 +22,17 @@ export default async function ProfitsCard() {
         <CardTitle className="@[250px]/card:text-xl text-lg font-semibold tabular-nums">
           {Number(profit).toLocaleString()}
         </CardTitle>
-        <div className="absolute right-4 top-4">
+        {/* <div className="absolute right-4 top-4">
           <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
             <TrendingUpIcon className="size-3" />
             +12.5%
           </Badge>
-        </div>
+        </div> */}
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1 text-sm">
-        <div className="line-clamp-1 flex gap-2 font-medium">
+        {/* <div className="line-clamp-1 flex gap-2 font-medium">
           Trending down this month <TrendingDownIcon className="size-4" />
-        </div>
+        </div> */}
         {/* <div className="text-muted-foreground">
           Visitors for the last 6 months
         </div> */}

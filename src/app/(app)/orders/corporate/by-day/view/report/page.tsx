@@ -4,9 +4,16 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
 import { createClient } from "@/lib/supabase/admin/server";
-import { DataTable } from "@/components/app-datatable";
-import { getUsers } from "@/data/users";
-import { columns } from "../../columns";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 import Menu from "../menu";
 
 export const metadata: Metadata = {
@@ -19,7 +26,7 @@ const breadcrumbs = [
   { label: "Orders", href: "/orders" },
   { label: "Corporate", href: "/orders/corporate" },
   { label: "Order By Day", href: "/orders/corporate/by-day" },
-  { label: "CoG", href: "/orders/corporate/by-day/cog", current: true },
+  { label: "Report", href: "/orders/corporate/by-day/cog", current: true },
 ];
 
 interface SearchParams extends Record<string, string> {}
@@ -29,50 +36,53 @@ interface PageProps {
 }
 
 export default async function Index({ searchParams }: any) {
+  const supabase = await createClient();
   const queryParams = await searchParams;
 
-  const supabase = await createClient();
+  let { data: expenses, error: expensesError }: any = await supabase
+    .from("finance_expense")
+    .select("id, expense_type_id ( name ), amount")
+    .eq("date", queryParams?.date)
+    .order("created", { ascending: false });
 
-  let pageSize: number = Number(queryParams.pageSize) || 10;
+  let { data: revenues, error: revenuesError }: any = await supabase
+    .from("finance_revenue")
+    .select("id, revenue_type_id ( name ), amount")
+    .eq("date", queryParams?.date)
+    .order("created", { ascending: false });
 
-  let totalPages: number = 0;
+  let { data: orderItems, error: orderItemsError }: any = await supabase
+    .from("orders_orderitems")
+    .select("buying_price, selling_price, quantity")
+    .eq("delivery_date", queryParams?.date);
 
-  let page: number = 1;
+  let totalExpenses: any = expenses?.reduce(
+    (total: number, item: any) => total + item.amount,
+    0
+  );
 
-  let query: any = supabase
-    .from("orders_order")
-    .select("*")
-    .eq("delivery_date", queryParams?.date)
-    .order("order_number", { ascending: false });
+  let totalRevenues: any = revenues?.reduce(
+    (total: number, item: any) => total + item.amount,
+    0
+  );
 
-  if (queryParams?.page && /^-?\d+$/.test(queryParams?.page)) {
-    page = Number(queryParams?.page);
-    let offsetStart = Number(pageSize) * Number(Number(page) - 1);
+  let totalSales: any = Number(
+    orderItems?.reduce(
+      (total: number, item: any) => total + item.selling_price * item.quantity,
+      0
+    )
+  );
 
-    let offsetEnd = Number(pageSize) * Number(Number(page) - 1) + pageSize;
+  let costOfGoods: any = Number(
+    orderItems?.reduce(
+      (total: number, item: any) => total + item.buying_price * item.quantity,
+      0
+    )
+  );
 
-    query = query.range(offsetStart + 1, offsetEnd);
-  } else {
-    query = query.range(0, pageSize);
-  }
+  let revenuesSum: any = totalSales + totalRevenues;
 
-  let { data: orders, count: totalOrders, error } = await query;
-
-  totalPages = totalOrders && Math.ceil(totalOrders / pageSize);
-
-  const userIds = [...new Set(orders?.map((item: any) => item.user))];
-
-  const users = await getUsers();
-
-  const userMap: any = {};
-  users?.forEach((user: any) => {
-    userMap[user.id] = user;
-  });
-
-  const enhancedData = orders?.map((item: any) => ({
-    ...item,
-    user_obj: userMap[item.user] || { name: "Unknown User" },
-  }));
+  let expensesSum: any = totalExpenses + costOfGoods;
 
   return (
     <div className="p-4">
@@ -113,7 +123,88 @@ export default async function Index({ searchParams }: any) {
             </div>
           </div>
         }
-      ></Suspense>
+      >
+        <div className="flex flex-col lg:flex-row gap-3 lg:gap-0">
+          <div className="flex-1 flex flex-col lg:bg-green-50">
+            <div className="py-4 lg:px-3">
+              <h3 className="font-medium text-lg">Revenues</h3>
+            </div>
+            <div className="flex flex-1 flex-col justify-between">
+              <Table>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="w-full lg:px-3">
+                      Total Sales
+                    </TableCell>
+                    <TableCell className="w-full flex justify-end lg:px-3">{`Ksh.${totalSales.toLocaleString()}`}</TableCell>
+                  </TableRow>
+                  {revenues?.map((revenue: any) => (
+                    <TableRow key={revenue?.id}>
+                      <TableCell className="w-full lg:px-3">
+                        {revenue?.revenue_type_id?.name}
+                      </TableCell>
+                      <TableCell className="w-full flex justify-end lg:px-3">
+                        {`Ksh.${Number(revenue?.amount).toLocaleString()}`}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <Table>
+                <TableBody>
+                  <TableRow className="bg-gray-100 lg:bg-green-200">
+                    <TableCell className="font-medium w-full lg:px-3">
+                      Total
+                    </TableCell>
+                    <TableCell className="font-medium w-full flex justify-end lg:px-3">{`Ksh.${Number(
+                      revenuesSum
+                    ).toLocaleString()}`}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+          <div className="flex-1 flex flex-col lg:bg-red-50">
+            <div className="py-4 lg:px-3">
+              <h3 className="font-medium text-lg">Expenses</h3>
+            </div>
+            <div className="flex flex-1 flex-col justify-between">
+              <Table>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="w-full lg:px-3">
+                      Total Cost of Goods
+                    </TableCell>
+                    <TableCell className="w-full flex justify-end lg:px-3">{`Ksh.${costOfGoods.toLocaleString()}`}</TableCell>
+                  </TableRow>
+                  {expenses?.map((expense: any) => (
+                    <TableRow key={expense?.id}>
+                      <TableCell className="w-full lg:px-3">
+                        {expense?.expense_type_id?.name}
+                      </TableCell>
+                      <TableCell className="w-full flex justify-end lg:px-3">
+                        {`Ksh.${Number(expense?.amount).toLocaleString()}`}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <Table>
+                <TableBody>
+                  <TableRow className="bg-gray-100 lg:bg-red-200">
+                    <TableCell className="font-medium w-full lg:px-3">
+                      Total
+                    </TableCell>
+                    <TableCell className="font-medium w-full flex justify-end lg:px-3">{`Ksh.${Number(
+                      expensesSum
+                    ).toLocaleString()}`}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </div>
+      </Suspense>
     </div>
   );
 }

@@ -8,12 +8,12 @@ export default async function Menu({ active, date }: any) {
         <TabsList className="w-full">
           <TabsTrigger value="orders" asChild>
             <Link href={`/orders/corporate/by-day/view?date=${date}`}>
-              Orders
+              Day Orders
             </Link>
           </TabsTrigger>
           <TabsTrigger value="cog" asChild>
             <Link href={`/orders/corporate/by-day/view/cog?date=${date}`}>
-              CoG
+              Day Cost of Goods
             </Link>
           </TabsTrigger>
           {/* <TabsTrigger value="expenses" asChild>
@@ -23,7 +23,7 @@ export default async function Menu({ active, date }: any) {
           </TabsTrigger> */}
           <TabsTrigger value="report" asChild>
             <Link href={`/orders/corporate/by-day/view/report?date=${date}`}>
-              Report
+              Day Report
             </Link>
           </TabsTrigger>
         </TabsList>

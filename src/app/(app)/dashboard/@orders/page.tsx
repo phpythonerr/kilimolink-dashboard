@@ -40,9 +40,9 @@ export default async function Page() {
         </div>
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1 text-sm">
-        <div className="line-clamp-1 flex gap-2 font-medium">
+        {/* <div className="line-clamp-1 flex gap-2 font-medium">
           {todayCount} new orders today
-        </div>
+        </div> */}
         {/* <div className="text-muted-foreground">
           {percentageChange}% of total orders
         </div> */}
