@@ -15,7 +15,6 @@ import Form from "./form";
 import { getUserById } from "@/data/users";
 import { getOrder } from "@/data/orders";
 import { getProducts, getProductItems } from "@/data/products";
-import { ActionButton } from "../action-button";
 
 export const metadata: Metadata = {
   title: "View Order Items",
@@ -41,62 +40,8 @@ export default async function Page({ searchParams }: any) {
     enabledCategories.includes(product.category_id)
   );
 
-  let { data: order }: any = await supabase
-    .from("orders_order")
-    .select("*")
-    .eq("id", queryParams?.id)
-    .single();
-
-  const users = await getUsers();
-
-  let customers = users.filter(
-    (user: any) => user?.user_metadata?.user_type === "buyer"
-  );
-
-  let customers_arr: any = [];
-
-  customers.map((customer: any) =>
-    customers_arr.push({
-      id: customer?.id,
-      name: `${customer?.user_metadata?.business_name}`,
-    })
-  );
-
-  let customer: any = null;
-
-  if (order) {
-    customer = users.filter((user: any) => user?.id === order?.user)[0];
-  }
-
-  let { data: revenue }: any = await supabase
-    .from("finance_revenue")
-    .select("amount, vat_rule, revenue_type_id ( name )")
-    .eq("order_id", queryParams?.id);
-
-  let userBankAccount = "e8ee6e18-3170-4425-9f0b-012e6dd2a86f";
-
-  if (customer?.user_metadata?.bank_account) {
-    userBankAccount = customer?.user_metadata?.bank_account;
-  }
-
-  const { data: bankAccount, error: bankAccountError }: any = await supabase
-    .from("finance_account")
-    .select("*")
-    .eq("id", userBankAccount)
-    .single();
-
   return (
     <div className="p-4">
-      <div className="mb-4 flex justify-end items-center gap-2">
-        <ActionButton
-          id={queryParams?.id}
-          order_number={order?.order_number}
-          customer={customer}
-          items={items}
-          revenue={revenue}
-          bankAccount={bankAccount}
-        />
-      </div>
       <Tabs defaultValue="items" className="w-[350px]">
         <TabsList className="w-full">
           <TabsTrigger value="details" asChild>
