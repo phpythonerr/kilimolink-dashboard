@@ -35,7 +35,7 @@ export default async function Index({ searchParams }: any) {
   const users = await getUsers();
 
   const customers = users.filter(
-    (user) => user?.user_metadata?.user_type === "buyer"
+    (user: any) => user?.user_metadata?.user_type === "buyer"
   );
 
   const totalPages = customers && Math.ceil(customers.length / pageSize);
