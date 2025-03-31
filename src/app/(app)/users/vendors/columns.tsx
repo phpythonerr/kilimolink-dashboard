@@ -4,7 +4,9 @@ import Link from "next/link";
 
 interface UserMetadata {
   first_name?: string;
+  firstName?: string;
   last_name?: string;
+  lastName?: string;
   tradeName?: string;
 }
 

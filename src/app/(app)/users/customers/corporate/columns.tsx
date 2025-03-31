@@ -5,6 +5,9 @@ import Link from "next/link";
 interface UserMetadata {
   business_name?: string;
   first_name?: string;
+  firstName?: string;
+  last_name?: string;
+  lastName?: string;
 }
 
 // Update User interface with all required properties
