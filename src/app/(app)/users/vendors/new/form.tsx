@@ -129,11 +129,7 @@ export default function NewVendorForm() {
             <FormItem>
               <FormLabel>Trading Name</FormLabel>
               <FormControl>
-                <Input
-                  placeholder=""
-                  {...field}
-                  defaultValue={field.value ?? ""}
-                />
+                <Input placeholder="" {...field} value={field.value ?? ""} />
               </FormControl>
               <FormMessage />
             </FormItem>
