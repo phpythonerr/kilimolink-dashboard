@@ -65,7 +65,7 @@ export function LoginForm({
       loading: "Logging in...",
       success: (res: any) => {
         if (res.success) {
-          push("/");
+          push("/dashboard");
           return (
             res.message ||
             "Successfully logged in. You will be redirected shortly..."

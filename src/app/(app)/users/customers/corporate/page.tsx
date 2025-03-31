@@ -2,19 +2,10 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/server";
+import { getUsers } from "@/data/users";
 import { DataTable } from "@/components/app-datatable";
+import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
 import { columns } from "./columns";
-
-import {
-  Breadcrumb,
-  BreadcrumbEllipsis,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 
 export const metadata: Metadata = {
   title: "Customers",
@@ -27,57 +18,32 @@ interface PageProps {
   searchParams: Promise<SearchParams>;
 }
 
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "Users", href: "/users" },
+  { label: "Customers", href: "/users/customers" },
+  {
+    label: "Corporate",
+    href: "/users/customers/corporate",
+    current: true,
+  },
+];
+
 export default async function Index({ searchParams }: any) {
-  const supabase = await createClient();
+  const page = 1;
+  const pageSize = 10;
+  const users = await getUsers();
 
-  const queryParams = await searchParams;
+  const customers = users.filter(
+    (user) => user?.user_metadata?.user_type === "buyer"
+  );
 
-  let pageSize: number = Number(queryParams.pageSize) || 10;
-
-  let totalPages: number = 0;
-
-  let page: number = 1;
-
-  const {
-    data: { users },
-    error,
-  }: any = await supabase.auth.admin.listUsers({
-    page: page,
-    perPage: pageSize,
-  });
-
-  // totalPages = totaltotal && Math.ceil(total / pageSize);
-
-  totalPages = 1;
+  const totalPages = customers && Math.ceil(customers.length / pageSize);
 
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/">Home</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/users">Users</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/users/customers">Customers</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Corporate</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <AppBreadCrumbs items={breadcrumbs} />
         <div>
           <Button size="sm" asChild>
             <Link href="/users/customers/corporate/new">Register</Link>
@@ -113,7 +79,7 @@ export default async function Index({ searchParams }: any) {
           }
         >
           <DataTable
-            data={users || []}
+            data={customers || []}
             columns={columns}
             pageCount={10}
             currentPage={page}

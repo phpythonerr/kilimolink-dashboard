@@ -30,6 +30,9 @@ export default async function Page() {
           <Link href="/users/farmers" className="text-primary">
             Farmers
           </Link>
+          <Link href="/users/farmers" className="text-primary">
+            Farmers
+          </Link>
         </div>
       </div>
     </div>

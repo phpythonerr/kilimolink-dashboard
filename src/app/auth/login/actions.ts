@@ -31,7 +31,7 @@ export const signIn = async (formData: any) => {
   return {
     success: true,
     mfa: mfa,
-    redirect: "/",
+    redirect: "/dashboard",
     message: "Login successful. You will be redirected shortly",
   };
 };

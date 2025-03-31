@@ -5,12 +5,13 @@ import Link from "next/link";
 interface UserMetadata {
   first_name?: string;
   last_name?: string;
-  tradeName?: string;
+  phone?: string;
 }
 
 // Update User interface with all required properties
 export interface User {
   id: string;
+  email: string;
   user_metadata: UserMetadata;
   created_at: string;
   status?: "active" | "inactive";
@@ -22,7 +23,6 @@ export const columns: ColumnDef<User>[] = [
     accessorKey: "id",
     header: "Business Name",
     cell: ({ row }) => {
-      const tradeName = row.original.user_metadata?.tradeName;
       const firstName =
         row.original.user_metadata?.first_name ||
         row.original.user_metadata?.firstName;
@@ -30,15 +30,13 @@ export const columns: ColumnDef<User>[] = [
         row.original.user_metadata?.last_name ||
         row.original.user_metadata?.lastName;
 
-      const dispayName = tradeName
-        ? `${firstName} ${lastName} (${tradeName})`
-        : `${firstName} ${lastName}`;
+      const dispayName = `${firstName} ${lastName}`;
 
       return (
         <Link
           href={`/users/vendors/view?id=${row.original.id}`}
           className="text-primary"
-        >{`${dispayName || "Unknown Vendor"}`}</Link>
+        >{`${dispayName || row.original.email}`}</Link>
       );
     },
   },

@@ -22,8 +22,8 @@ const breadcrumbs = [
   { label: "Home", href: "/" },
   { label: "Users", href: "/users" },
   {
-    label: "Vendors",
-    href: "/users/vendors",
+    label: "Farmers",
+    href: "/users/farmers",
     current: true,
   },
 ];
@@ -33,11 +33,11 @@ export default async function Index({ searchParams }: any) {
   const pageSize = 10;
   const users = await getUsers();
 
-  const vendors = users.filter(
-    (user) => user?.user_metadata?.user_type === "vendor"
+  const farmers = users.filter(
+    (user) => user?.user_metadata?.user_type === "farmer"
   );
 
-  const totalPages = vendors && Math.ceil(vendors.length / pageSize);
+  const totalPages = farmers && Math.ceil(farmers.length / pageSize);
 
   return (
     <div className="p-4">
@@ -45,7 +45,7 @@ export default async function Index({ searchParams }: any) {
         <AppBreadCrumbs items={breadcrumbs} />
         <div>
           <Button size="sm" asChild>
-            <Link href="/users/vendors/new">Register Vendor</Link>
+            <Link href="/users/farmers/new">Register Farmer</Link>
           </Button>
         </div>
       </div>
@@ -78,7 +78,7 @@ export default async function Index({ searchParams }: any) {
           }
         >
           <DataTable
-            data={vendors || []}
+            data={farmers || []}
             columns={columns}
             pageCount={totalPages}
             currentPage={page}
