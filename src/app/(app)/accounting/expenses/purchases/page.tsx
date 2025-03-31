@@ -40,16 +40,14 @@ export default async function Index({ searchParams }: any) {
   let page: number = 1;
 
   let query: any = supabase
-    .from("finance_expense")
+    .from("inventory_purchases")
     .select(
-      "id, expense_type_id ( name ), amount, date, txn_reference_code, description, source_of_funds, added_by",
-      { count: "exact" }
+      "created_date, product_id ( id, name), quantity, unit_price, payment_status, product_uom",
+      {
+        count: "exact",
+      }
     )
-    .order("date", { ascending: false });
-
-  let { data: allOrders, error: allOrdersError } = await query;
-
-  let totalOrders = allOrders?.length;
+    .order("created_date", { ascending: false });
 
   if (queryParams?.page && /^-?\d+$/.test(queryParams?.page)) {
     page = Number(queryParams?.page);
@@ -62,9 +60,13 @@ export default async function Index({ searchParams }: any) {
     query = query.range(0, pageSize);
   }
 
-  let { data: orders, error } = await query;
+  const {
+    data: allPurchases,
+    count: totalPurchase,
+    error: allPurchasesError,
+  } = await query;
 
-  totalPages = totalOrders && Math.ceil(totalOrders / pageSize);
+  totalPages = totalPurchase && Math.ceil(totalPurchase / pageSize);
 
   return (
     <div className="p-4">
@@ -78,7 +80,7 @@ export default async function Index({ searchParams }: any) {
       </div>
       <Suspense fallback={<div>Loading...</div>}>
         <DataTable
-          data={orders || []}
+          data={allPurchases || []}
           columns={columns}
           pageCount={totalPages}
           currentPage={page}

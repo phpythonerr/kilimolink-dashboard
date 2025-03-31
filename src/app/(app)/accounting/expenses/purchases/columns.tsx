@@ -6,6 +6,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import Link from "next/link";
 
 // Define your data type
 export interface ExpenseInterface {
@@ -22,45 +23,48 @@ export interface ExpenseInterface {
 // Define your columns
 export const columns: ColumnDef<ExpenseInterface>[] = [
   {
-    accessorKey: "date",
+    accessorKey: "created_date",
     header: "Date",
     cell: ({ row }) => {
-      return new Date(row.getValue("date")).toDateString();
+      return new Date(row.getValue("created_date")).toDateString();
     },
   },
   {
-    accessorKey: "id",
-    header: "Expense Type",
+    accessorKey: "product",
+    header: "Product",
     cell: ({ row }) => {
-      const expense_type = row.original?.expense_type_id?.name as string;
-      const description = row.original?.description as string;
+      const {
+        product_id: { name, id },
+      } = row.original;
       return (
-        <HoverCard>
-          <HoverCardTrigger>
-            <div className="flex items-center gap-2">
-              <span> {expense_type}</span>
-              <Info size={12} />
-            </div>
-          </HoverCardTrigger>
-          <HoverCardContent>
-            <p>{description}</p>
-          </HoverCardContent>
-        </HoverCard>
+        <Link href={`/store/products/view?id=${id}`} className="text-primary">
+          {name}
+        </Link>
       );
     },
   },
   {
-    accessorKey: "amount",
-    header: "Amount",
+    accessorKey: "quantity",
+    header: "Quantity",
     cell: ({ row }) => {
-      return `Ksh.${Number(row.getValue("amount")).toLocaleString()}`;
+      const { quantity, product_uom } = row.original;
+      return `${quantity} ${product_uom}`;
     },
   },
   {
-    accessorKey: "txn_reference_code",
-    header: "Txn Code",
+    accessorKey: "unit_price",
+    header: "Unit Price",
     cell: ({ row }) => {
-      return row.getValue("txn_reference_code");
+      const { unit_price, product_uom } = row.original;
+      return `Ksh.${unit_price} / ${product_uom}`;
+    },
+  },
+  {
+    accessorKey: "payment_status",
+    header: "Payment Status",
+    cell: ({ row }) => {
+      const { payment_status } = row.original;
+      return `${payment_status}`;
     },
   },
 ];

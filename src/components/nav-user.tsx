@@ -7,6 +7,7 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
+  RefreshCw,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { signOut } from "@/app/auth/login/actions";
@@ -115,6 +116,17 @@ export function NavUser({ user }: NavUserProps) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="https://www.kilimolink.com/app/staff"
+                  target="_blank"
+                >
+                  <div className="flex flex-1 items-center gap-2">
+                    <RefreshCw />
+                    Switch to Old Version
+                  </div>
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="#">
                   <div className="flex flex-1 items-center gap-2">
