@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/admin/server";
 const FormSchema = z.object({
   firstName: z.string().min(1, "First Name is required"),
   lastName: z.string().min(1, "Last Name is required"),
-  tradeName: z.string().optional().nullable(),
+  tradeName: z.string().min(1, "Trade Name is required"),
   phoneNumber: z
     .string()
     .min(1, "Phone Number is required")
@@ -34,7 +34,7 @@ export async function createVendor(formData: FormData) {
     const location = formData.get("location");
 
     // Validate required fields
-    if (!firstName || !lastName || !phoneNumber || !location) {
+    if (!firstName || !lastName || !tradeName || !phoneNumber || !location) {
       return { error: "Missing required fields" };
     }
 
