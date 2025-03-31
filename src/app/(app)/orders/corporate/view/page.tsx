@@ -3,7 +3,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { createClient } from "@/lib/supabase/server";
 import { getUsers } from "@/data/users";
 import { Info } from "lucide-react";
-
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ActionButton } from "./action-button";

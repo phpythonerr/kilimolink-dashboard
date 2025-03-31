@@ -95,10 +95,6 @@ export function ActionButton({
               }}
             </PDFDownloadLink>
           </DropdownMenuItem>
-          {/* <DropdownMenuItem>
-            <Trash2 className="text-red-700 dark:text-red-400" />
-            <span className="text-red-700 dark:text-red-400">Delete</span>
-          </DropdownMenuItem> */}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
