@@ -34,7 +34,7 @@ import { createVendor } from "./actions";
 const formSchema = z.object({
   firstName: z.string().min(1, "First Name is required"),
   lastName: z.string().min(1, "Last Name is required"),
-  tradeName: z.string().optional().nullable(),
+  tradeName: z.string().optional(),
   phoneNumber: z.string().min(1, "Phone Number is required"),
   location: z.string().min(1, "Location is required"),
 });
@@ -129,7 +129,11 @@ export default function NewVendorForm() {
             <FormItem>
               <FormLabel>Trading Name</FormLabel>
               <FormControl>
-                <Input placeholder="" {...field} />
+                <Input
+                  placeholder=""
+                  {...field}
+                  defaultValue={field.value ?? ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
