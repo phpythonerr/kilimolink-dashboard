@@ -9,19 +9,20 @@ import {
 import Link from "next/link";
 
 // Define your data type
-export interface ExpenseInterface {
-  id: string;
-  date: Date;
-  amount: number;
-  txn_reference_code: string;
-  expense_type_id: {
+export interface PurchasesInterface {
+  created_date: Date;
+  product_id: {
     name: string;
+    id: string;
   };
-  description: string;
+  quantity: number;
+  product_uom: string;
+  unit_price: number;
+  payment_status: string;
 }
 
 // Define your columns
-export const columns: ColumnDef<ExpenseInterface>[] = [
+export const columns: ColumnDef<PurchasesInterface>[] = [
   {
     accessorKey: "created_date",
     header: "Date",
