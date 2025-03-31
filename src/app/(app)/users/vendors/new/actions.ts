@@ -67,7 +67,7 @@ export async function createVendor(formData: FormData) {
     }
 
     return { success: true };
-  } catch (err) {
+  } catch (error) {
     if (error instanceof z.ZodError) {
       return { error: error.errors[0].message };
     }
