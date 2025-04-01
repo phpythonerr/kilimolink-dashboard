@@ -57,6 +57,7 @@ export default async function Page({ searchParams }: any) {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>#</TableHead>
                 <TableHead>Item</TableHead>
                 <TableHead>Qty</TableHead>
                 <TableHead>UoM</TableHead>

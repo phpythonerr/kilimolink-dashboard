@@ -185,6 +185,9 @@ export default function Form({ products, items, order }: any) {
     <TableBody>
       {orderItems?.map((item: any, index: number) => (
         <TableRow key={`${item?.id}-${index}`}>
+          <TableCell className="w-3">
+            <span>{index + 1}. </span>
+          </TableCell>
           <TableCell>
             <Popover
               open={productPopoverOpenStates[index]}
