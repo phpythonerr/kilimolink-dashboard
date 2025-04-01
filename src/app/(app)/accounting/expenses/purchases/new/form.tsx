@@ -52,6 +52,7 @@ const formSchema = z.object({
   purchaseDate: z.string().min(1, "Purchase date is required"),
   paymentTerms: z.string().min(1, "Payment terms is required"),
   productUoM: z.string().min(1, "Product UoM is required"),
+  paymentStatus: z.string().min(1, "Payment Status is required"),
 });
 
 export default function NewPurchaseForm({ vendors, products }: any) {
@@ -69,6 +70,7 @@ export default function NewPurchaseForm({ vendors, products }: any) {
       purchaseDate: new Date().toISOString().split("T")[0],
       paymentTerms: "",
       productUoM: "",
+      paymentStatus: "Unpaid",
     },
   });
 
@@ -89,6 +91,7 @@ export default function NewPurchaseForm({ vendors, products }: any) {
     formData.append("purchaseDate", data.purchaseDate);
     formData.append("paymentTerms", data.paymentTerms);
     formData.append("productUoM", data.productUoM);
+    formData.append("paymentStatus", data.paymentStatus);
 
     await toast.promise(createPurchase(formData), {
       loading: "Creating purchase...",
@@ -375,6 +378,28 @@ export default function NewPurchaseForm({ vendors, products }: any) {
                 <SelectContent>
                   <SelectItem value="Credit">Credit</SelectItem>
                   <SelectItem value="Cash">Cash</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="paymentStatus"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Payment Status</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Payment Terms" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Unpaid">Unpaid</SelectItem>
+                  <SelectItem value="Paid">Paid</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

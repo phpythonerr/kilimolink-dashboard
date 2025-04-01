@@ -12,6 +12,7 @@ const FormSchema = z.object({
   purchaseDate: z.string().min(1, "Purchase date is required"),
   paymentTerms: z.string().min(1, "Payment terms is required"),
   productUoM: z.string().min(1, "Product UoM is required"),
+  paymentStatus: z.string().min(1, "Payment Status is required"),
 });
 
 type PurchaseInput = z.infer<typeof FormSchema>;
@@ -26,6 +27,7 @@ export async function createPurchase(formData: FormData) {
     const purchaseDate = formData.get("purchaseDate");
     const paymentTerms = formData.get("paymentTerms");
     const productUoM = formData.get("productUoM");
+    const paymentStatus = formData.get("paymentStatus");
 
     // Validate required fields
     if (
@@ -35,7 +37,8 @@ export async function createPurchase(formData: FormData) {
       !quantity ||
       !purchaseDate ||
       !paymentTerms ||
-      !productUoM
+      !productUoM ||
+      !paymentStatus
     ) {
       return { error: "Missing required fields" };
     }
@@ -49,6 +52,7 @@ export async function createPurchase(formData: FormData) {
       purchaseDate: purchaseDate?.toString(),
       paymentTerms: paymentTerms?.toString(),
       productUoM: productUoM?.toString(),
+      paymentStatus: paymentStatus?.toString(),
     };
 
     // Validate the data
@@ -64,10 +68,8 @@ export async function createPurchase(formData: FormData) {
         purchase_date: validatedData.purchaseDate,
         payment_terms: validatedData.paymentTerms,
         product_uom: validatedData.productUoM,
+        payment_status: validatedData?.paymentStatus,
       });
-
-    console.log(error);
-    console.log(purchase);
 
     if (error) return { error: error.message };
 
