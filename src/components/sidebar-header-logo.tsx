@@ -12,8 +12,30 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 
 export function SidebarHeaderLogo() {
-  const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
   const { open: isOpen } = useSidebar();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const logoSrc = React.useMemo(() => {
+    if (isOpen) {
+      return resolvedTheme === "dark"
+        ? "/img/logo/logo-white.svg"
+        : "/img/logo/logo-primary.svg";
+    }
+    return resolvedTheme === "dark"
+      ? "/img/logo/logo-symbol-white.svg"
+      : "/img/logo/kilimolink-logo-symbol-green.svg";
+  }, [resolvedTheme, isOpen]);
+
+  // Handle initial loading state
+  if (!mounted) {
+    return null;
+  }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -25,15 +47,7 @@ export function SidebarHeaderLogo() {
             <Image
               width={Boolean(isOpen) ? 133 : 30}
               height={30}
-              src={
-                Boolean(isOpen)
-                  ? theme === "dark"
-                    ? "/img/logo/logo-white.svg"
-                    : "/img/logo/logo-primary.svg"
-                  : theme === "dark"
-                  ? "/img/logo/logo-symbol-white.svg"
-                  : "/img/logo/kilimolink-logo-symbol-green.svg"
-              }
+              src={logoSrc}
               alt="Kilimolink"
               priority
               className=""
