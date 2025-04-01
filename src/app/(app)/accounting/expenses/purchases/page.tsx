@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
 import { createClient } from "@/lib/supabase/server";
 import { DataTable } from "@/components/app-datatable";
+import { getUsers } from "@/data/users";
 import { columns } from "./columns";
 
 export const metadata: Metadata = {
@@ -42,7 +43,7 @@ export default async function Index({ searchParams }: any) {
   let query: any = supabase
     .from("inventory_purchases")
     .select(
-      "created_date, product_id ( id, name), quantity, unit_price, payment_status, product_uom",
+      "created_date, vendor, product_id ( id, name), quantity, unit_price, payment_status, product_uom",
       {
         count: "exact",
       }
@@ -68,6 +69,18 @@ export default async function Index({ searchParams }: any) {
 
   totalPages = totalPurchase && Math.ceil(totalPurchase / pageSize);
 
+  const users = await getUsers();
+
+  const userMap: any = {};
+  users?.forEach((user: any) => {
+    userMap[user.id] = user;
+  });
+
+  const enhancedData = allPurchases?.map((item: any) => ({
+    ...item,
+    user_obj: userMap[item.vendor] || { name: "Unknown User" },
+  }));
+
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
@@ -80,7 +93,7 @@ export default async function Index({ searchParams }: any) {
       </div>
       <Suspense fallback={<div>Loading...</div>}>
         <DataTable
-          data={allPurchases || []}
+          data={enhancedData || []}
           columns={columns}
           pageCount={totalPages}
           currentPage={page}

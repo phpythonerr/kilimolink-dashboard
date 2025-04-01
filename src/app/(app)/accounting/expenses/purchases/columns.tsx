@@ -30,6 +30,31 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
       return new Date(row.getValue("created_date")).toDateString();
     },
   },
+
+  {
+    accessorKey: "vendor",
+    header: "Vendor",
+    cell: ({ row }) => {
+      const { user_obj: user } = row.original;
+
+      const tradeName = user.user_metadata?.tradeName;
+      const firstName =
+        user.user_metadata?.first_name || user.user_metadata?.firstName;
+      const lastName =
+        user.user_metadata?.last_name || user.user_metadata?.lastName;
+
+      const dispayName = tradeName
+        ? `${firstName} ${lastName} (${tradeName})`
+        : `${firstName} ${lastName}`;
+
+      return (
+        <Link
+          href={`/users/vendors/view?id=${user?.id}`}
+          className="text-primary"
+        >{`${dispayName || "Unknown Vendor"}`}</Link>
+      );
+    },
+  },
   {
     accessorKey: "product",
     header: "Product",
