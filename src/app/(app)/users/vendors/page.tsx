@@ -34,7 +34,7 @@ export default async function Index({ searchParams }: any) {
   const users = await getUsers();
 
   const vendors = users.filter(
-    (user) => user?.user_metadata?.user_type === "vendor"
+    (user: any) => user?.user_metadata?.user_type === "vendor"
   );
 
   console.log(vendors);
