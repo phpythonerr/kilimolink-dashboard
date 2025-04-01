@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { EllipsisVertical, ListCheck, CreditCard, Trash2 } from "lucide-react";
+import {
+  EllipsisVertical,
+  ListCheck,
+  CreditCard,
+  Download,
+  Trash2,
+} from "lucide-react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { toast } from "sonner";
 import Invoice from "./invoice-pdf";
@@ -57,7 +63,7 @@ export function ActionButton({
               {({ loading }) => {
                 return (
                   <>
-                    <ListCheck className="h-4 w-4 mr-2" />
+                    <Download className="h-4 w-4 mr-2" />
                     <span>
                       {loading
                         ? "Preparing Delivery Note..."
@@ -86,7 +92,7 @@ export function ActionButton({
               {({ loading }) => {
                 return (
                   <>
-                    <CreditCard className="h-4 w-4 mr-2" />
+                    <Download className="h-4 w-4 mr-2" />
                     <span>
                       {loading ? "Preparing Invoice..." : "Download Invoice"}
                     </span>

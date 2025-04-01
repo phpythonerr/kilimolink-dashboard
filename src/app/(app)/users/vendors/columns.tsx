@@ -22,7 +22,7 @@ export interface User {
 export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "id",
-    header: "Business Name",
+    header: "Vendor Name",
     cell: ({ row }) => {
       const tradeName = row.original.user_metadata?.tradeName;
       const firstName =

@@ -82,7 +82,7 @@ export default function DeliveryNote({ order_number, items, customer }: any) {
           <View style={styles.pageHeader}>
             <View>
               <Image
-                src="/img/logo/logo-primary-by-lolkirr.png"
+                src="https://www.kilimolink.com/img/logo/logo-primary-by-lolkirr.png"
                 style={{ marginBottom: 12, width: 88.72773, height: 30 }}
               />
               <View style={{ paddingVertical: 3 }}>
