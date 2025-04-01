@@ -24,7 +24,7 @@ export default async function Page({ searchParams }: any) {
   const supabase = await createClient();
   const queryParams = await searchParams;
 
-  const { data, error } = await supabase
+  const { data, error }: any = await supabase
     .from("finance_expense")
     .select("date, amount")
     .eq("expense_type_id", "f9bb215a-e1fd-4391-bd1c-e309521d3b51")

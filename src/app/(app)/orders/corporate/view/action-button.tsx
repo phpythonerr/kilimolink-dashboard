@@ -7,6 +7,7 @@ import {
   CreditCard,
   Download,
   Trash2,
+  Ellipsis,
 } from "lucide-react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { toast } from "sonner";
@@ -41,8 +42,8 @@ export function ActionButton({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="flex items-center gap-2">
-          {/* <EllipsisVertical /> */}
-          <span>Actions</span>
+          <Ellipsis />
+          {/* <span>Actions</span> */}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
