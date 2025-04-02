@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 const breadcrumbs = [
-  { label: "Home", href: "/" },
+  { label: "Dashboard", href: "/dashboard" },
   { label: "Reports", href: "/reports" },
   { label: "Products", href: "/reports/products", current: true },
 ];

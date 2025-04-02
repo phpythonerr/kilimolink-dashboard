@@ -19,7 +19,7 @@ interface PageProps {
 }
 
 const breadcrumbs = [
-  { label: "Home", href: "/" },
+  { label: "Dashboard", href: "/dashboard" },
   { label: "Users", href: "/users" },
   {
     label: "Vendors",

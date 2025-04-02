@@ -427,7 +427,7 @@ export function AppSidebar({ user, ...props }: SidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton tooltip="Quick Actions" asChild>
-              <Link href="/">
+              <Link href="/dashboard">
                 <CircleGauge />
                 <span>Dashboard</span>
               </Link>

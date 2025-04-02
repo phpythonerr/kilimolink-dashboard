@@ -43,7 +43,7 @@ export function SidebarHeaderLogo() {
           size="lg"
           className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
         >
-          <Link href="/">
+          <Link href="/dashboard">
             <Image
               width={Boolean(isOpen) ? 133 : 30}
               height={30}

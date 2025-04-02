@@ -42,7 +42,7 @@ export function NavQuickActions({
               className="cursor-pointer"
             >
               <Zap />
-              <span>Quick Actions</span>
+              <span>Dashboard</span>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>

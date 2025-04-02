@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 const breadcrumbs = [
-  { label: "Home", href: "/" },
+  { label: "Dashboard", href: "/dashboard" },
   { label: "Logistics", href: "/logistic" },
   { label: "Vehicles", href: "/logistics/vehicles", current: true },
 ];
