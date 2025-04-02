@@ -124,83 +124,122 @@ export default async function Index({ searchParams }: any) {
           </div>
         }
       >
-        <div className="flex flex-col lg:flex-row gap-3 lg:gap-0">
-          <div className="flex-1 flex flex-col lg:bg-green-50 lg:dark:bg-green-950">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
             <div className="py-4 lg:px-3">
-              <h3 className="font-medium text-lg">Revenues</h3>
+              <h2 className="font-medium text-xl">Summary</h2>
             </div>
-            <div className="flex flex-1 flex-col justify-between">
+            <div>
               <Table>
                 <TableBody>
                   <TableRow>
-                    <TableCell className="w-full lg:px-3">
-                      Total Sales
-                    </TableCell>
-                    <TableCell className="w-full flex justify-end lg:px-3">{`Ksh.${totalSales.toLocaleString()}`}</TableCell>
+                    <TableCell className="w-48">Total Revenue</TableCell>
+                    <TableCell className="">{`Ksh.${revenuesSum.toLocaleString()}`}</TableCell>
                   </TableRow>
-                  {revenues?.map((revenue: any) => (
-                    <TableRow key={revenue?.id}>
-                      <TableCell className="w-full lg:px-3">
-                        {revenue?.revenue_type_id?.name}
-                      </TableCell>
-                      <TableCell className="w-full flex justify-end lg:px-3">
-                        {`Ksh.${Number(revenue?.amount).toLocaleString()}`}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              <Table>
-                <TableBody>
-                  <TableRow className="bg-gray-100 dark:bg-inherit lg:bg-green-200 lg:dark:bg-green-900">
-                    <TableCell className="font-medium w-full lg:px-3">
-                      Total
-                    </TableCell>
-                    <TableCell className="font-medium w-full flex justify-end lg:px-3">{`Ksh.${Number(
-                      revenuesSum
+                  <TableRow>
+                    <TableCell className="w-48">Total Expenses</TableCell>
+                    <TableCell className="">{`Ksh.${expensesSum.toLocaleString()}`}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="w-48">Profit</TableCell>
+                    <TableCell className="">{`Ksh.${Number(
+                      revenuesSum - expensesSum
                     ).toLocaleString()}`}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="w-48">Net Margin</TableCell>
+                    <TableCell className="">{`${(
+                      ((revenuesSum - expensesSum) / revenuesSum) *
+                      100
+                    ).toFixed(2)}%`}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
             </div>
           </div>
-          <div className="flex-1 flex flex-col lg:bg-red-50 lg:dark:bg-red-950">
+          <div className="flex flex-col gap-2">
             <div className="py-4 lg:px-3">
-              <h3 className="font-medium text-lg">Expenses</h3>
+              <h2 className="font-medium text-xl">Breakdown</h2>
             </div>
-            <div className="flex flex-1 flex-col justify-between">
-              <Table>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="w-full lg:px-3">
-                      Total Cost of Goods
-                    </TableCell>
-                    <TableCell className="w-full flex justify-end lg:px-3">{`Ksh.${costOfGoods.toLocaleString()}`}</TableCell>
-                  </TableRow>
-                  {expenses?.map((expense: any) => (
-                    <TableRow key={expense?.id}>
-                      <TableCell className="w-full lg:px-3">
-                        {expense?.expense_type_id?.name}
-                      </TableCell>
-                      <TableCell className="w-full flex justify-end lg:px-3">
-                        {`Ksh.${Number(expense?.amount).toLocaleString()}`}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              <Table>
-                <TableBody>
-                  <TableRow className="bg-gray-100 dark:bg-inherit lg:bg-red-200 lg:dark:bg-red-900">
-                    <TableCell className="font-medium w-full lg:px-3">
-                      Total
-                    </TableCell>
-                    <TableCell className="font-medium w-full flex justify-end lg:px-3">{`Ksh.${Number(
-                      expensesSum
-                    ).toLocaleString()}`}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+            <div className="flex flex-col lg:flex-row gap-3 lg:gap-0">
+              <div className="flex-1 flex flex-col lg:bg-green-50 lg:dark:bg-green-950">
+                <div className="py-4 lg:px-3">
+                  <h3 className="font-medium text-lg">Revenues</h3>
+                </div>
+                <div className="flex flex-1 flex-col justify-between">
+                  <Table>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="w-full lg:px-3">
+                          Total Sales
+                        </TableCell>
+                        <TableCell className="w-full flex justify-end lg:px-3">{`Ksh.${totalSales.toLocaleString()}`}</TableCell>
+                      </TableRow>
+                      {revenues?.map((revenue: any) => (
+                        <TableRow key={revenue?.id}>
+                          <TableCell className="w-full lg:px-3">
+                            {revenue?.revenue_type_id?.name}
+                          </TableCell>
+                          <TableCell className="w-full flex justify-end lg:px-3">
+                            {`Ksh.${Number(revenue?.amount).toLocaleString()}`}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  <Table>
+                    <TableBody>
+                      <TableRow className="bg-gray-100 dark:bg-inherit lg:bg-green-200 lg:dark:bg-green-900">
+                        <TableCell className="font-medium w-full lg:px-3">
+                          Total
+                        </TableCell>
+                        <TableCell className="font-medium w-full flex justify-end lg:px-3">{`Ksh.${Number(
+                          revenuesSum
+                        ).toLocaleString()}`}</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+              <div className="flex-1 flex flex-col lg:bg-red-50 lg:dark:bg-red-950">
+                <div className="py-4 lg:px-3">
+                  <h3 className="font-medium text-lg">Expenses</h3>
+                </div>
+                <div className="flex flex-1 flex-col justify-between">
+                  <Table>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="w-full lg:px-3">
+                          Total Cost of Goods
+                        </TableCell>
+                        <TableCell className="w-full flex justify-end lg:px-3">{`Ksh.${costOfGoods.toLocaleString()}`}</TableCell>
+                      </TableRow>
+                      {expenses?.map((expense: any) => (
+                        <TableRow key={expense?.id}>
+                          <TableCell className="w-full lg:px-3">
+                            {expense?.expense_type_id?.name}
+                          </TableCell>
+                          <TableCell className="w-full flex justify-end lg:px-3">
+                            {`Ksh.${Number(expense?.amount).toLocaleString()}`}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  <Table>
+                    <TableBody>
+                      <TableRow className="bg-gray-100 dark:bg-inherit lg:bg-red-200 lg:dark:bg-red-900">
+                        <TableCell className="font-medium w-full lg:px-3">
+                          Total
+                        </TableCell>
+                        <TableCell className="font-medium w-full flex justify-end lg:px-3">{`Ksh.${Number(
+                          expensesSum
+                        ).toLocaleString()}`}</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
