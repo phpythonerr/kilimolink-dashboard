@@ -41,10 +41,10 @@ export interface PurchasesInterface {
 // Define columns
 export const columns: ColumnDef<PurchasesInterface>[] = [
   {
-    accessorKey: "created_date",
+    accessorKey: "purchase_date",
     header: "Date",
     cell: ({ row }) => {
-      return new Date(row.getValue("created_date")).toDateString();
+      return new Date(row.getValue("purchase_date")).toDateString();
     },
   },
 

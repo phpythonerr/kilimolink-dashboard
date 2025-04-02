@@ -187,7 +187,7 @@ export default function Form({ products, items, order }: any) {
     );
   }
 
-  const getItem = (id) => {
+  const getItem = (id: string) => {
     if (!id || id === "no_item") return "No Item";
     const product = products.find((product: any) => product?.id === id);
     return (
