@@ -16,6 +16,7 @@ interface UserMetadata {
   firstName?: string;
   last_name?: string;
   lastName?: string;
+  location?: string;
 }
 
 interface User {
