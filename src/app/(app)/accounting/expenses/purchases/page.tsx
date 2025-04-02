@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
 import { createClient } from "@/lib/supabase/server";
 import { DataTable } from "@/components/app-datatable";
+import { LocationFilter } from "./location-filter";
+import { SellerFilter } from "./seller-filter";
+import { DateFilter } from "./date-filter";
 import { getUsers } from "@/data/users";
 import { columns } from "./columns";
 
@@ -33,6 +36,7 @@ interface PageProps {
 export default async function Index({ searchParams }: any) {
   const queryParams = await searchParams;
   const supabase = await createClient();
+  const users = await getUsers();
 
   let pageSize: number = Number(queryParams.pageSize) || 10;
 
@@ -61,6 +65,29 @@ export default async function Index({ searchParams }: any) {
     query = query.range(0, pageSize);
   }
 
+  if (queryParams.location && queryParams?.location !== "all") {
+    // Get user IDs for the selected location
+    const userIds = users
+      .filter((user) => user.user_metadata?.location === queryParams.location)
+      .map((user) => user.id);
+
+    query = query.in("vendor", userIds);
+  }
+
+  if (queryParams.seller && queryParams.seller !== "all") {
+    query = query.eq("vendor", queryParams.seller);
+  }
+
+  if (queryParams.from) {
+    query = query.gte("purchase_date", queryParams.from);
+  }
+  if (queryParams.to) {
+    // Add one day to include the end date
+    const endDate = new Date(queryParams.to);
+    endDate.setDate(endDate.getDate() + 1);
+    query = query.lt("purchase_date", endDate.toISOString().split("T")[0]);
+  }
+
   const {
     data: allPurchases,
     count: totalPurchase,
@@ -68,8 +95,6 @@ export default async function Index({ searchParams }: any) {
   } = await query;
 
   totalPages = totalPurchase && Math.ceil(totalPurchase / pageSize);
-
-  const users = await getUsers();
 
   const userMap: any = {};
   users?.forEach((user: any) => {
@@ -92,13 +117,20 @@ export default async function Index({ searchParams }: any) {
         </div>
       </div>
       <Suspense fallback={<div>Loading...</div>}>
-        <DataTable
-          data={enhancedData || []}
-          columns={columns}
-          pageCount={totalPages}
-          currentPage={page}
-          pageSize={pageSize}
-        />
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <SellerFilter users={users} />
+            <LocationFilter users={users} />
+            <DateFilter />
+          </div>
+          <DataTable
+            data={enhancedData || []}
+            columns={columns}
+            pageCount={totalPages}
+            currentPage={page}
+            pageSize={pageSize}
+          />
+        </div>
       </Suspense>
     </div>
   );

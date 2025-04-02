@@ -73,6 +73,15 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
     },
   },
   {
+    accessorKey: "location",
+    header: "Location",
+    cell: ({ row }) => {
+      const { user_obj: user } = row.original;
+
+      return user?.user_metadata?.location;
+    },
+  },
+  {
     accessorKey: "product",
     header: "Product",
     cell: ({ row }) => {
