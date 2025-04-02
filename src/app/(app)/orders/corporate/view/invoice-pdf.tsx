@@ -254,7 +254,7 @@ export default function Invoice({
             {items.map((item: any, index: any) => {
               rowCount = rowCount + 1;
               return (
-                <View style={styles.row}>
+                <View key={index} style={styles.row}>
                   <View style={[styles.col, { width: "5%" }]}>
                     <Text>{index + 1}</Text>
                   </View>
@@ -306,7 +306,7 @@ export default function Invoice({
             {revenue.map((rev: any, index: any) => {
               rowCount = items?.length + 1;
               return (
-                <View style={styles.row}>
+                <View key={index} style={styles.row}>
                   <View style={[styles.col, { width: "5%" }]}>
                     <Text>{rowCount}</Text>
                   </View>

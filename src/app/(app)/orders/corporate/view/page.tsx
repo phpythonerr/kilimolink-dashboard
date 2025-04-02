@@ -94,7 +94,10 @@ export default async function Page({ searchParams }: any) {
 
   return (
     <div className="p-4">
-      <div className="mb-4 flex justify-end items-center gap-2">
+      <div className="mb-4 flex justify-between items-center gap-2">
+        <h1 className="font-medium text-2xl">
+          Order #{`K${order?.order_number}S`}
+        </h1>
         <ActionButton
           id={queryParams?.id}
           order_number={order?.order_number}
