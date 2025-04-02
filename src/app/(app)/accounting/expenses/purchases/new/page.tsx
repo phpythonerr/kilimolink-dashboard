@@ -55,7 +55,7 @@ export default async function Index() {
             <p className="text-sm">Enter the details of the new purchase.</p>
           </div>
           <Suspense fallback={<div>Loading...</div>}>
-            <NewPurchaseForm vendors={vendors} products={products} />
+            <NewPurchaseForm vendors={users} products={products} />
           </Suspense>
         </div>
       </div>

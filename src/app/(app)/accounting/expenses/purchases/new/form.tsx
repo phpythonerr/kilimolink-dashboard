@@ -45,6 +45,7 @@ import {
 import { createPurchase } from "./actions";
 
 const formSchema = z.object({
+  sellerType: z.string().min(1, "Seller Type is required"),
   vendorId: z.string().min(1, "Vendor is required"),
   productId: z.string().min(1, "Product is required"),
   unitPrice: z.string().min(1, "Unit price is required"),
@@ -63,6 +64,7 @@ export default function NewPurchaseForm({ vendors, products }: any) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      sellerType: "vendor",
       vendorId: "",
       productId: "",
       unitPrice: "",
@@ -76,10 +78,10 @@ export default function NewPurchaseForm({ vendors, products }: any) {
 
   const selectedProductId = form.watch("productId");
 
+  const selectedSellerType = form.watch("sellerType");
+
   async function onSubmit(data: z.infer<typeof formSchema>) {
     if (submitting) return;
-
-    console.log(data);
 
     setSubmitting(true);
 
@@ -92,6 +94,7 @@ export default function NewPurchaseForm({ vendors, products }: any) {
     formData.append("paymentTerms", data.paymentTerms);
     formData.append("productUoM", data.productUoM);
     formData.append("paymentStatus", data.paymentStatus);
+    formData.append("sellerType", data.sellerType);
 
     await toast.promise(createPurchase(formData), {
       loading: "Creating purchase...",
@@ -140,10 +143,33 @@ export default function NewPurchaseForm({ vendors, products }: any) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
+          name="sellerType"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Seller Type</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Seller Type" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="vendor">Vendor</SelectItem>
+                  <SelectItem value="farmer">Farmer</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="vendorId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Vendor</FormLabel>
+              <FormLabel className="capitalize">
+                {selectedSellerType || "Vendor"}
+              </FormLabel>
               <Popover
                 open={vendorPopoverOpen}
                 onOpenChange={setVendorPopoverOpen}
@@ -154,13 +180,13 @@ export default function NewPurchaseForm({ vendors, products }: any) {
                       variant="outline"
                       role="combobox"
                       className={cn(
-                        "w-full justify-between",
+                        "w-full justify-between capitalize",
                         !field.value && "text-muted-foreground"
                       )}
                     >
                       {field.value
                         ? getVendorName(field.value)
-                        : "Select Vendor"}
+                        : `Select ${selectedSellerType}`}
                       <ChevronsUpDown className="opacity-50" />
                     </Button>
                   </FormControl>
@@ -168,32 +194,38 @@ export default function NewPurchaseForm({ vendors, products }: any) {
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                   <Command>
                     <CommandInput
-                      placeholder="Search vendor..."
+                      placeholder={`Select ${selectedSellerType}`}
                       className="h-9"
                     />
                     <CommandList>
-                      <CommandEmpty>No vendor found.</CommandEmpty>
+                      <CommandEmpty>{`No ${selectedSellerType} found`}</CommandEmpty>
                       <CommandGroup>
-                        {vendors.map((vendor: any) => (
-                          <CommandItem
-                            value={getVendorName(vendor?.id)}
-                            key={vendor?.id}
-                            onSelect={() => {
-                              form.setValue("vendorId", vendor?.id);
-                              setVendorPopoverOpen(false);
-                            }}
-                          >
-                            {getVendorName(vendor?.id)}
-                            <Check
-                              className={cn(
-                                "ml-auto",
-                                vendor?.id === field.value
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                          </CommandItem>
-                        ))}
+                        {vendors
+                          ?.filter(
+                            (user: any) =>
+                              user?.user_metadata?.user_type ===
+                              selectedSellerType
+                          )
+                          .map((vendor: any) => (
+                            <CommandItem
+                              value={getVendorName(vendor?.id)}
+                              key={vendor?.id}
+                              onSelect={() => {
+                                form.setValue("vendorId", vendor?.id);
+                                setVendorPopoverOpen(false);
+                              }}
+                            >
+                              {getVendorName(vendor?.id)}
+                              <Check
+                                className={cn(
+                                  "ml-auto",
+                                  vendor?.id === field.value
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
                       </CommandGroup>
                     </CommandList>
                   </Command>
@@ -336,7 +368,9 @@ export default function NewPurchaseForm({ vendors, products }: any) {
                         <SelectContent>
                           {getProductUoM(selectedProductId).map(
                             (uom: string) => (
-                              <SelectItem value={uom}>{uom}</SelectItem>
+                              <SelectItem key={uom} value={uom}>
+                                {uom}
+                              </SelectItem>
                             )
                           )}
                         </SelectContent>

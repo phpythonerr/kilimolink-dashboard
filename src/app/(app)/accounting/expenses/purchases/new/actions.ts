@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 const FormSchema = z.object({
+  sellerType: z.string().min(1, "Seller Type is required"),
   vendorId: z.string().min(1, "Vendor is required"),
   productId: z.string().min(1, "Product is required"),
   unitPrice: z.string().min(1, "Unit price is required"),
@@ -20,6 +21,7 @@ type PurchaseInput = z.infer<typeof FormSchema>;
 export async function createPurchase(formData: FormData) {
   const supabase = await createClient();
   try {
+    const sellerType = formData.get("sellerType");
     const vendorId = formData.get("vendorId");
     const productId = formData.get("productId");
     const unitPrice = formData.get("unitPrice");
@@ -38,7 +40,8 @@ export async function createPurchase(formData: FormData) {
       !purchaseDate ||
       !paymentTerms ||
       !productUoM ||
-      !paymentStatus
+      !paymentStatus ||
+      !sellerType
     ) {
       return { error: "Missing required fields" };
     }
@@ -53,6 +56,7 @@ export async function createPurchase(formData: FormData) {
       paymentTerms: paymentTerms?.toString(),
       productUoM: productUoM?.toString(),
       paymentStatus: paymentStatus?.toString(),
+      sellerType: sellerType?.toString(),
     };
 
     // Validate the data
@@ -69,6 +73,7 @@ export async function createPurchase(formData: FormData) {
         payment_terms: validatedData.paymentTerms,
         product_uom: validatedData.productUoM,
         payment_status: validatedData?.paymentStatus,
+        seller_type: validatedData?.sellerType,
       });
 
     if (error) return { error: error.message };
