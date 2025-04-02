@@ -4,14 +4,13 @@ import { Suspense } from "react";
 import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
 
 export const metadata: Metadata = {
-  title: "Expenses - Accounting",
+  title: "Accounting",
   description: "",
 };
 
 const breadcrumbs = [
   { label: "Home", href: "/" },
-  { label: "Accounting", href: "/accounting" },
-  { label: "Expenses", href: "/accounting/expenses", current: true },
+  { label: "Accounting", href: "/accounting", current: true },
 ];
 
 export default async function Page() {
@@ -22,11 +21,11 @@ export default async function Page() {
       </div>
       <div>
         <div className="flex flex-col gap-2">
-          <Link href="/accounting/expenses/purchases" className="text-primary">
-            Purchases
+          <Link href="/accounting/expenses" className="text-primary">
+            Expenses
           </Link>
-          <Link href="/accounting/expenses/other" className="text-primary">
-            Other Expenses
+          <Link href="/accounting/revenues" className="text-primary">
+            Revenues
           </Link>
         </div>
       </div>
