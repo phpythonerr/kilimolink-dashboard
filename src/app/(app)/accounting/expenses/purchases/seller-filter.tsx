@@ -54,7 +54,7 @@ export function SellerFilter({ users }: { users: User[] }) {
         router.push(pathname + "?" + createQueryString("seller", value));
       }}
     >
-      <SelectTrigger className="w-[220px]">
+      <SelectTrigger className="w-full">
         <SelectValue placeholder="Filter by Seller" />
       </SelectTrigger>
       <SelectContent>

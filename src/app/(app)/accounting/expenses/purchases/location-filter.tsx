@@ -43,7 +43,7 @@ export function LocationFilter({ users }: { users: any[] }) {
         router.push(pathname + "?" + createQueryString("location", value));
       }}
     >
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-full">
         <SelectValue placeholder="Filter by location" />
       </SelectTrigger>
       <SelectContent>

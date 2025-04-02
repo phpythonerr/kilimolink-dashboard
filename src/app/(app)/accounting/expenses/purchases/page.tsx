@@ -120,10 +120,18 @@ export default async function Index({ searchParams }: any) {
       </div>
       <Suspense fallback={<div>Loading...</div>}>
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <SellerFilter users={users} />
-            <LocationFilter users={users} />
-            <DateFilter />
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-2 md:flex-1">
+            <div className="flex items-center md:items-start flex-1 gap-2">
+              <div className="flex-1">
+                <SellerFilter users={users} />
+              </div>
+              <div className="flex-1">
+                <LocationFilter users={users} />
+              </div>
+            </div>
+            <div className="flex-1">
+              <DateFilter />
+            </div>
           </div>
           <DataTable
             data={enhancedData || []}
