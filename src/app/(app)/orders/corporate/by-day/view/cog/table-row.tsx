@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { isWithinLastThreeDays } from "@/lib/utils";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -65,36 +66,40 @@ export default function ItemTableRow({ item, date }: any) {
       </TableCell>
       <TableCell>{`${item?.total_quantity} ${item?.quantity_unit}`}</TableCell>
       <TableCell>
-        <Input
-          type="text"
-          defaultValue={price || 0}
-          className={`w-20 text-xs ${
-            item?.id === "no_item" && "cursor-not-allowed"
-          }`}
-          onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-            handleNumberInput(e, price)
-          }
-          onBlur={async (e) => {
-            // if (e.target.value !== price.toString()) {
-            try {
-              const fd = new FormData();
-              fd.append("buying_price", e.target.value);
-              fd.append("delivery_date", date);
-              fd.append("commodity_id", item?.commodity_id);
-              const res = await updateUnitCost(fd);
-              if (res?.success) {
-                toast.success(
-                  `Price of ${item?.name} updated to Ksh.${price} per unit`
-                );
-              } else {
-                toast.error(res?.error);
-              }
-            } catch (err) {
-              toast.error(JSON.stringify(err));
+        {isWithinLastThreeDays(date) ? (
+          <Input
+            type="text"
+            defaultValue={price || 0}
+            className={`w-20 text-xs ${
+              item?.id === "no_item" && "cursor-not-allowed"
+            }`}
+            onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleNumberInput(e, price)
             }
-            // }
-          }}
-        />
+            onBlur={async (e) => {
+              // if (e.target.value !== price.toString()) {
+              try {
+                const fd = new FormData();
+                fd.append("buying_price", e.target.value);
+                fd.append("delivery_date", date);
+                fd.append("commodity_id", item?.commodity_id);
+                const res = await updateUnitCost(fd);
+                if (res?.success) {
+                  toast.success(
+                    `Price of ${item?.name} updated to Ksh.${price} per unit`
+                  );
+                } else {
+                  toast.error(res?.error);
+                }
+              } catch (err) {
+                toast.error(JSON.stringify(err));
+              }
+              // }
+            }}
+          />
+        ) : (
+          item?.buying_price
+        )}
       </TableCell>
       <TableCell>{Number(item?.selling_price).toFixed(2)}</TableCell>
       <TableCell>{`${Number(

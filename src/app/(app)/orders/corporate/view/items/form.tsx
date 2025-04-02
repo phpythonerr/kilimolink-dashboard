@@ -1,8 +1,14 @@
 "use client";
 
 import React from "react";
-import { cn, handleNumberInput, formatNumber } from "@/lib/utils";
+import {
+  cn,
+  handleNumberInput,
+  formatNumber,
+  isWithinLastThreeDays,
+} from "@/lib/utils";
 import { toast } from "sonner";
+import Link from "next/link";
 import { useState } from "react";
 import { RowOverlay } from "./components/RowOverlay";
 import { TableBody, TableCell, TableRow } from "@/components/ui/table";
@@ -181,6 +187,19 @@ export default function Form({ products, items, order }: any) {
     );
   }
 
+  const getItem = (id) => {
+    if (!id || id === "no_item") return "No Item";
+    const product = products.find((product: any) => product?.id === id);
+    return (
+      <Link
+        href={`/store/products/view?id=${product?.id}`}
+        className="text-primary"
+      >
+        {product?.name}
+      </Link>
+    );
+  };
+
   return (
     <TableBody>
       {orderItems?.map((item: any, index: number) => (
@@ -189,273 +208,301 @@ export default function Form({ products, items, order }: any) {
             <span>{index + 1}. </span>
           </TableCell>
           <TableCell>
-            <Popover
-              open={productPopoverOpenStates[index]}
-              onOpenChange={(open) => handleOpenChange(index, open)}
-            >
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  className={cn(
-                    "w-48 justify-between text-xs",
-                    (!item?.commodity_id || item?.commodity_id === "no_item") &&
-                      "text-muted-foreground"
-                  )}
-                >
-                  {item?.commodity_id && item?.commodity_id !== "no_item"
-                    ? products.find(
-                        (product: any) => product?.id === item?.commodity_id
-                      )?.name
-                    : "Select Product"}
-                  <ChevronsUpDown className="opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-48 p-0">
-                <Command>
-                  <CommandInput
-                    placeholder="Search Product..."
-                    className="h-9"
-                  />
-                  <CommandList>
-                    <CommandEmpty>No product found.</CommandEmpty>
-                    <CommandGroup>
-                      {getAvailableProducts(item.commodity_id)?.map(
-                        (product: any) => (
-                          <CommandItem
-                            className="text-xs"
-                            value={product?.name}
-                            key={product?.id}
-                            onSelect={async () => {
-                              const newItems = [...orderItems];
+            {isWithinLastThreeDays(order?.delivery_date) ? (
+              <Popover
+                open={productPopoverOpenStates[index]}
+                onOpenChange={(open) => handleOpenChange(index, open)}
+              >
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className={cn(
+                      "w-48 justify-between text-xs",
+                      (!item?.commodity_id ||
+                        item?.commodity_id === "no_item") &&
+                        "text-muted-foreground"
+                    )}
+                  >
+                    {item?.commodity_id && item?.commodity_id !== "no_item"
+                      ? products.find(
+                          (product: any) => product?.id === item?.commodity_id
+                        )?.name
+                      : "Select Product"}
+                    <ChevronsUpDown className="opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-48 p-0">
+                  <Command>
+                    <CommandInput
+                      placeholder="Search Product..."
+                      className="h-9"
+                    />
+                    <CommandList>
+                      <CommandEmpty>No product found.</CommandEmpty>
+                      <CommandGroup>
+                        {getAvailableProducts(item.commodity_id)?.map(
+                          (product: any) => (
+                            <CommandItem
+                              className="text-xs"
+                              value={product?.name}
+                              key={product?.id}
+                              onSelect={async () => {
+                                const newItems = [...orderItems];
 
-                              newItems[index]["commodity_id"] =
-                                product?.id || null;
-                              setOrderItems(newItems);
-                              const newProductPopoverOpenStates = [
-                                ...productPopoverOpenStates,
-                              ];
-                              newProductPopoverOpenStates[index] = false;
-                              setProductPopverOpenStates(
-                                newProductPopoverOpenStates
-                              );
-
-                              try {
-                                orderItems[index]["loading"] = true;
-                                const fd: any = new FormData();
-                                fd.append("commodity_id", product?.id);
-                                fd.append("item_id", item?.id);
-                                fd.append("customer", order?.user);
-                                fd.append("buying_price", item?.buying_price);
-                                fd.append("selling_price", item?.selling_price);
-                                fd.append(
-                                  "delivery_date",
-                                  order?.delivery_date
-                                );
-                                fd.append("order_id", order?.id);
-                                fd.append(
-                                  "uom",
-                                  item?.oum !== "no_uom"
-                                    ? item?.uom
-                                    : products.find(
-                                        (product: any) =>
-                                          product?.id === item?.commodity_id
-                                      )?.quantity_unit
+                                newItems[index]["commodity_id"] =
+                                  product?.id || null;
+                                setOrderItems(newItems);
+                                const newProductPopoverOpenStates = [
+                                  ...productPopoverOpenStates,
+                                ];
+                                newProductPopoverOpenStates[index] = false;
+                                setProductPopverOpenStates(
+                                  newProductPopoverOpenStates
                                 );
 
-                                let res = await updateProduct(fd);
+                                try {
+                                  orderItems[index]["loading"] = true;
+                                  const fd: any = new FormData();
+                                  fd.append("commodity_id", product?.id);
+                                  fd.append("item_id", item?.id);
+                                  fd.append("customer", order?.user);
+                                  fd.append("buying_price", item?.buying_price);
+                                  fd.append(
+                                    "selling_price",
+                                    item?.selling_price
+                                  );
+                                  fd.append(
+                                    "delivery_date",
+                                    order?.delivery_date
+                                  );
+                                  fd.append("order_id", order?.id);
+                                  fd.append(
+                                    "uom",
+                                    item?.oum !== "no_uom"
+                                      ? item?.uom
+                                      : products.find(
+                                          (product: any) =>
+                                            product?.id === item?.commodity_id
+                                        )?.quantity_unit
+                                  );
 
-                                if (res?.success) {
-                                  const newItems = [...orderItems];
-                                  newItems[index]["id"] = String(res?.id);
-                                  newItems[index]["quantity"] = Number(
-                                    res?.quantity
-                                  );
-                                  newItems[index]["uom"] = String(res?.uom);
-                                  newItems[index]["buying_price"] = Number(
-                                    res?.buying_price
-                                  );
-                                  newItems[index]["selling_price"] = Number(
-                                    res?.selling_price
-                                  );
-                                  newItems[index]["loading"] = false;
+                                  let res = await updateProduct(fd);
 
-                                  setOrderItems(newItems);
-                                } else {
-                                  alert(JSON.stringify(res));
+                                  if (res?.success) {
+                                    const newItems = [...orderItems];
+                                    newItems[index]["id"] = String(res?.id);
+                                    newItems[index]["quantity"] = Number(
+                                      res?.quantity
+                                    );
+                                    newItems[index]["uom"] = String(res?.uom);
+                                    newItems[index]["buying_price"] = Number(
+                                      res?.buying_price
+                                    );
+                                    newItems[index]["selling_price"] = Number(
+                                      res?.selling_price
+                                    );
+                                    newItems[index]["loading"] = false;
+
+                                    setOrderItems(newItems);
+                                  } else {
+                                    alert(JSON.stringify(res));
+                                  }
+                                } catch (err) {
+                                  alert(JSON.stringify(err));
+                                } finally {
                                 }
-                              } catch (err) {
-                                alert(JSON.stringify(err));
-                              } finally {
-                              }
-                            }}
-                          >
-                            {product?.name}
-                            <Check
-                              className={cn(
-                                "ml-auto",
-                                product?.id === item?.id
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                          </CommandItem>
-                        )
-                      )}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+                              }}
+                            >
+                              {product?.name}
+                              <Check
+                                className={cn(
+                                  "ml-auto",
+                                  product?.id === item?.id
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                            </CommandItem>
+                          )
+                        )}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            ) : (
+              getItem(item?.commodity_id)
+            )}
           </TableCell>
           <TableCell>
-            <Input
-              type="text"
-              disabled={item?.id === "no_item"}
-              defaultValue={item?.quantity || ""}
-              className={`w-16 text-xs ${
-                item?.id === "no_item" && "cursor-not-allowed"
-              }`}
-              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleNumberInput(e, item?.quantity)
-              }
-              onBlur={async (e) => {
-                if (
-                  item?.id !== "no_item" &&
-                  e.target.value !== item?.quantity?.toString()
-                ) {
-                  try {
-                    const fd = new FormData();
-                    fd.append("item_id", item.id);
-                    fd.append("quantity", e.target.value);
-                    fd.append("order_id", order?.id);
+            {isWithinLastThreeDays(order?.delivery_date) ? (
+              <Input
+                type="text"
+                disabled={item?.id === "no_item"}
+                defaultValue={item?.quantity || ""}
+                className={`w-16 text-xs ${
+                  item?.id === "no_item" && "cursor-not-allowed"
+                }`}
+                onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  handleNumberInput(e, item?.quantity)
+                }
+                onBlur={async (e) => {
+                  if (
+                    item?.id !== "no_item" &&
+                    e.target.value !== item?.quantity?.toString()
+                  ) {
+                    try {
+                      const fd = new FormData();
+                      fd.append("item_id", item.id);
+                      fd.append("quantity", e.target.value);
+                      fd.append("order_id", order?.id);
 
-                    const res = await updateQty(fd);
-                    if (res?.success) {
-                      const newItems = [...orderItems];
-                      newItems[index].quantity = e.target.value;
-                      setOrderItems(newItems);
-                    } else {
+                      const res = await updateQty(fd);
+                      if (res?.success) {
+                        const newItems = [...orderItems];
+                        newItems[index].quantity = e.target.value;
+                        setOrderItems(newItems);
+                      } else {
+                        toast.error("Failed to update quantity");
+                        e.target.value = item?.quantity || "";
+                      }
+                    } catch (err) {
                       toast.error("Failed to update quantity");
                       e.target.value = item?.quantity || "";
                     }
-                  } catch (err) {
-                    toast.error("Failed to update quantity");
-                    e.target.value = item?.quantity || "";
                   }
-                }
-              }}
-            />
+                }}
+              />
+            ) : (
+              item?.quantity
+            )}
           </TableCell>
           <TableCell>
-            <Select
-              disabled={item?.id === "no_item"}
-              onValueChange={async (value: string) => {
-                const newItems = [...orderItems];
-                newItems[index]["uom"] = value || "no_uom";
-                setOrderItems(newItems);
-                if (item?.id !== "no_item") {
-                  try {
-                    let res = await updateUoM(value, item?.id);
-                  } catch (err) {}
-                }
-              }}
-              defaultValue={item?.uom}
-            >
-              <SelectTrigger className="w-24 text-xs">
-                <SelectValue placeholder="" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="no_uom" className="text-xs"></SelectItem>
-                {products
-                  .filter(
-                    (obj: { id: string }) => obj.id === item?.commodity_id
-                  )[0]
-                  ?.quantity_unit_options?.map((option: any) => (
-                    <SelectItem key={option} value={option} className="text-xs">
-                      {option}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+            {isWithinLastThreeDays(order?.delivery_date) ? (
+              <Select
+                disabled={item?.id === "no_item"}
+                onValueChange={async (value: string) => {
+                  const newItems = [...orderItems];
+                  newItems[index]["uom"] = value || "no_uom";
+                  setOrderItems(newItems);
+                  if (item?.id !== "no_item") {
+                    try {
+                      let res = await updateUoM(value, item?.id);
+                    } catch (err) {}
+                  }
+                }}
+                defaultValue={item?.uom}
+              >
+                <SelectTrigger className="w-24 text-xs">
+                  <SelectValue placeholder="" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="no_uom" className="text-xs"></SelectItem>
+                  {products
+                    .filter(
+                      (obj: { id: string }) => obj.id === item?.commodity_id
+                    )[0]
+                    ?.quantity_unit_options?.map((option: any) => (
+                      <SelectItem
+                        key={option}
+                        value={option}
+                        className="text-xs"
+                      >
+                        {option}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              item?.uom
+            )}
           </TableCell>
           <TableCell>
-            <Input
-              type="text"
-              disabled={item?.id === "no_item"}
-              defaultValue={item?.buying_price || ""}
-              className={`w-20 text-xs ${
-                item?.id === "no_item" && "cursor-not-allowed"
-              }`}
-              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleNumberInput(e, item?.buying_price)
-              }
-              onBlur={async (e) => {
-                if (
-                  item?.id !== "no_item" &&
-                  e.target.value !== item?.buying_price?.toString()
-                ) {
-                  try {
-                    const fd = new FormData();
-                    fd.append("item_id", item.id);
-                    fd.append("buying_price", e.target.value);
-                    fd.append("order_id", order?.id);
+            {isWithinLastThreeDays(order?.delivery_date) ? (
+              <Input
+                type="text"
+                disabled={item?.id === "no_item"}
+                defaultValue={item?.buying_price || ""}
+                className={`w-20 text-xs ${
+                  item?.id === "no_item" && "cursor-not-allowed"
+                }`}
+                onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  handleNumberInput(e, item?.buying_price)
+                }
+                onBlur={async (e) => {
+                  if (
+                    item?.id !== "no_item" &&
+                    e.target.value !== item?.buying_price?.toString()
+                  ) {
+                    try {
+                      const fd = new FormData();
+                      fd.append("item_id", item.id);
+                      fd.append("buying_price", e.target.value);
+                      fd.append("order_id", order?.id);
 
-                    const res = await updateUnitCost(fd);
-                    if (res?.success) {
-                      const newItems = [...orderItems];
-                      newItems[index].buying_price = e.target.value;
-                      setOrderItems(newItems);
-                    } else {
+                      const res = await updateUnitCost(fd);
+                      if (res?.success) {
+                        const newItems = [...orderItems];
+                        newItems[index].buying_price = e.target.value;
+                        setOrderItems(newItems);
+                      } else {
+                        toast.error("Failed to update buying price");
+                        e.target.value = item?.buying_price || "";
+                      }
+                    } catch (err) {
                       toast.error("Failed to update buying price");
                       e.target.value = item?.buying_price || "";
                     }
-                  } catch (err) {
-                    toast.error("Failed to update buying price");
-                    e.target.value = item?.buying_price || "";
                   }
-                }
-              }}
-            />
+                }}
+              />
+            ) : (
+              item?.buying_price
+            )}
           </TableCell>
           <TableCell>
-            <Input
-              type="text"
-              disabled={item?.id === "no_item"}
-              defaultValue={item?.selling_price || ""}
-              className={`w-20 text-xs ${
-                item?.id === "no_item" && "cursor-not-allowed"
-              }`}
-              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleNumberInput(e, item?.selling_price)
-              }
-              onBlur={async (e) => {
-                if (
-                  item?.id !== "no_item" &&
-                  e.target.value !== item?.selling_price?.toString()
-                ) {
-                  try {
-                    const fd = new FormData();
-                    fd.append("item_id", item.id);
-                    fd.append("selling_price", e.target.value);
-                    fd.append("order_id", order?.id);
+            {isWithinLastThreeDays(order?.delivery_date) ? (
+              <Input
+                type="text"
+                disabled={item?.id === "no_item"}
+                defaultValue={item?.selling_price || ""}
+                className={`w-20 text-xs ${
+                  item?.id === "no_item" && "cursor-not-allowed"
+                }`}
+                onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  handleNumberInput(e, item?.selling_price)
+                }
+                onBlur={async (e) => {
+                  if (
+                    item?.id !== "no_item" &&
+                    e.target.value !== item?.selling_price?.toString()
+                  ) {
+                    try {
+                      const fd = new FormData();
+                      fd.append("item_id", item.id);
+                      fd.append("selling_price", e.target.value);
+                      fd.append("order_id", order?.id);
 
-                    const res = await updateUnitPrice(fd);
-                    if (res?.success) {
-                      const newItems = [...orderItems];
-                      newItems[index].selling_price = e.target.value;
-                      setOrderItems(newItems);
-                    } else {
+                      const res = await updateUnitPrice(fd);
+                      if (res?.success) {
+                        const newItems = [...orderItems];
+                        newItems[index].selling_price = e.target.value;
+                        setOrderItems(newItems);
+                      } else {
+                        toast.error("Failed to update selling price");
+                        e.target.value = item?.selling_price || "";
+                      }
+                    } catch (err) {
                       toast.error("Failed to update selling price");
                       e.target.value = item?.selling_price || "";
                     }
-                  } catch (err) {
-                    toast.error("Failed to update selling price");
-                    e.target.value = item?.selling_price || "";
                   }
-                }
-              }}
-            />
+                }}
+              />
+            ) : (
+              item?.selling_price
+            )}
           </TableCell>
           <TableCell className="text-xs">
             {calculateTotals(item).totalCost}
@@ -469,42 +516,48 @@ export default function Form({ products, items, order }: any) {
           <TableCell className="text-xs">
             {calculateTotals(item).margin}
           </TableCell>
-          {item.loading ? (
-            <TableCell
-              colSpan={9}
-              className="absolute inset-0 bg-background/50 backdrop-blur-[1px] z-50"
-            >
-              <RowOverlay show={item.loading} />
-            </TableCell>
+          {isWithinLastThreeDays(order?.delivery_date) ? (
+            item.loading ? (
+              <TableCell
+                colSpan={9}
+                className="absolute inset-0 bg-background/50 backdrop-blur-[1px] z-50"
+              >
+                <RowOverlay show={item.loading} />
+              </TableCell>
+            ) : (
+              <TableCell className="w-10">
+                {deleteLoadingMap[index] ? (
+                  <LoaderCircle
+                    size={18}
+                    key={index}
+                    className="animate-spin text-red-700"
+                  />
+                ) : (
+                  <Button
+                    onClick={() => removeItemRow(index, item?.id)}
+                    variant="ghost"
+                    size="icon"
+                    className="cursor-pointer"
+                  >
+                    <X className="text-red-700" />
+                  </Button>
+                )}
+              </TableCell>
+            )
           ) : (
-            <TableCell className="w-10">
-              {deleteLoadingMap[index] ? (
-                <LoaderCircle
-                  size={18}
-                  key={index}
-                  className="animate-spin text-red-700"
-                />
-              ) : (
-                <Button
-                  onClick={() => removeItemRow(index, item?.id)}
-                  variant="ghost"
-                  size="icon"
-                  className="cursor-pointer"
-                >
-                  <X className="text-red-700" />
-                </Button>
-              )}
-            </TableCell>
+            <TableCell className="w-10" />
           )}
         </TableRow>
       ))}
-      <TableRow>
-        <TableCell colSpan={9}>
-          <Button type="button" onClick={addItemRow} variant="outline">
-            Add Product
-          </Button>
-        </TableCell>
-      </TableRow>
+      {isWithinLastThreeDays(order?.delivery_date) && (
+        <TableRow>
+          <TableCell colSpan={9}>
+            <Button type="button" onClick={addItemRow} variant="outline">
+              Add Product
+            </Button>
+          </TableCell>
+        </TableRow>
+      )}
     </TableBody>
   );
 }

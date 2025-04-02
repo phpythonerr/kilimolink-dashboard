@@ -46,3 +46,10 @@ export const handleNumberInput = (
 
   e.target.value = formatted;
 };
+
+export const isWithinLastThreeDays = (dateStr: string) => {
+  const itemDate = new Date(dateStr);
+  const threeDaysAgo = new Date();
+  threeDaysAgo.setDate(threeDaysAgo.getDate() - 2);
+  return itemDate >= threeDaysAgo;
+};
