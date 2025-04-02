@@ -8,20 +8,37 @@ import {
 } from "@/components/ui/hover-card";
 import Link from "next/link";
 
-// Define your data type
+// Define data types
+
+interface UserMetadata {
+  tradeName?: string;
+  first_name?: string;
+  firstName?: string;
+  last_name?: string;
+  lastName?: string;
+}
+
+interface User {
+  id: string;
+  user_metadata: UserMetadata;
+}
+
+interface Product {
+  id: string;
+  name: string;
+}
+
 export interface PurchasesInterface {
-  created_date: Date;
-  product_id: {
-    name: string;
-    id: string;
-  };
+  created_date: string;
+  product_id: Product;
   quantity: number;
   product_uom: string;
   unit_price: number;
-  payment_status: string;
+  payment_status: "unpaid" | "paid" | "cancelled";
+  user_obj: User;
 }
 
-// Define your columns
+// Define columns
 export const columns: ColumnDef<PurchasesInterface>[] = [
   {
     accessorKey: "created_date",
