@@ -1,4 +1,23 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { createClient } from "@/lib/supabase/server";
 import { getUsers } from "@/data/users";
@@ -100,13 +119,74 @@ export default async function Page({ searchParams }: any) {
         </TabsList>
       </Tabs>
       <div className="py-4">
-        <Alert>
-          <Info className="h-4 w-4" />
-          <AlertTitle>Under Development</AlertTitle>
-          <AlertDescription>
-            Order Items are available under the 'Items' Tab
-          </AlertDescription>
-        </Alert>
+        <Table>
+          <TableBody>
+            <TableRow>
+              <TableCell className="font-medium w-40 h-16">Order #</TableCell>
+              <TableCell>{`K${order?.order_number}S`}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium h-16">Status</TableCell>
+              <TableCell>
+                <Select defaultValue={order?.status}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Unpaid">Received</SelectItem>
+                    <SelectItem value="Processing">Processing</SelectItem>
+                    <SelectItem value="In-Transit">In-Transit</SelectItem>
+                    <SelectItem value="Completed">Completed</SelectItem>
+                    <SelectItem value="Cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium h-16">Payment Status</TableCell>
+              <TableCell>
+                <Select defaultValue={order?.payment_status}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Unpaid">Unpaid</SelectItem>
+                    <SelectItem value="Paid">Paid</SelectItem>
+                  </SelectContent>
+                </Select>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium h-16">Customer</TableCell>
+              <TableCell>
+                <Link
+                  href={`/users/customers/corporate/view?id=${order?.user}`}
+                  className="text-primary"
+                >
+                  {`${customer?.user_metadata?.business_name} ${
+                    order?.branch ? ` - ${order?.branch}` : ""
+                  }`}
+                </Link>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium h-16">Business Type</TableCell>
+              <TableCell>{customer?.user_metadata?.business_type}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium h-16">Total</TableCell>
+              <TableCell>{`Ksh.${Number(
+                order?.total
+              ).toLocaleString()}`}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium h-16">Delivery Date</TableCell>
+              <TableCell>
+                {new Date(order?.delivery_date).toDateString()}
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </div>
     </div>
   );
