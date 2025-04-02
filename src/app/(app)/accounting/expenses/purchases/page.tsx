@@ -71,7 +71,7 @@ export default async function Index({ searchParams }: any) {
       .filter(
         (user: any) => user.user_metadata?.location === queryParams.location
       )
-      .map((user) => user.id);
+      .map((user: any) => user.id);
 
     query = query.in("vendor", userIds);
   }
