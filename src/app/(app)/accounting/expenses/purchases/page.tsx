@@ -68,7 +68,9 @@ export default async function Index({ searchParams }: any) {
   if (queryParams.location && queryParams?.location !== "all") {
     // Get user IDs for the selected location
     const userIds = users
-      .filter((user) => user.user_metadata?.location === queryParams.location)
+      .filter(
+        (user: any) => user.user_metadata?.location === queryParams.location
+      )
       .map((user) => user.id);
 
     query = query.in("vendor", userIds);
