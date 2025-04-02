@@ -43,7 +43,7 @@ export default async function Index({ searchParams }: any) {
   let query: any = supabase
     .from("inventory_purchases")
     .select(
-      "created_date, vendor, product_id ( id, name), quantity, unit_price, payment_status, product_uom",
+      "created_date, vendor, product_id ( id, name), quantity, unit_price, payment_status, purchase_date, product_uom",
       {
         count: "exact",
       }
