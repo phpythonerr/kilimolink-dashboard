@@ -88,6 +88,16 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
     },
   },
   {
+    accessorKey: "total",
+    header: "Total",
+    cell: ({ row }) => {
+      const { unit_price, quantity } = row.original;
+      return `Ksh.${(Number(unit_price) * Number(quantity))
+        .toFixed(2)
+        .toLocaleString()}`;
+    },
+  },
+  {
     accessorKey: "payment_status",
     header: "Payment Status",
     cell: ({ row }) => {

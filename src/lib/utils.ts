@@ -54,32 +54,50 @@ export const isWithinLastThreeDays = (dateStr: string) => {
   return itemDate >= threeDaysAgo;
 };
 
-export const fetchPaginatedData = async (
+export async function fetchPaginatedData(
   query: any,
-  pageSize: any,
-  page: any
-) => {
-  const { data: all, count } = await query;
-  if (page && /^-?\d+$/.test(page)) {
-    page = Number(page);
-    let offsetStart = Number(pageSize) * Number(Number(page) - 1);
+  pageSize: number,
+  page: number
+) {
+  try {
+    // Get all data for summary calculations
+    const { data: allData, error: allError } = await query;
 
-    let offsetEnd = Number(pageSize) * Number(Number(page) - 1) + pageSize;
+    // Calculate correct start and end indices for pagination
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
 
-    query = query.range(offsetStart + 1, offsetEnd);
-  } else {
-    query = query.range(0, pageSize);
+    // Get paginated data with corrected range
+    const { data: pagedData, count, error } = await query.range(start, end);
+
+    if (error || allError) throw error || allError;
+
+    const pages = count ? Math.ceil(count / pageSize) : 0;
+
+    // Add debugging logs
+    console.log({
+      start,
+      end,
+      expectedItems: pageSize,
+      actualItems: pagedData?.length,
+      rangeSize: end - start,
+    });
+
+    return {
+      all: allData || [],
+      data: pagedData || [],
+      count,
+      error: null,
+      pages,
+    };
+  } catch (error) {
+    console.error("Error fetching paginated data:", error);
+    return {
+      all: [],
+      data: [],
+      count: 0,
+      error,
+      pages: 0,
+    };
   }
-
-  let { data, error } = await query;
-
-  const pages = count && Math.ceil(count / pageSize);
-
-  return {
-    all,
-    data,
-    count,
-    error,
-    pages,
-  };
-};
+}

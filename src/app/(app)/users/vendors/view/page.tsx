@@ -103,7 +103,13 @@ export default async function Page({ searchParams }: any) {
   const query = supabase
     .from("inventory_purchases")
     .select(
-      "id, created_date, vendor, seller_type, product_id ( id, name), quantity, unit_price, payment_status, purchase_date, product_uom, payment_id, balance, paid_amount",
+      `
+      *,
+      product_id (
+        id,
+        name
+      )
+      `,
       {
         count: "exact",
       }
@@ -223,6 +229,7 @@ export default async function Page({ searchParams }: any) {
                   pageCount={pages}
                   currentPage={page}
                   pageSize={pageSize}
+                  totalRows={count}
                 />
               </div>
             </div>
