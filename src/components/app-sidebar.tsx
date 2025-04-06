@@ -23,6 +23,7 @@ import {
   ChartBar,
   ChartNoAxesCombined,
   Truck,
+  FolderOutput,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
@@ -152,6 +153,17 @@ const navData: NavSection[] = [
           {
             title: "Other Revenues",
             url: "/accounting/revenues",
+          },
+        ],
+      },
+      {
+        title: "Payments",
+        url: "#",
+        icon: FolderOutput,
+        items: [
+          {
+            title: "All Payments",
+            url: "/accounting/payments",
           },
         ],
       },
