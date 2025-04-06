@@ -5,6 +5,8 @@ import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
 import { PaymentDialog } from "./payment-dialog";
 import { createClient } from "@/lib/supabase/server";
 import { getUserById } from "@/data/users";
+import { DataTable } from "@/components/app-datatable";
+import { columns } from "./columns";
 import {
   Card,
   CardDescription,
@@ -209,6 +211,15 @@ export default async function Page({ searchParams }: any) {
             </div>
             <div className="flex flex-col gap-3">
               <h2 className="font-medium text-lg">Purchases</h2>
+              <div>
+                <DataTable
+                  data={data || []}
+                  columns={columns}
+                  pageCount={pages}
+                  currentPage={page}
+                  pageSize={pageSize}
+                />
+              </div>
             </div>
           </div>
         </Suspense>

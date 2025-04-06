@@ -86,7 +86,7 @@ export function PaymentDialog({
 
   const watchPaymentType = form.watch("paymentType");
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof schema>) {
     try {
       setIsSubmitting(true);
       const amount =
