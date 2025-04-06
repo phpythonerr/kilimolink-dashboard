@@ -1,6 +1,6 @@
 "use client";
 
-import { cn, handleNumberInput, formatNumber } from "@/lib/utils";
+import { cn, handleNumberInput } from "@/lib/utils";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -98,7 +98,7 @@ export default function NewPurchaseForm({ vendors, products }: any) {
       paymentTerms: "",
       productUoM: "",
       paymentStatus: "Unpaid",
-      paidAmount: "0",
+      paidAmount: "",
     },
   });
 
@@ -493,9 +493,9 @@ export default function NewPurchaseForm({ vendors, products }: any) {
                 <FormControl>
                   <Input
                     {...field}
-                    onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      handleNumberInput(e, e.target.value)
-                    }
+                    // onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    //   handleNumberInput(e, e.target.value)
+                    // }
                   />
                 </FormControl>
                 <FormMessage />
