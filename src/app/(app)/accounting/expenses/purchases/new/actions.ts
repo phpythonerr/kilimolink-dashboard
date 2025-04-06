@@ -16,7 +16,6 @@ const FormSchema = z
     productUoM: z.string().min(1, "Product UoM is required"),
     paymentStatus: z.string().min(1, "Payment Status is required"),
     paidAmount: z.string().optional(),
-    balance: z.string().optional(),
   })
   .refine(
     (data) => {
@@ -57,7 +56,6 @@ export async function createPurchase(formData: FormData) {
     const productUoM = formData.get("productUoM");
     const paymentStatus = formData.get("paymentStatus");
     const paidAmount = formData.get("paidAmount");
-    const balance = formData.get("balance");
 
     // Validate required fields
     if (
@@ -86,7 +84,6 @@ export async function createPurchase(formData: FormData) {
       paymentStatus: paymentStatus?.toString(),
       sellerType: sellerType?.toString(),
       paidAmount: paidAmount?.toString(),
-      balance: balance ? balance.toString() : undefined,
     };
 
     // Validate the data
@@ -104,15 +101,19 @@ export async function createPurchase(formData: FormData) {
         product_uom: validatedData.productUoM,
         payment_status: validatedData?.paymentStatus,
         seller_type: validatedData?.sellerType,
-        paid_amount: validatedData?.paidAmount,
+        paid_amount:
+          validatedData.paymentStatus === "Partially-Paid"
+            ? Number(validatedData.paidAmount)
+            : validatedData.paymentStatus === "Paid"
+            ? Number(validatedData.unitPrice) * Number(validatedData.quantity)
+            : 0,
         balance:
-          validatedData?.balance === undefined
-            ? Number(validatedData.unitPrice) *
-              parseFloat(validatedData.quantity)
-            : Number(
-                Number(validatedData.unitPrice) *
-                  parseFloat(validatedData.quantity)
-              ) - Number(validatedData.paidAmount || 0),
+          validatedData.paymentStatus === "Paid"
+            ? 0
+            : validatedData.paymentStatus === "Partially-Paid"
+            ? Number(validatedData.unitPrice) * Number(validatedData.quantity) -
+              Number(validatedData.paidAmount)
+            : Number(validatedData.unitPrice) * Number(validatedData.quantity),
       });
 
     if (error) return { error: error.message };

@@ -129,20 +129,11 @@ export default function NewPurchaseForm({ vendors, products }: any) {
     formData.append("sellerType", data.sellerType);
     formData.append(
       "paidAmount",
-      selectedPaymentStatus === "Partially-Paid"
-        ? form.getValues("paidAmount") || "0"
-        : selectedPaymentStatus === "Paid"
-        ? parseFloat(selectedUnitPrice) * parseFloat(selectedQuantity)
-        : "0"
-    );
-    formData.append(
-      "balance",
-      selectedPaymentStatus === "Partially-Paid"
-        ? parseFloat(selectedUnitPrice) * parseFloat(selectedQuantity) -
-            parseFloat(form.getValues("paidAmount") || "0")
-        : selectedPaymentStatus === "Paid"
-        ? 0
-        : parseFloat(selectedUnitPrice) * parseFloat(selectedQuantity)
+      data.paymentStatus === "Partially-Paid"
+        ? data.paidAmount || 0
+        : data.paymentStatus === "Paid"
+        ? parseFloat(data.unitPrice) * parseFloat(data.quantity)
+        : 0
     );
 
     await toast.promise(createPurchase(formData), {
