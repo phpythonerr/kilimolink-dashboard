@@ -77,11 +77,13 @@ export async function createPurchase(formData: FormData) {
         paid_amount:
           paymentStatus === "Unpaid"
             ? 0
-            : validatedData.unitPrice * parseFloat(validatedData.quantity),
+            : Number(validatedData.unitPrice) *
+              parseFloat(validatedData.quantity),
         balance:
           paymentStatus === "Paid"
             ? 0
-            : validatedData.unitPrice * parseFloat(validatedData.quantity),
+            : Number(validatedData.unitPrice) *
+              parseFloat(validatedData.quantity),
       });
 
     if (error) return { error: error.message };
