@@ -127,14 +127,7 @@ export default function NewPurchaseForm({ vendors, products }: any) {
     formData.append("productUoM", data.productUoM);
     formData.append("paymentStatus", data.paymentStatus);
     formData.append("sellerType", data.sellerType);
-    formData.append(
-      "paidAmount",
-      data.paymentStatus === "Partially-Paid"
-        ? data.paidAmount || 0
-        : data.paymentStatus === "Paid"
-        ? parseFloat(data.unitPrice) * parseFloat(data.quantity)
-        : 0
-    );
+    formData.append("paidAmount", data.paidAmount || "0"); // Ensure paidAmount is a string, default to "0" if not provided
 
     await toast.promise(createPurchase(formData), {
       loading: "Creating purchase...",
@@ -491,12 +484,7 @@ export default function NewPurchaseForm({ vendors, products }: any) {
               <FormItem>
                 <FormLabel>Paid Amount</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    // onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    //   handleNumberInput(e, e.target.value)
-                    // }
-                  />
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
