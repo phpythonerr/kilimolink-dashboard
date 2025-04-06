@@ -184,9 +184,9 @@ export const columns: ColumnDef<PaymentInterface>[] = [
     cell: ({ row }) => {
       const [showApprovalDialog, setShowApprovalDialog] = useState(false);
       const [showSummaryDialog, setShowSummaryDialog] = useState(false);
-      const [approvalAction, setApprovalAction] = useState<
-        "approve" | "reject"
-      >("approve");
+      const [approvalAction, setApprovalAction] = useState<"approv" | "reject">(
+        "approv"
+      );
       const payment = row.original;
       const currentUser = row.original.current_user;
 
