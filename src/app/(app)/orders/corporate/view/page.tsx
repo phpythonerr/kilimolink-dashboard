@@ -85,24 +85,6 @@ export default async function Page({ searchParams }: any) {
     .eq("id", userBankAccount)
     .single();
 
-  const handleStatusChange = async (value: string) => {
-    const result = await updateOrderStatus(queryParams?.id, value);
-    if (result.error) {
-      toast.error(result.error);
-    } else {
-      toast.success("Order status updated successfully");
-    }
-  };
-
-  const handlePaymentStatusChange = async (value: string) => {
-    const result = await updatePaymentStatus(queryParams?.id, value);
-    if (result.error) {
-      toast.error(result.error);
-    } else {
-      toast.success("Payment status updated successfully");
-    }
-  };
-
   return (
     <div className="p-4">
       <div className="mb-4 flex justify-between items-center gap-2">
