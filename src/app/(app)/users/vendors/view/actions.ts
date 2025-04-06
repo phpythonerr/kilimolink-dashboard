@@ -87,6 +87,7 @@ export async function initiatePayment(formData: FormData) {
         amount,
         status: "Pending",
         date_initiated: new Date().toISOString(),
+        in_favor_of: vendor_id,
       })
       .select("*")
       .single();

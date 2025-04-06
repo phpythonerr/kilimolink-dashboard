@@ -1,4 +1,20 @@
 "use client";
+import {
+  MoreHorizontal,
+  Download,
+  CircleX,
+  CircleCheckBig,
+} from "lucide-react";
+import { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ApprovalDialog } from "./approval-dialog";
+import { PaymentSummaryDialog } from "./payment-summary-dialog";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
@@ -24,6 +40,8 @@ export interface PaymentInterface {
   approved_by_obj: User;
   approval_date: Date;
   status: string;
+  current_user: User;
+  in_favor_of: User | null; // Allow null for vendors not set
 }
 
 // Define your columns
@@ -44,6 +62,38 @@ export const columns: ColumnDef<PaymentInterface>[] = [
     },
   },
   {
+    accessorKey: "in_favor_of",
+    header: "In Favor Of",
+    cell: ({ row }) => {
+      const { in_favor_of } = row.original;
+      let dispayName = null;
+      if (in_favor_of) {
+        const firstName =
+          in_favor_of?.user_metadata?.first_name ||
+          in_favor_of?.user_metadata?.firstName ||
+          "Unknown";
+        const lastName =
+          in_favor_of?.user_metadata?.last_name ||
+          in_favor_of?.user_metadata?.lastName ||
+          "Vendor";
+
+        dispayName = `${firstName} ${lastName}`;
+      }
+
+      return dispayName ? (
+        <Link
+          href={`#`}
+          className="text-primary hover:underline"
+          title={dispayName}
+        >
+          {dispayName}
+        </Link>
+      ) : (
+        "Unknown Vendor"
+      );
+    },
+  },
+  {
     accessorKey: "initiated_by",
     header: "Initiated By",
     cell: ({ row }) => {
@@ -60,18 +110,18 @@ export const columns: ColumnDef<PaymentInterface>[] = [
     },
   },
 
-  {
-    accessorKey: "payment_method",
-    header: "Payment Method",
-    cell: ({ row }) => {
-      const { payment_method } = row.original;
-      return payment_method ? (
-        <span className={`capitalize`}>{payment_method}</span>
-      ) : (
-        "-"
-      );
-    },
-  },
+  // {
+  //   accessorKey: "payment_method",
+  //   header: "Payment Method",
+  //   cell: ({ row }) => {
+  //     const { payment_method } = row.original;
+  //     return payment_method ? (
+  //       <span className={`capitalize`}>{payment_method}</span>
+  //     ) : (
+  //       "-"
+  //     );
+  //   },
+  // },
   {
     accessorKey: "txn_reference_code",
     header: "Txn Code",
@@ -126,6 +176,108 @@ export const columns: ColumnDef<PaymentInterface>[] = [
         >
           {status}
         </span>
+      );
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const [showApprovalDialog, setShowApprovalDialog] = useState(false);
+      const [showSummaryDialog, setShowSummaryDialog] = useState(false);
+      const [approvalAction, setApprovalAction] = useState<
+        "approve" | "reject"
+      >("approve");
+      const payment = row.original;
+      const currentUser = row.original.current_user;
+
+      // For both processed and unprocessed payments
+      const commonDropdownItems = (
+        <DropdownMenuItem
+          onClick={() => setShowSummaryDialog(true)}
+          className="flex items-center gap-2"
+        >
+          <Download className="h-4 w-4" />
+          Payment Summary
+        </DropdownMenuItem>
+      );
+
+      // For processed payments
+      if (
+        payment.initiated_by === currentUser?.id ||
+        payment.status === "Approved" ||
+        payment.status === "Rejected"
+      ) {
+        return (
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {commonDropdownItems}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <PaymentSummaryDialog
+              open={showSummaryDialog}
+              onOpenChange={setShowSummaryDialog}
+              paymentId={payment.id}
+            />
+          </>
+        );
+      }
+
+      // For unprocessed payments
+      return (
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {commonDropdownItems}
+              <DropdownMenuItem
+                onClick={() => {
+                  setApprovalAction("approv");
+                  setShowApprovalDialog(true);
+                }}
+                className="text-primary flex items-center gap-2"
+              >
+                <CircleCheckBig className="w-4 h-4 text-primary" />
+                Approve Payment
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setApprovalAction("reject");
+                  setShowApprovalDialog(true);
+                }}
+                className="text-destructive flex items-center gap-2"
+              >
+                <CircleX className="w-4 h-4 text-destructive" />
+                Reject Payment
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <ApprovalDialog
+            open={showApprovalDialog}
+            onOpenChange={setShowApprovalDialog}
+            paymentId={payment.id}
+            action={approvalAction}
+          />
+
+          <PaymentSummaryDialog
+            open={showSummaryDialog}
+            onOpenChange={setShowSummaryDialog}
+            paymentId={payment.id}
+          />
+        </>
       );
     },
   },

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
 import { createClient } from "@/lib/supabase/server";
 import { DataTable } from "@/components/app-datatable";
-import { getUsers } from "@/data/users";
+import { getUsers, getUser } from "@/data/users";
 import { columns } from "./columns";
 
 export const metadata: Metadata = {
@@ -60,6 +60,8 @@ export default async function Index({ searchParams }: any) {
 
   const users = await getUsers();
 
+  const currentUser = await getUser();
+
   const userMap: any = {};
   users?.forEach((user: any) => {
     userMap[user.id] = user;
@@ -69,9 +71,9 @@ export default async function Index({ searchParams }: any) {
     ...item,
     initiated_by_obj: userMap[item.initiated_by] || { name: "Unknown User" },
     approved_by_obj: userMap[item.approved_by] || { name: "Unknown User" },
+    in_favor_of: userMap[item.in_favor_of] || null,
+    current_user: currentUser || { name: "Unknown Current User" }, // Fallback for current user
   }));
-
-  console.log(enhancedData);
 
   return (
     <div className="p-4">
