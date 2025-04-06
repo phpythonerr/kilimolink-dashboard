@@ -48,7 +48,7 @@ export interface PaymentInterface {
 export const columns: ColumnDef<PaymentInterface>[] = [
   {
     accessorKey: "created",
-    header: "Joined",
+    header: "Created",
     cell: ({ row }) => {
       return new Date(row.getValue("created")).toDateString();
     },

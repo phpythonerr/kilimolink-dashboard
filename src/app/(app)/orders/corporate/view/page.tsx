@@ -9,15 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { createClient } from "@/lib/supabase/server";
 import { getUsers } from "@/data/users";
@@ -25,6 +16,8 @@ import { Info } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ActionButton } from "./action-button";
+import { OrderStatusSelect } from "./order-status-select";
+import { PaymentStatusSelect } from "./payment-status-select";
 
 export const metadata: Metadata = {
   title: "View Order",
@@ -92,6 +85,24 @@ export default async function Page({ searchParams }: any) {
     .eq("id", userBankAccount)
     .single();
 
+  const handleStatusChange = async (value: string) => {
+    const result = await updateOrderStatus(queryParams?.id, value);
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success("Order status updated successfully");
+    }
+  };
+
+  const handlePaymentStatusChange = async (value: string) => {
+    const result = await updatePaymentStatus(queryParams?.id, value);
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success("Payment status updated successfully");
+    }
+  };
+
   return (
     <div className="p-4">
       <div className="mb-4 flex justify-between items-center gap-2">
@@ -131,32 +142,19 @@ export default async function Page({ searchParams }: any) {
             <TableRow>
               <TableCell className="font-medium h-16">Status</TableCell>
               <TableCell>
-                <Select defaultValue={order?.status}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Unpaid">Received</SelectItem>
-                    <SelectItem value="Processing">Processing</SelectItem>
-                    <SelectItem value="In-Transit">In-Transit</SelectItem>
-                    <SelectItem value="Completed">Completed</SelectItem>
-                    <SelectItem value="Cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
+                <OrderStatusSelect
+                  orderId={queryParams?.id}
+                  defaultValue={order?.status}
+                />
               </TableCell>
             </TableRow>
             <TableRow>
               <TableCell className="font-medium h-16">Payment Status</TableCell>
               <TableCell>
-                <Select defaultValue={order?.payment_status}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Unpaid">Unpaid</SelectItem>
-                    <SelectItem value="Paid">Paid</SelectItem>
-                  </SelectContent>
-                </Select>
+                <PaymentStatusSelect
+                  orderId={queryParams?.id}
+                  defaultValue={order?.payment_status}
+                />
               </TableCell>
             </TableRow>
             <TableRow>
