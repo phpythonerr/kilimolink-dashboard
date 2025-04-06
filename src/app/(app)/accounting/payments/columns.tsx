@@ -82,7 +82,7 @@ export const columns: ColumnDef<PaymentInterface>[] = [
 
       return dispayName ? (
         <Link
-          href={`#`}
+          href={`/users/vendors/view?id=${in_favor_of.id}`}
           className="text-primary hover:underline"
           title={dispayName}
         >

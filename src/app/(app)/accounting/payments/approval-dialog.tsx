@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -57,6 +58,7 @@ export function ApprovalDialog({
   paymentId,
   action,
 }: ApprovalDialogProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const schema = useMemo(() => createFormSchema(action), [action]);
 
   const form = useForm<z.infer<typeof schema>>({
@@ -68,6 +70,8 @@ export function ApprovalDialog({
   });
 
   async function onSubmit(values: z.infer<typeof schema>) {
+    if (isSubmitting) return;
+
     try {
       const formData = new FormData();
       formData.append("paymentId", paymentId);
@@ -79,14 +83,22 @@ export function ApprovalDialog({
         formData.append("source_of_funds", values.source_of_funds);
         // Handle approval...
       } else {
-        const result = await rejectPayment(formData);
-        if (result.error) throw new Error(result.error);
+        setIsSubmitting(true);
+        await toast.promise(rejectPayment(formData), {
+          loading: "Rejecting payment...",
+          success: (result) => {
+            if (result.error) toast.error(result.error.message);
+            onOpenChange(false);
+            return "Payment rejected successfully";
+          },
+          error: "Failed to reject payment",
+          finally: () => setIsSubmitting(false),
+        });
       }
-
-      toast.success(`Payment ${action}ed successfully`);
-      onOpenChange(false);
     } catch (error) {
-      toast.error("Failed to process payment. Please try again");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to process payment"
+      );
     }
   }
 
@@ -156,8 +168,18 @@ export function ApprovalDialog({
             <Button
               type="submit"
               variant={action === "approv" ? "default" : "destructive"}
+              disabled={isSubmitting}
             >
-              {action === "approv" ? "Approve Payment" : "Reject Payment"}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : action === "approv" ? (
+                "Approve Payment"
+              ) : (
+                "Reject Payment"
+              )}
             </Button>
           </form>
         </Form>

@@ -50,7 +50,6 @@ export async function rejectPayment(formData: FormData) {
       const newBalance = totalAmount - newPaidAmount;
 
       return {
-        id: purchase.id,
         paid_amount: Math.max(0, newPaidAmount), // Ensure paid amount doesn't go negative
         balance: Math.max(0, newBalance),
         payment_status:
@@ -67,9 +66,14 @@ export async function rejectPayment(formData: FormData) {
     // Update purchases
     const { error: purchasesError } = await supabase
       .from("inventory_purchases")
-      .upsert(purchaseUpdates);
+      .update(purchaseUpdates)
+      .eq("id", payment.purchases[0]?.id);
 
-    if (purchasesError) throw new Error("Failed to update purchases");
+    if (purchasesError) return { error: purchasesError.message };
+    // If any purchase update failed, rollback transaction
+    if (purchasesError) {
+      throw new Error("Failed to update purchase records");
+    }
 
     // Update payment status
     const { error: updateError } = await supabase
@@ -77,16 +81,17 @@ export async function rejectPayment(formData: FormData) {
       .update({
         status: "Rejected",
         note: validatedFields.data.note,
-        updated_at: new Date().toISOString(),
+        // updated_at: new Date().toISOString(),
       })
       .eq("id", validatedFields.data.paymentId);
 
-    if (updateError) throw new Error("Failed to update payment status");
+    if (updateError) {
+      return { error: updateError.message };
+    }
 
     revalidatePath("/accounting/payments");
     return { success: true };
   } catch (error) {
-    console.error("Payment rejection failed:", error);
     return {
       error:
         error instanceof Error ? error.message : "Failed to reject payment",
