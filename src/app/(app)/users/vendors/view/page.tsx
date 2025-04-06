@@ -21,15 +21,15 @@ export const metadata: Metadata = {
 export default async function Page({ searchParams }: any) {
   const queryParams = await searchParams;
 
-  const user = await getUserById(queryParams.id as string);
-  if (!user || !user.user) {
+  const user: any = await getUserById(queryParams.id as string);
+  if (!user || !user?.user) {
     return (
       <div className="p-4">
         <h1 className="text-2xl font-bold text-red-500">Vendor not found</h1>
       </div>
     );
   }
-  if (user.error) {
+  if (user?.error) {
     return (
       <div className="p-4">
         <h1 className="text-2xl font-bold text-red-500">
@@ -38,7 +38,7 @@ export default async function Page({ searchParams }: any) {
       </div>
     );
   }
-  const vendor = user.user;
+  const vendor = user?.user;
   if (!vendor) {
     return (
       <div className="p-4">
@@ -163,48 +163,53 @@ export default async function Page({ searchParams }: any) {
       </div>
       <div>
         <Suspense>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="@container/card">
-              <CardHeader className="relative">
-                <CardDescription>Total Purchases Value</CardDescription>
-                <CardTitle className="@[250px]/card:text-xl text-lg font-semibold tabular-nums">
-                  Ksh.{totalPurchaseValue.toLocaleString()}
-                </CardTitle>
-              </CardHeader>
-              <CardFooter className="flex-col items-start gap-1 text-sm">
-                <div className="text-muted-foreground">{`${all.length} Total purchases`}</div>
-              </CardFooter>
-            </Card>
-            <Card className="@container/card">
-              <CardHeader className="relative">
-                <CardDescription>Paid Purchases</CardDescription>
-                <CardTitle className="@[250px]/card:text-xl text-lg font-semibold tabular-nums">
-                  Ksh.{totalPaid.toLocaleString()}
-                </CardTitle>
-              </CardHeader>
-              <CardFooter className="flex-col items-start gap-1 text-sm">
-                <div className="text-muted-foreground">{`${paid.length} Paid Purchases`}</div>
-              </CardFooter>
-            </Card>
-            <Card className="@container/card">
-              <CardHeader className="relative">
-                <CardDescription>Unpaid Purchases</CardDescription>
-                <CardTitle className="@[250px]/card:text-xl text-lg font-semibold tabular-nums">
-                  Ksh.{totalUnpaid.toLocaleString()}
-                </CardTitle>
-                {unpaid.length > 0 && (
-                  <div className="absolute right-4 top-4">
-                    <PaymentDialog
-                      unpaidPurchases={unpaid}
-                      totalUnpaid={totalUnpaid}
-                    />
-                  </div>
-                )}
-              </CardHeader>
-              <CardFooter className="flex-col items-start gap-2">
-                <div className="text-muted-foreground">{`${unpaid.length} Unpaid Purchases`}</div>
-              </CardFooter>
-            </Card>
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className="@container/card">
+                <CardHeader className="relative">
+                  <CardDescription>Total Purchases Value</CardDescription>
+                  <CardTitle className="@[250px]/card:text-xl text-lg font-semibold tabular-nums">
+                    Ksh.{totalPurchaseValue.toLocaleString()}
+                  </CardTitle>
+                </CardHeader>
+                <CardFooter className="flex-col items-start gap-1 text-sm">
+                  <div className="text-muted-foreground">{`${all.length} Total purchases`}</div>
+                </CardFooter>
+              </Card>
+              <Card className="@container/card">
+                <CardHeader className="relative">
+                  <CardDescription>Paid Purchases</CardDescription>
+                  <CardTitle className="@[250px]/card:text-xl text-lg font-semibold tabular-nums">
+                    Ksh.{totalPaid.toLocaleString()}
+                  </CardTitle>
+                </CardHeader>
+                <CardFooter className="flex-col items-start gap-1 text-sm">
+                  <div className="text-muted-foreground">{`${paid.length} Paid Purchases`}</div>
+                </CardFooter>
+              </Card>
+              <Card className="@container/card">
+                <CardHeader className="relative">
+                  <CardDescription>Unpaid Purchases</CardDescription>
+                  <CardTitle className="@[250px]/card:text-xl text-lg font-semibold tabular-nums">
+                    Ksh.{totalUnpaid.toLocaleString()}
+                  </CardTitle>
+                  {unpaid.length > 0 && (
+                    <div className="absolute right-4 top-4">
+                      <PaymentDialog
+                        unpaidPurchases={unpaid}
+                        totalUnpaid={totalUnpaid}
+                      />
+                    </div>
+                  )}
+                </CardHeader>
+                <CardFooter className="flex-col items-start gap-2">
+                  <div className="text-muted-foreground">{`${unpaid.length} Unpaid Purchases`}</div>
+                </CardFooter>
+              </Card>
+            </div>
+            <div className="flex flex-col gap-3">
+              <h2 className="font-medium text-lg">Purchases</h2>
+            </div>
           </div>
         </Suspense>
       </div>
