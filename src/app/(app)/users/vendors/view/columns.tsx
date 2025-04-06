@@ -105,4 +105,24 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
       return `${payment_status}`;
     },
   },
+  {
+    accessorKey: "paid_amount",
+    header: "Payment Amount",
+    cell: ({ row }) => {
+      const { paid_amount } = row.original;
+      return `Ksh.${Number(paid_amount || 0)
+        .toFixed(2)
+        .toLocaleString()}`;
+    },
+  },
+  {
+    accessorKey: "balance",
+    header: "Balance",
+    cell: ({ row }) => {
+      const { balance } = row.original;
+      return `Ksh.${Number(balance || 0)
+        .toFixed(2)
+        .toLocaleString()}`;
+    },
+  },
 ];

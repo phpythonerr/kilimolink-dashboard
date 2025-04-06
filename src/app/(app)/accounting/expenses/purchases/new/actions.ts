@@ -74,6 +74,14 @@ export async function createPurchase(formData: FormData) {
         product_uom: validatedData.productUoM,
         payment_status: validatedData?.paymentStatus,
         seller_type: validatedData?.sellerType,
+        paid_amount:
+          payment_status === "Unpaid"
+            ? 0
+            : validatedData.unitPrice * parseFloat(validatedData.quantity),
+        balance:
+          payment_status === "Paid"
+            ? 0
+            : validatedData.unitPrice * parseFloat(validatedData.quantity),
       });
 
     if (error) return { error: error.message };
