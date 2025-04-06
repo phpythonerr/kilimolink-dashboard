@@ -34,6 +34,7 @@ interface Product {
 }
 
 export interface PurchasesInterface {
+  id: string;
   created_date: string;
   product_id: Product;
   quantity: number;
