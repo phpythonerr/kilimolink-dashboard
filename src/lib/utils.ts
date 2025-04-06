@@ -54,7 +54,11 @@ export const isWithinLastThreeDays = (dateStr: string) => {
   return itemDate >= threeDaysAgo;
 };
 
-export const fetchPaginatedData = async (query, pageSize, page) => {
+export const fetchPaginatedData = async (
+  query: any,
+  pageSize: any,
+  page: any
+) => {
   const { data: all, count } = await query;
   if (page && /^-?\d+$/.test(page)) {
     page = Number(page);

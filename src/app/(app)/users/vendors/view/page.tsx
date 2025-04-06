@@ -102,7 +102,12 @@ export default async function Page({ searchParams }: any) {
 
   const query = supabase
     .from("inventory_purchases")
-    .select("*", { count: "exact" })
+    .select(
+      "id, created_date, vendor, seller_type, product_id ( id, name), quantity, unit_price, payment_status, purchase_date, product_uom, payment_id, balance, paid_amount",
+      {
+        count: "exact",
+      }
+    )
     .eq("vendor", queryParams.id)
     .order("purchase_date", { ascending: false });
 
