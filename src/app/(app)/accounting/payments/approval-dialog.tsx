@@ -66,7 +66,7 @@ export function ApprovalDialog({
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof schema>) {
     try {
       const formData = new FormData();
       formData.append("paymentId", paymentId);
@@ -82,7 +82,7 @@ export function ApprovalDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} modal={true}>
       <DialogContent>
         <DialogHeader className="mb-4">
           <DialogTitle className="capitalize">
@@ -137,6 +137,7 @@ export function ApprovalDialog({
                     <Textarea
                       placeholder={`Enter reason for ${action}ing payment...`}
                       {...field}
+                      className="min-h-[150px]"
                     />
                   </FormControl>
                   <FormMessage />
