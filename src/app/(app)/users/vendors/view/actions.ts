@@ -106,23 +106,34 @@ export async function initiatePayment(formData: FormData) {
 
       if (remainingAmount <= 0) break;
 
+      const unpaidAmount =
+        purchase.balance || purchase.unit_price * purchase.quantity;
+
       let updateData: any = {
         payment_id: payment.id,
         updated_at: new Date().toISOString(),
       };
 
-      if (remainingAmount >= purchaseAmount) {
+      if (remainingAmount >= unpaidAmount) {
         // Full payment for this purchase
         updateData.payment_status = "Paid";
-        updateData.paid_amount = purchaseAmount;
+        updateData.paid_amount = (purchase.paid_amount || 0) + unpaidAmount;
         updateData.balance = 0;
-        remainingAmount -= purchaseAmount;
+        remainingAmount -= unpaidAmount;
       } else {
         // Partial payment for this purchase
         updateData.payment_status = "Partially-Paid";
-        updateData.paid_amount = remainingAmount;
-        updateData.balance = purchaseAmount - remainingAmount;
+        updateData.paid_amount = (purchase.paid_amount || 0) + remainingAmount;
+        updateData.balance = unpaidAmount - remainingAmount;
         remainingAmount = 0;
+      }
+      // Ensure we don't update if there's no change
+      if (
+        purchase.payment_status === updateData.payment_status &&
+        (purchase.paid_amount || 0) === updateData.paid_amount &&
+        purchase.balance === updateData.balance
+      ) {
+        continue; // No update needed
       }
 
       purchaseUpdates.push({
