@@ -21,7 +21,7 @@ export interface PaymentInterface {
   created_at: string;
   payment_method: string;
   txn_reference_code: string;
-  approved_by: User;
+  approved_by_obj: User;
   approval_date: Date;
   status: string;
 }
