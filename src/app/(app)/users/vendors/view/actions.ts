@@ -93,11 +93,11 @@ export async function initiatePayment(formData: FormData) {
 
     if (paymentError) throw new Error("Failed to create payment record");
 
-    let remainingAmount = amount;
+    let remainingAmount: any = amount;
 
-    const purchaseUpdates = [];
+    const purchaseUpdates: any = [];
 
-    const updatedPurchases = [];
+    const updatedPurchases: any = [];
 
     // Process purchases from oldest to newest
     for (const purchase of sortedPurchases) {
@@ -136,7 +136,7 @@ export async function initiatePayment(formData: FormData) {
 
     // Execute all updates and track results
     const results = await Promise.allSettled(
-      purchaseUpdates.map((update) => update.promise)
+      purchaseUpdates.map((update: any) => update.promise)
     );
 
     // Identify failed updates
@@ -162,15 +162,15 @@ export async function initiatePayment(formData: FormData) {
         .update({
           status: "Failed",
           error_log: JSON.stringify({
-            failed_purchases: failedUpdates.map((f) => f.purchase.id),
-            error_messages: failedUpdates.map((f) => f.error.message),
+            failed_purchases: failedUpdates.map((f: any) => f.purchase.id),
+            error_messages: failedUpdates.map((f: any) => f.error.message),
           }),
         })
         .eq("id", payment.id);
 
       // Log the failures for admin review
       await supabase.from("finance_payment_failures").insert(
-        failedUpdates.map((failure) => ({
+        failedUpdates.map((failure: any) => ({
           payment_id: payment.id,
           purchase_id: failure.purchase.id,
           error_message: failure.error.message,
