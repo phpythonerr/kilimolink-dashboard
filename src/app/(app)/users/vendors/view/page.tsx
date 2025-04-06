@@ -229,7 +229,6 @@ export default async function Page({ searchParams }: any) {
                   pageCount={pages}
                   currentPage={page}
                   pageSize={pageSize}
-                  totalRows={count}
                 />
               </div>
             </div>

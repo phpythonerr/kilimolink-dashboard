@@ -44,17 +44,42 @@ import {
 
 import { createPurchase } from "./actions";
 
-const formSchema = z.object({
-  sellerType: z.string().min(1, "Seller Type is required"),
-  vendorId: z.string().min(1, "Vendor is required"),
-  productId: z.string().min(1, "Product is required"),
-  unitPrice: z.string().min(1, "Unit price is required"),
-  quantity: z.string().min(1, "Quantity is required"),
-  purchaseDate: z.string().min(1, "Purchase date is required"),
-  paymentTerms: z.string().min(1, "Payment terms is required"),
-  productUoM: z.string().min(1, "Product UoM is required"),
-  paymentStatus: z.string().min(1, "Payment Status is required"),
-});
+const formSchema = z
+  .object({
+    sellerType: z.string().min(1, "Seller Type is required"),
+    vendorId: z.string().min(1, "Vendor is required"),
+    productId: z.string().min(1, "Product is required"),
+    unitPrice: z.string().min(1, "Unit price is required"),
+    quantity: z.string().min(1, "Quantity is required"),
+    purchaseDate: z.string().min(1, "Purchase date is required"),
+    paymentTerms: z.string().min(1, "Payment terms is required"),
+    productUoM: z.string().min(1, "Product UoM is required"),
+    paymentStatus: z.string().min(1, "Payment Status is required"),
+    paidAmount: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.paymentStatus === "Partially-Paid") {
+        const amount = Number(data.paidAmount);
+        const total = Number(data.unitPrice) * Number(data.quantity);
+        return amount > 0 && amount < total;
+      }
+      return true;
+    },
+    {
+      message: "Paid amount must be greater than 0 and less than total amount",
+      path: ["paidAmount"],
+    }
+  )
+  .superRefine((data, ctx) => {
+    if (data.paymentStatus === "Partially-Paid" && !data.paidAmount) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Paid amount is required for partially paid purchases",
+        path: ["paidAmount"],
+      });
+    }
+  });
 
 export default function NewPurchaseForm({ vendors, products }: any) {
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -73,12 +98,19 @@ export default function NewPurchaseForm({ vendors, products }: any) {
       paymentTerms: "",
       productUoM: "",
       paymentStatus: "Unpaid",
+      paidAmount: "0",
     },
   });
+
+  const selectedUnitPrice = form.watch("unitPrice");
+
+  const selectedQuantity = form.watch("quantity");
 
   const selectedProductId = form.watch("productId");
 
   const selectedSellerType = form.watch("sellerType");
+
+  const selectedPaymentStatus = form.watch("paymentStatus");
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     if (submitting) return;
@@ -95,6 +127,23 @@ export default function NewPurchaseForm({ vendors, products }: any) {
     formData.append("productUoM", data.productUoM);
     formData.append("paymentStatus", data.paymentStatus);
     formData.append("sellerType", data.sellerType);
+    formData.append(
+      "paidAmount",
+      selectedPaymentStatus === "Partially-Paid"
+        ? form.getValues("paidAmount") || "0"
+        : selectedPaymentStatus === "Paid"
+        ? parseFloat(selectedUnitPrice) * parseFloat(selectedQuantity)
+        : "0"
+    );
+    formData.append(
+      "balance",
+      selectedPaymentStatus === "Partially-Paid"
+        ? parseFloat(selectedUnitPrice) * parseFloat(selectedQuantity) -
+            parseFloat(form.getValues("paidAmount") || "0")
+        : selectedPaymentStatus === "Paid"
+        ? 0
+        : parseFloat(selectedUnitPrice) * parseFloat(selectedQuantity)
+    );
 
     await toast.promise(createPurchase(formData), {
       loading: "Creating purchase...",
@@ -412,6 +461,7 @@ export default function NewPurchaseForm({ vendors, products }: any) {
                 <SelectContent>
                   <SelectItem value="Credit">Credit</SelectItem>
                   <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="Partial-Credit">Partial Credit</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -433,13 +483,35 @@ export default function NewPurchaseForm({ vendors, products }: any) {
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="Unpaid">Unpaid</SelectItem>
-                  <SelectItem value="Paid">Paid</SelectItem>
+                  <SelectItem value="Paid">Fully Paid</SelectItem>
+                  <SelectItem value="Partially-Paid">Partially Paid</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {selectedPaymentStatus === "Partially-Paid" && (
+          <FormField
+            control={form.control}
+            name="paidAmount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Paid Amount</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleNumberInput(e, field.value)
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <Button
           type="submit"
