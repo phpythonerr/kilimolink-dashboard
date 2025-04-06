@@ -14,20 +14,6 @@ import { PaymentDialog } from "./payment-dialog";
 
 // Define data types
 
-interface UserMetadata {
-  tradeName?: string;
-  first_name?: string;
-  firstName?: string;
-  last_name?: string;
-  lastName?: string;
-  location?: string;
-}
-
-interface User {
-  id: string;
-  user_metadata: UserMetadata;
-}
-
 interface Product {
   id: string;
   name: string;
@@ -35,14 +21,14 @@ interface Product {
 
 export interface PurchasesInterface {
   id: string;
-  created_date: string;
+  purchase_date: Date;
   product_id: Product;
   quantity: number;
   product_uom: string;
   unit_price: number;
   payment_status: "unpaid" | "paid" | "cancelled";
-  seller_type: string;
-  user_obj: User;
+  paid_amount: number;
+  balance: number;
 }
 
 // Define columns
