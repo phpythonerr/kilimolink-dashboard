@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
-import { createClient } from "@/lib/supabase/admin/server";
+import { createClient } from "@/lib/supabase/server";
 import { DataTable } from "@/components/app-datatable";
 import { getUsers } from "@/data/users";
 import { columns } from "./columns";

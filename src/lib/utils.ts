@@ -53,3 +53,29 @@ export const isWithinLastThreeDays = (dateStr: string) => {
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 2);
   return itemDate >= threeDaysAgo;
 };
+
+export const fetchPaginatedData = async (query, pageSize, page) => {
+  const { data: all, count } = await query;
+  if (page && /^-?\d+$/.test(page)) {
+    page = Number(page);
+    let offsetStart = Number(pageSize) * Number(Number(page) - 1);
+
+    let offsetEnd = Number(pageSize) * Number(Number(page) - 1) + pageSize;
+
+    query = query.range(offsetStart + 1, offsetEnd);
+  } else {
+    query = query.range(0, pageSize);
+  }
+
+  let { data, error } = await query;
+
+  const pages = count && Math.ceil(count / pageSize);
+
+  return {
+    all,
+    data,
+    count,
+    error,
+    pages,
+  };
+};

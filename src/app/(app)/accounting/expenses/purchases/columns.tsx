@@ -1,12 +1,16 @@
 "use client";
+import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Info } from "lucide-react";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { PaymentDialog } from "./payment-dialog";
 
 // Define data types
 
@@ -74,6 +78,15 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
     },
   },
   {
+    accessorKey: "seller_type",
+    header: "Seller Type",
+    cell: ({ row }) => {
+      const { seller_type } = row.original;
+
+      return <span className="capitalize">{seller_type || "Unknown"}</span>;
+    },
+  },
+  {
     accessorKey: "location",
     header: "Location",
     cell: ({ row }) => {
@@ -86,13 +99,16 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
     accessorKey: "product",
     header: "Product",
     cell: ({ row }) => {
-      const {
-        product_id: { name, id },
-      } = row.original;
-      return (
-        <Link href={`/store/products/view?id=${id}`} className="text-primary">
-          {name}
+      const { product_id } = row.original;
+      return product_id ? (
+        <Link
+          href={`/store/products/view?id=${product_id?.id}`}
+          className="text-primary"
+        >
+          {product_id?.name}
         </Link>
+      ) : (
+        "Unknown Product"
       );
     },
   },
@@ -118,6 +134,40 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
     cell: ({ row }) => {
       const { payment_status } = row.original;
       return `${payment_status}`;
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+      const purchase = row.original;
+
+      return (
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => setShowPaymentDialog(true)}
+                disabled={purchase.payment_status === "paid"}
+              >
+                Mark as Paid
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <PaymentDialog
+            open={showPaymentDialog}
+            onOpenChange={setShowPaymentDialog}
+            purchaseId={purchase.id}
+          />
+        </>
+      );
     },
   },
 ];
