@@ -28,6 +28,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { rejectPayment } from "./actions";
 
 const createFormSchema = (action: "approv" | "reject") =>
   z.object({
@@ -73,6 +74,14 @@ export function ApprovalDialog({
       formData.append("action", action);
       formData.append("note", values.note || "");
       formData.append("source_of_funds", values?.source_of_funds || ""); // Use empty string if not approving
+
+      if (action === "approv") {
+        formData.append("source_of_funds", values.source_of_funds);
+        // Handle approval...
+      } else {
+        const result = await rejectPayment(formData);
+        if (result.error) throw new Error(result.error);
+      }
 
       toast.success(`Payment ${action}ed successfully`);
       onOpenChange(false);
