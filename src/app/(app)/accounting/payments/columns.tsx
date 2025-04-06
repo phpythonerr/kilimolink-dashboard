@@ -203,7 +203,7 @@ export const columns: ColumnDef<PaymentInterface>[] = [
 
       // For processed payments
       if (
-        payment.initiated_by === currentUser?.id ||
+        payment.initiated_by_obj === currentUser?.id ||
         payment.status === "Approved" ||
         payment.status === "Rejected"
       ) {
