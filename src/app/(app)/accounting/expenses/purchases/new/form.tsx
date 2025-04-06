@@ -494,7 +494,7 @@ export default function NewPurchaseForm({ vendors, products }: any) {
                   <Input
                     {...field}
                     onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      handleNumberInput(e, field.value)
+                      handleNumberInput(e, e.target.value)
                     }
                   />
                 </FormControl>
