@@ -2,7 +2,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
-interface InitiatedBy {
+interface User {
+  id: string;
   user_metadata: {
     first_name?: string;
     firstName?: string;
@@ -16,8 +17,13 @@ interface InitiatedBy {
 export interface PaymentInterface {
   id: string;
   amount: number;
-  initiated_by_obj: InitiatedBy;
+  initiated_by_obj: User;
   created_at: string;
+  payment_method: string;
+  txn_reference_code: string;
+  approved_by: User;
+  approval_date: Date;
+  status: string;
 }
 
 // Define your columns
