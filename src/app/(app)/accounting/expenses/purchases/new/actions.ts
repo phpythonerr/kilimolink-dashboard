@@ -75,11 +75,11 @@ export async function createPurchase(formData: FormData) {
         payment_status: validatedData?.paymentStatus,
         seller_type: validatedData?.sellerType,
         paid_amount:
-          payment_status === "Unpaid"
+          paymentStatus === "Unpaid"
             ? 0
             : validatedData.unitPrice * parseFloat(validatedData.quantity),
         balance:
-          payment_status === "Paid"
+          paymentStatus === "Paid"
             ? 0
             : validatedData.unitPrice * parseFloat(validatedData.quantity),
       });
