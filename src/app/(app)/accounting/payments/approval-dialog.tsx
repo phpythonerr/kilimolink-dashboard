@@ -87,7 +87,7 @@ export function ApprovalDialog({
         await toast.promise(rejectPayment(formData), {
           loading: "Rejecting payment...",
           success: (result) => {
-            if (result.error) toast.error(result.error.message);
+            if (result.error) throw Error(result.error);
             onOpenChange(false);
             return "Payment rejected successfully";
           },
