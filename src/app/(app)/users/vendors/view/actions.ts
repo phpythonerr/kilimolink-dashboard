@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 interface PurchaseUpdate {
-  promise: Promise<{ data: any; error: any }>;
+  promise: Promise<PostgrestResponse<null>>;
   purchase: Purchase;
   updateData: PurchaseUpdateData;
 }
@@ -162,11 +162,13 @@ export async function initiatePayment(formData: FormData) {
         purchase.balance !== updateData.balance
       ) {
         purchaseUpdates.push({
-          promise: supabase
-            .from("inventory_purchases")
-            .update(updateData)
-            .eq("id", purchase.id)
-            .then((result) => result),
+          promise: new Promise((resolve) => {
+            supabase
+              .from("inventory_purchases")
+              .update(updateData)
+              .eq("id", purchase.id)
+              .then(resolve);
+          }),
           purchase,
           updateData,
         });
@@ -182,8 +184,8 @@ export async function initiatePayment(formData: FormData) {
     }
 
     // Execute all updates and track results
-    const results = await Promise.allSettled(
-      purchaseUpdates.map((update: PurchaseUpdate) => update.promise)
+    const results = await Promise.allSettled<PostgrestResponse<null>>(
+      purchaseUpdates.map((update) => update.promise)
     );
 
     // Check for failed updates
@@ -193,11 +195,7 @@ export async function initiatePayment(formData: FormData) {
           result.status === "rejected" ||
           (result.status === "fulfilled" && result.value.error)
         ) {
-          acc.push({
-            purchase: purchaseUpdates[index].purchase,
-            updateData: purchaseUpdates[index].updateData,
-            promise: purchaseUpdates[index].promise,
-          });
+          acc.push(purchaseUpdates[index]);
         }
         return acc;
       },
