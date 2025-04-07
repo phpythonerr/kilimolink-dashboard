@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { PostgrestResponse } from "@supabase/supabase-js";
 
 interface PurchaseUpdate {
   promise: Promise<PostgrestResponse<null>>;
