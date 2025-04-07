@@ -74,12 +74,8 @@ export default function PaymentVoucherPDF() {
   return (
     <Document
       title={`Payment Voucher`}
-      keywords="Kilimolink, Payment Voucher"
-      description="Payment Voucher"
-      creator="Kilimolink"
-      producer="Kilimolink"
-      title="Payment Voucher"
       subject="Payment Voucher"
+      author="Kilimolink"
     >
       <Page size="A4" style={styles.body} wrap>
         <View>
