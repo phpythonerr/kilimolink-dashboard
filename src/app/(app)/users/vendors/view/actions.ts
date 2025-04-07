@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 interface PurchaseUpdate {
-  promise: Promise<any>;
+  promise: Promise<{ data: any; error: any }>;
   purchase: Purchase;
   updateData: PurchaseUpdateData;
 }
@@ -165,7 +165,8 @@ export async function initiatePayment(formData: FormData) {
           promise: supabase
             .from("inventory_purchases")
             .update(updateData)
-            .eq("id", purchase.id),
+            .eq("id", purchase.id)
+            .then((result) => result),
           purchase,
           updateData,
         });
