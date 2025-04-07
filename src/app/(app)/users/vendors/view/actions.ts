@@ -4,13 +4,10 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { PostgrestResponse } from "@supabase/supabase-js";
-
-interface PurchaseUpdate {
-  promise: Promise<PostgrestResponse<null>>;
-  purchase: Purchase;
-  updateData: PurchaseUpdateData;
-}
+import {
+  PostgrestResponse,
+  PostgrestSingleResponse,
+} from "@supabase/supabase-js";
 
 interface Purchase {
   id: string;
@@ -28,6 +25,12 @@ interface PurchaseUpdateData {
   balance: number;
   updated_at: string;
   payment_updated_at: string;
+}
+
+interface PurchaseUpdate {
+  promise: Promise<PostgrestSingleResponse<null>>;
+  purchase: Purchase;
+  updateData: PurchaseUpdateData;
 }
 
 const PaymentSchema = z.object({
@@ -168,7 +171,7 @@ export async function initiatePayment(formData: FormData) {
               .from("inventory_purchases")
               .update(updateData)
               .eq("id", purchase.id)
-              .then(resolve);
+              .then((result: PostgrestSingleResponse<null>) => resolve(result));
           }),
           purchase,
           updateData,
@@ -185,7 +188,7 @@ export async function initiatePayment(formData: FormData) {
     }
 
     // Execute all updates and track results
-    const results = await Promise.allSettled<PostgrestResponse<null>>(
+    const results = await Promise.allSettled<PostgrestSingleResponse<null>>(
       purchaseUpdates.map((update) => update.promise)
     );
 
