@@ -29,7 +29,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { rejectPayment } from "./actions";
+import { rejectPayment, approvePayment } from "./actions";
 
 const createFormSchema = (action: "approv" | "reject") =>
   z.object({
@@ -42,7 +42,10 @@ const createFormSchema = (action: "approv" | "reject") =>
       },
       { message: "Source of Funds is required for payment approval" }
     ),
-    note: z.string().optional(),
+    note:
+      action === "reject"
+        ? z.string().min(1, "Reason for payment rejection is required")
+        : z.string().optional(),
   });
 
 interface ApprovalDialogProps {
@@ -75,13 +78,23 @@ export function ApprovalDialog({
     try {
       const formData = new FormData();
       formData.append("paymentId", paymentId);
-      formData.append("action", action);
       formData.append("note", values.note || "");
-      formData.append("source_of_funds", values?.source_of_funds || ""); // Use empty string if not approving
 
       if (action === "approv") {
         formData.append("source_of_funds", values.source_of_funds);
-        // Handle approval...
+
+        setIsSubmitting(true);
+        await toast.promise(approvePayment(formData), {
+          loading: "Approving payment...",
+          success: (result) => {
+            console.log(result);
+            if (result.error) throw Error(result.error);
+            onOpenChange(false);
+            return "Payment approved successfully";
+          },
+          error: "Failed to approve payment",
+          finally: () => setIsSubmitting(false),
+        });
       } else {
         setIsSubmitting(true);
         await toast.promise(rejectPayment(formData), {
@@ -153,12 +166,22 @@ export function ApprovalDialog({
               name="note"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Note (Optional)</FormLabel>
+                  <FormLabel>
+                    <span className="flex gap-1">
+                      {action === "reject" && (
+                        <>
+                          <span>Reason for Payment Rejection</span>
+                          <span className="text-destructive">*</span>
+                        </>
+                      )}
+                      {action === "approv" && <span>Note (Optional)</span>}
+                    </span>
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder={`Enter reason for ${action}ing payment...`}
                       {...field}
-                      className="min-h-[150px]"
+                      className="min-h-[100px]"
                     />
                   </FormControl>
                   <FormMessage />

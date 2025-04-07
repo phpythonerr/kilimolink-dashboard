@@ -7,7 +7,7 @@ import { z } from "zod";
 
 const RejectPaymentSchema = z.object({
   paymentId: z.string().min(1),
-  note: z.string().optional(),
+  note: z.string().min(1, "Note is required when rejecting payment"),
 });
 
 export async function rejectPayment(formData: FormData) {
@@ -152,7 +152,7 @@ export async function approvePayment(formData: FormData) {
 
     const supabase = await createClient();
 
-    const { user } = await getUser();
+    const user = await getUser();
 
     if (!user) {
       return { error: "User not found" };
@@ -171,6 +171,8 @@ export async function approvePayment(formData: FormData) {
         approved_by: user?.id,
       })
       .eq("id", validatedFields.data.paymentId);
+
+    console.log(updateError);
 
     if (updateError) throw new Error("Failed to update payment status");
 

@@ -114,7 +114,6 @@ export async function initiatePayment(formData: FormData) {
       .insert({
         amount,
         status: "Pending",
-        initiated_by: "dea02c9e-6152-4cda-ac69-67ed5e5c9407", //TODO: Delete this line
         date_initiated: new Date().toISOString(),
         in_favor_of: vendor_id,
       })

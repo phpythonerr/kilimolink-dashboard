@@ -74,15 +74,6 @@ export async function fetchPaginatedData(
 
     const pages = count ? Math.ceil(count / pageSize) : 0;
 
-    // Add debugging logs
-    console.log({
-      start,
-      end,
-      expectedItems: pageSize,
-      actualItems: pagedData?.length,
-      rangeSize: end - start,
-    });
-
     return {
       all: allData || [],
       data: pagedData || [],

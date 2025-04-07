@@ -38,7 +38,7 @@ export interface PaymentInterface {
   payment_method: string;
   txn_reference_code: string;
   approved_by_obj: User;
-  approval_date: Date;
+  approval_datetime: Date;
   status: string;
   current_user: User;
   in_favor_of: User | null; // Allow null for vendors not set
@@ -50,7 +50,10 @@ export const columns: ColumnDef<PaymentInterface>[] = [
     accessorKey: "created",
     header: "Created",
     cell: ({ row }) => {
-      return new Date(row.getValue("created")).toDateString();
+      return new Date(row.getValue("created")).toLocaleString("en-US", {
+        dateStyle: "medium",
+        timeStyle: "medium",
+      });
     },
   },
   {
@@ -122,18 +125,18 @@ export const columns: ColumnDef<PaymentInterface>[] = [
   //     );
   //   },
   // },
-  {
-    accessorKey: "txn_reference_code",
-    header: "Txn Code",
-    cell: ({ row }) => {
-      const { txn_reference_code } = row.original;
-      return txn_reference_code ? (
-        <span className={`capitalize`}>{txn_reference_code}</span>
-      ) : (
-        "-"
-      );
-    },
-  },
+  // {
+  //   accessorKey: "txn_reference_code",
+  //   header: "Txn Code",
+  //   cell: ({ row }) => {
+  //     const { txn_reference_code } = row.original;
+  //     return txn_reference_code ? (
+  //       <span className={`capitalize`}>{txn_reference_code}</span>
+  //     ) : (
+  //       "-"
+  //     );
+  //   },
+  // },
   {
     accessorKey: "approved_by",
     header: "Approved By",
@@ -152,12 +155,15 @@ export const columns: ColumnDef<PaymentInterface>[] = [
     },
   },
   {
-    accessorKey: "approval_date",
+    accessorKey: "approval_datetime",
     header: "Approved at",
     cell: ({ row }) => {
-      const { approval_date } = row.original;
-      return approval_date
-        ? new Date(row.getValue("approval_date")).toDateString()
+      const { approval_datetime } = row.original;
+      return approval_datetime
+        ? new Date(approval_datetime).toLocaleString("en-US", {
+            dateStyle: "medium",
+            timeStyle: "medium",
+          })
         : "-";
     },
   },
@@ -168,9 +174,11 @@ export const columns: ColumnDef<PaymentInterface>[] = [
       const { status } = row.original;
       return (
         <span
-          className={`capitalize ${
+          className={`capitalize font-medium ${
             status === "Approved"
               ? "text-primary"
+              : status === "Pending"
+              ? "text-blue-800 dark:text-blue-400"
               : "text-red-800 dark:text-red-400"
           }`}
         >
