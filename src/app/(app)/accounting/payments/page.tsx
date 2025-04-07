@@ -6,10 +6,11 @@ import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
 import { createClient } from "@/lib/supabase/server";
 import { DataTable } from "@/components/app-datatable";
 import { getUsers, getUser } from "@/data/users";
+import { fetchPaginatedData } from "@/lib/utils";
 import { columns } from "./columns";
 
 export const metadata: Metadata = {
-  title: "Corporate Orders",
+  title: "Payments",
   description: "",
 };
 
@@ -32,8 +33,6 @@ export default async function Index({ searchParams }: any) {
 
   let pageSize: number = Number(queryParams.pageSize) || 10;
 
-  let totalPages: number = 0;
-
   let page: number = 1;
 
   let query: any = supabase
@@ -52,11 +51,13 @@ export default async function Index({ searchParams }: any) {
     query = query.range(0, pageSize);
   }
 
-  let { data: orders, count: totalOrders, error } = await query;
+  const { all, data, count, error, pages } = await fetchPaginatedData(
+    query,
+    pageSize,
+    page
+  );
 
-  totalPages = totalOrders && Math.ceil(totalOrders / pageSize);
-
-  const userIds = [...new Set(orders?.map((item: any) => item.user))];
+  const userIds = [...new Set(data?.map((item: any) => item.user))];
 
   const users = await getUsers();
 
@@ -67,7 +68,7 @@ export default async function Index({ searchParams }: any) {
     userMap[user.id] = user;
   });
 
-  const enhancedData = orders?.map((item: any) => ({
+  const enhancedData = data?.map((item: any) => ({
     ...item,
     initiated_by_obj: userMap[item.initiated_by] || { name: "Unknown User" },
     approved_by_obj: userMap[item.approved_by] || { name: "Unknown User" },
@@ -110,7 +111,7 @@ export default async function Index({ searchParams }: any) {
         <DataTable
           data={enhancedData || []}
           columns={columns}
-          pageCount={totalPages}
+          pageCount={pages}
           currentPage={page}
           pageSize={pageSize}
         />
