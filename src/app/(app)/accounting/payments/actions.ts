@@ -54,7 +54,7 @@ export async function rejectPayment(formData: FormData) {
     let remainingAmountToReverse = payment.amount;
 
     // Process purchases from newest to oldest
-    const purchaseUpdates = purchases
+    const purchaseUpdates: any = purchases
       .map((purchase: any) => {
         if (remainingAmountToReverse <= 0) return null;
 
