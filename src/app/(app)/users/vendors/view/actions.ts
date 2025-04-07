@@ -5,6 +5,30 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+interface PurchaseUpdate {
+  promise: Promise<any>;
+  purchase: Purchase;
+  updateData: PurchaseUpdateData;
+}
+
+interface Purchase {
+  id: string;
+  payment_status?: string;
+  paid_amount?: number;
+  balance?: number;
+  unit_price: number;
+  quantity: number;
+}
+
+interface PurchaseUpdateData {
+  payment_id: string;
+  payment_status: "Paid" | "Partially-Paid" | "Unpaid";
+  paid_amount: number;
+  balance: number;
+  updated_at: string;
+  payment_updated_at: string;
+}
+
 const PaymentSchema = z.object({
   amount: z.string().transform((val) => {
     const amount = Number(val);
@@ -96,7 +120,7 @@ export async function initiatePayment(formData: FormData) {
     if (paymentError) throw new Error("Failed to create payment record");
 
     let remainingAmount = amount;
-    const purchaseUpdates = [];
+    const purchaseUpdates: PurchaseUpdate[] = [];
     const paymentRelations = [];
 
     // Process purchases from oldest to newest
@@ -158,23 +182,26 @@ export async function initiatePayment(formData: FormData) {
 
     // Execute all updates and track results
     const results = await Promise.allSettled(
-      purchaseUpdates.map((update: any) => update.promise)
+      purchaseUpdates.map((update: PurchaseUpdate) => update.promise)
     );
 
     // Check for failed updates
-    const failedUpdates = results.reduce((acc: any[], result, index) => {
-      if (
-        result.status === "rejected" ||
-        (result.status === "fulfilled" && result.value.error)
-      ) {
-        acc.push({
-          purchase: purchaseUpdates[index].purchase,
-          error:
-            result.status === "rejected" ? result.reason : result.value.error,
-        });
-      }
-      return acc;
-    }, []);
+    const failedUpdates = results.reduce(
+      (acc: PurchaseUpdate[], result, index) => {
+        if (
+          result.status === "rejected" ||
+          (result.status === "fulfilled" && result.value.error)
+        ) {
+          acc.push({
+            purchase: purchaseUpdates[index].purchase,
+            updateData: purchaseUpdates[index].updateData,
+            promise: purchaseUpdates[index].promise,
+          });
+        }
+        return acc;
+      },
+      []
+    );
 
     // If any updates failed, attempt to reconcile
     if (failedUpdates.length > 0) {

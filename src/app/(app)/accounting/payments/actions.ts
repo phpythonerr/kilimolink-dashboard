@@ -10,21 +10,6 @@ const RejectPaymentSchema = z.object({
   note: z.string().optional(),
 });
 
-interface Purchase {
-  id: string;
-  unit_price: number;
-  quantity: number;
-  product_id: string;
-  vendor: string;
-  seller_type: string;
-  created_date: string;
-  paid_amount: number;
-  balance: number;
-  payment_status: "Unpaid" | "Partially-Paid" | "Paid";
-  updated_at: string;
-  payment_updated_at: string;
-}
-
 export async function rejectPayment(formData: FormData) {
   try {
     const validatedFields = RejectPaymentSchema.safeParse({
@@ -69,44 +54,44 @@ export async function rejectPayment(formData: FormData) {
 
     let remainingAmountToReverse = payment.amount;
 
-    const purchaseUpdates: Purchase[] = [];
-
     // Process purchases from newest to oldest
-    for (const purchase of purchases) {
-      if (remainingAmountToReverse <= 0) break;
+    const purchaseUpdates: any = purchases
+      .map((purchase: any) => {
+        if (remainingAmountToReverse <= 0) return null;
 
-      const totalAmount = purchase.unit_price * purchase.quantity;
-      const amountToReverseForThisPurchase = Math.min(
-        purchase.payment_amount, // Use the amount from relation
-        remainingAmountToReverse
-      );
+        const totalAmount = purchase.unit_price * purchase.quantity;
+        const amountToReverseForThisPurchase = Math.min(
+          purchase.payment_amount, // Use the amount from relation
+          remainingAmountToReverse
+        );
 
-      const newPaidAmount =
-        purchase.paid_amount - amountToReverseForThisPurchase;
-      const newBalance = totalAmount - newPaidAmount;
+        const newPaidAmount =
+          purchase.paid_amount - amountToReverseForThisPurchase;
+        const newBalance = totalAmount - newPaidAmount;
 
-      remainingAmountToReverse -= amountToReverseForThisPurchase;
+        remainingAmountToReverse -= amountToReverseForThisPurchase;
 
-      purchaseUpdates.push({
-        id: purchase.id,
-        unit_price: purchase.unit_price,
-        quantity: purchase.quantity,
-        product_id: purchase.product_id,
-        vendor: purchase.vendor,
-        seller_type: purchase.seller_type,
-        created_date: purchase.created_date,
-        paid_amount: Math.max(0, newPaidAmount),
-        balance: newBalance || 0,
-        payment_status:
-          newPaidAmount <= 0
-            ? "Unpaid"
-            : newBalance > 0
-            ? "Partially-Paid"
-            : "Paid",
-        updated_at: new Date().toISOString(),
-        payment_updated_at: new Date().toISOString(),
-      });
-    }
+        return {
+          id: purchase.id, // Required for upsert
+          unit_price: purchase.unit_price,
+          quantity: purchase.quantity,
+          product_id: purchase.product_id,
+          vendor: purchase.vendor,
+          seller_type: purchase.seller_type,
+          created_date: purchase.created_date,
+          paid_amount: Math.max(0, newPaidAmount),
+          balance: newBalance || 0,
+          payment_status:
+            newPaidAmount <= 0
+              ? "Unpaid"
+              : newBalance > 0
+              ? "Partially-Paid"
+              : "Paid",
+          updated_at: new Date().toISOString(),
+          payment_updated_at: new Date().toISOString(),
+        };
+      })
+      .filter(Boolean);
 
     // Begin transaction
     const { error: purchasesError } = await supabase
