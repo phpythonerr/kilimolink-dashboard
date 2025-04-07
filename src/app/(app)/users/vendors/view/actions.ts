@@ -86,6 +86,7 @@ export async function initiatePayment(formData: FormData) {
       .insert({
         amount,
         status: "Pending",
+        initiated_by: "dea02c9e-6152-4cda-ac69-67ed5e5c9407", //TODO: Delete this line
         date_initiated: new Date().toISOString(),
         in_favor_of: vendor_id,
       })
@@ -94,11 +95,9 @@ export async function initiatePayment(formData: FormData) {
 
     if (paymentError) throw new Error("Failed to create payment record");
 
-    let remainingAmount: any = amount;
-
-    const purchaseUpdates: any = [];
-
-    const updatedPurchases: any = [];
+    let remainingAmount = amount;
+    const purchaseUpdates = [];
+    const paymentRelations = [];
 
     // Process purchases from oldest to newest
     for (const purchase of sortedPurchases) {
@@ -108,10 +107,12 @@ export async function initiatePayment(formData: FormData) {
 
       const unpaidAmount =
         purchase.balance || purchase.unit_price * purchase.quantity;
+      let paymentAmount = 0;
 
       let updateData: any = {
         payment_id: payment.id,
         updated_at: new Date().toISOString(),
+        payment_updated_at: new Date().toISOString(),
       };
 
       if (remainingAmount >= unpaidAmount) {
@@ -119,31 +120,40 @@ export async function initiatePayment(formData: FormData) {
         updateData.payment_status = "Paid";
         updateData.paid_amount = (purchase.paid_amount || 0) + unpaidAmount;
         updateData.balance = 0;
+        paymentAmount = unpaidAmount;
         remainingAmount -= unpaidAmount;
       } else {
         // Partial payment for this purchase
         updateData.payment_status = "Partially-Paid";
         updateData.paid_amount = (purchase.paid_amount || 0) + remainingAmount;
         updateData.balance = unpaidAmount - remainingAmount;
+        paymentAmount = remainingAmount;
         remainingAmount = 0;
       }
-      // Ensure we don't update if there's no change
-      if (
-        purchase.payment_status === updateData.payment_status &&
-        (purchase.paid_amount || 0) === updateData.paid_amount &&
-        purchase.balance === updateData.balance
-      ) {
-        continue; // No update needed
-      }
 
-      purchaseUpdates.push({
-        promise: supabase
-          .from("inventory_purchases")
-          .update(updateData)
-          .eq("id", purchase.id),
-        purchase,
-        updateData,
-      });
+      // Only update if there are changes
+      if (
+        purchase.payment_status !== updateData.payment_status ||
+        (purchase.paid_amount || 0) !== updateData.paid_amount ||
+        purchase.balance !== updateData.balance
+      ) {
+        purchaseUpdates.push({
+          promise: supabase
+            .from("inventory_purchases")
+            .update(updateData)
+            .eq("id", purchase.id),
+          purchase,
+          updateData,
+        });
+
+        // Create payment-purchase relation
+        paymentRelations.push({
+          payment_id: payment.id,
+          purchase_id: purchase.id,
+          amount: paymentAmount,
+          created: new Date().toISOString(),
+        });
+      }
     }
 
     // Execute all updates and track results
@@ -151,7 +161,7 @@ export async function initiatePayment(formData: FormData) {
       purchaseUpdates.map((update: any) => update.promise)
     );
 
-    // Identify failed updates
+    // Check for failed updates
     const failedUpdates = results.reduce((acc: any[], result, index) => {
       if (
         result.status === "rejected" ||
@@ -187,7 +197,7 @@ export async function initiatePayment(formData: FormData) {
           purchase_id: failure.purchase.id,
           error_message: failure.error.message,
           attempted_update: failure.updateData,
-          created_at: new Date().toISOString(),
+          created: new Date().toISOString(),
         }))
       );
 
@@ -196,7 +206,17 @@ export async function initiatePayment(formData: FormData) {
       );
     }
 
-    // All updates successful - mark payment as completed
+    const { error: relationsError } = await supabase
+      .from("inventory_purchasepaymentrelation")
+      .insert(paymentRelations);
+
+    console.log(relationsError);
+
+    if (relationsError) {
+      throw new Error("Failed to create payment relations");
+    }
+
+    //  mark payment as Pending
     await supabase
       .from("finance_payment")
       .update({ status: "Pending" })

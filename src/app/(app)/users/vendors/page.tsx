@@ -37,8 +37,6 @@ export default async function Index({ searchParams }: any) {
     (user: any) => user?.user_metadata?.user_type === "vendor"
   );
 
-  console.log(vendors);
-
   const totalPages = vendors && Math.ceil(vendors.length / pageSize);
 
   return (

@@ -93,7 +93,7 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
   },
   {
     accessorKey: "paid_amount",
-    header: "Payment Amount",
+    header: "Paid Amount",
     cell: ({ row }) => {
       const { paid_amount } = row.original;
       return `Ksh.${Number(paid_amount || 0)
