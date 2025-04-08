@@ -283,7 +283,7 @@ export const columns: ColumnDef<PaymentInterface>[] = [
           <PaymentSummaryDialog
             open={showSummaryDialog}
             onOpenChange={setShowSummaryDialog}
-            paymentId={payment.id}
+            payment={payment}
           />
         </>
       );

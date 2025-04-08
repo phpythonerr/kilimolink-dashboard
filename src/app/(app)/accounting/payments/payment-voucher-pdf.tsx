@@ -68,8 +68,30 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function PaymentVoucherPDF() {
+export default function PaymentVoucherPDF({ payment }: any) {
   let rowCount: number = 0;
+
+  const getDisplayName = () => {
+    let displayName = null;
+    if (payment?.in_favor_of) {
+      const firstName =
+        payment?.in_favor_of?.user_metadata?.first_name ||
+        payment?.in_favor_of?.user_metadata?.firstName ||
+        "Unknown";
+      const lastName =
+        payment?.in_favor_of?.user_metadata?.last_name ||
+        payment?.in_favor_of?.user_metadata?.lastName ||
+        "Vendor";
+
+      displayName = `${firstName} ${lastName}`;
+    }
+
+    return displayName;
+  };
+
+  const getTradeName = () => {
+    return payment?.in_favor_of?.user_metadata?.tradeName;
+  };
 
   return (
     <Document
@@ -115,6 +137,10 @@ export default function PaymentVoucherPDF() {
               <Text style={{ paddingVertical: 3, fontWeight: "heavy" }}>
                 Paid To
               </Text>
+              {getTradeName() && (
+                <Text style={{ paddingVertical: 3 }}>{getTradeName()}</Text>
+              )}
+              <Text style={{ paddingVertical: 3 }}>{getDisplayName()}</Text>
             </View>
             <View style={{ flex: 1, justifyContent: "flex-end" }}></View>
           </View>
@@ -128,14 +154,17 @@ export default function PaymentVoucherPDF() {
               <View style={[styles.col, { width: "5%" }]}>
                 <Text>#</Text>
               </View>
-              <View style={[styles.col, { width: "35%" }]}>
-                <Text>Date</Text>
-              </View>
               <View style={[styles.col, { width: "15%" }]}>
+                <Text style={{ textAlign: "right" }}>Date</Text>
+              </View>
+              <View style={[styles.col, { width: "20%" }]}>
                 <Text style={{ textAlign: "right" }}>Product</Text>
               </View>
               <View style={[styles.col, { width: "15%" }]}>
                 <Text style={{ textAlign: "right" }}>Orig. Amount</Text>
+              </View>
+              <View style={[styles.col, { width: "15%" }]}>
+                <Text style={{ textAlign: "right" }}>Discount</Text>
               </View>
               <View style={[styles.col, { width: "15%" }]}>
                 <Text style={{ textAlign: "right" }}>Amount Due</Text>
@@ -144,6 +173,52 @@ export default function PaymentVoucherPDF() {
                 <Text style={{ textAlign: "right" }}>Amount Applied</Text>
               </View>
             </View>
+            <View>{JSON.stringify(payment)}</View>
+
+            {payment?.inventory_purchasepaymentrelation?.map(
+              (relation: any, index: number) => (
+                <View key={relation.id} style={styles.row}>
+                  <View style={[styles.col, { width: "5%" }]}>
+                    <Text>{index + 1}</Text>
+                  </View>
+                  <View style={[styles.col, { width: "15%" }]}>
+                    <Text style={{ textAlign: "right" }}>
+                      {new Date(
+                        relation.purchase.created_date
+                      ).toLocaleDateString()}
+                    </Text>
+                  </View>
+                  <View style={[styles.col, { width: "20%" }]}>
+                    <Text style={{ textAlign: "right" }}>
+                      {relation.purchase.product?.name || "-"}
+                    </Text>
+                  </View>
+                  <View style={[styles.col, { width: "15%" }]}>
+                    <Text style={{ textAlign: "right" }}>
+                      {(
+                        relation.purchase.unit_price *
+                        relation.purchase.quantity
+                      ).toLocaleString()}
+                    </Text>
+                  </View>
+                  <View style={[styles.col, { width: "15%" }]}>
+                    <Text style={{ textAlign: "right" }}>
+                      {relation.purchase.discount || 0}
+                    </Text>
+                  </View>
+                  <View style={[styles.col, { width: "15%" }]}>
+                    <Text style={{ textAlign: "right" }}>
+                      {relation.purchase.balance.toLocaleString()}
+                    </Text>
+                  </View>
+                  <View style={[styles.col, { width: "15%" }]}>
+                    <Text style={{ textAlign: "right" }}>
+                      {relation.amount.toLocaleString()}
+                    </Text>
+                  </View>
+                </View>
+              )
+            )}
 
             <View style={styles.row}>
               <View style={[styles.col, { width: "85%" }]}>

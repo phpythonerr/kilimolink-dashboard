@@ -16,13 +16,13 @@ import { toast } from "sonner";
 interface PaymentSummaryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  paymentId: string;
+  payment: any;
 }
 
 export function PaymentSummaryDialog({
   open,
   onOpenChange,
-  paymentId,
+  payment,
 }: PaymentSummaryDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -32,7 +32,7 @@ export function PaymentSummaryDialog({
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <PDFDownloadLink
-            document={<PaymentVoucherPDF />}
+            document={<PaymentVoucherPDF payment={payment} />}
             fileName={`Payment-Voucher.pdf`}
             className="flex items-center justify-center bg-primary border border-green-900 dark:border-green-600 rounded h-8"
           >

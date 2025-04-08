@@ -37,7 +37,16 @@ export default async function Index({ searchParams }: any) {
 
   let query: any = supabase
     .from("finance_payment")
-    .select("*", { count: "exact" })
+    .select(
+      `
+      *,
+      inventory_purchasepaymentrelation (
+        amount,
+        purchase: inventory_purchases (*)
+      )
+    `,
+      { count: "exact" }
+    )
     .order("created", { ascending: false });
 
   if (queryParams?.page && /^-?\d+$/.test(queryParams?.page)) {

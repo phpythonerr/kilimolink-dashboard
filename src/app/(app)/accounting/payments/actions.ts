@@ -101,12 +101,12 @@ export async function rejectPayment(formData: FormData) {
     if (purchasesError) throw new Error("Failed to update purchases");
 
     // Delete the payment relations
-    const { error: relationsError } = await supabase
-      .from("inventory_purchasepaymentrelation")
-      .delete()
-      .eq("payment_id", validatedFields.data.paymentId);
+    // const { error: relationsError } = await supabase
+    //   .from("inventory_purchasepaymentrelation")
+    //   .delete()
+    //   .eq("payment_id", validatedFields.data.paymentId);
 
-    if (relationsError) throw new Error("Failed to remove payment relations");
+    // if (relationsError) throw new Error("Failed to remove payment relations");
 
     // Update payment status
     const { error: updateError } = await supabase

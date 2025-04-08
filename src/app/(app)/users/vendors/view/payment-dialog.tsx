@@ -185,6 +185,7 @@ export function PaymentDialog({
                         placeholder="Enter amount"
                         {...field}
                         maxLength={6}
+                        autoComplete="off"
                         onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                           const value = e.target.value;
                           const numValue = Number(value);
@@ -205,7 +206,7 @@ export function PaymentDialog({
               />
             )}
 
-            <div className="flex justify-end">
+            <div className="flex justify-start">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
