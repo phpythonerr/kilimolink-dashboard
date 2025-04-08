@@ -16,8 +16,8 @@ export async function markAsPaid(formData: FormData) {
   try {
     const validatedFields = MarkAsPaidSchema.safeParse({
       purchaseId: formData.get("purchaseId"),
-      source_of_funds: formData.get("paymentMode"),
-      transaction_code: formData.get("transactionCode"),
+      paymentMode: formData.get("paymentMode"),
+      transactionCode: formData.get("transactionCode"),
     });
 
     if (!validatedFields.success) {
@@ -32,8 +32,8 @@ export async function markAsPaid(formData: FormData) {
       .from("inventory_purchases")
       .update({
         payment_status: "Paid",
-        source_of_funds: validatedFields.data.source_of_funds,
-        transaction_code: validatedFields.data.transaction_code || null,
+        source_of_funds: validatedFields.data.paymentMode,
+        transaction_code: validatedFields.data.transactionCode || null,
         updated_at: new Date().toISOString(),
         payment_updated_at: new Date().toISOString(),
       })
