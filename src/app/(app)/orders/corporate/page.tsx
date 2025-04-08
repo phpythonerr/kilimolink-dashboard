@@ -6,6 +6,7 @@ import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
 import { createClient } from "@/lib/supabase/server";
 import { DataTable } from "@/components/app-datatable";
 import { getUsers } from "@/data/users";
+import { UserFilter } from "./user-filter";
 import { columns } from "./columns";
 
 export const metadata: Metadata = {
@@ -30,6 +31,8 @@ export default async function Index({ searchParams }: any) {
 
   const supabase = await createClient();
 
+  const users = await getUsers();
+
   let pageSize: number = Number(queryParams.pageSize) || 10;
 
   let totalPages: number = 0;
@@ -40,6 +43,10 @@ export default async function Index({ searchParams }: any) {
     .from("orders_order")
     .select("*", { count: "exact" })
     .order("order_number", { ascending: false });
+
+  if (queryParams?.customer) {
+    query = query.eq("user", queryParams.customer);
+  }
 
   if (queryParams?.page && /^-?\d+$/.test(queryParams?.page)) {
     page = Number(queryParams?.page);
@@ -58,8 +65,6 @@ export default async function Index({ searchParams }: any) {
 
   const userIds = [...new Set(orders?.map((item: any) => item.user))];
 
-  const users = await getUsers();
-
   const userMap: any = {};
   users?.forEach((user: any) => {
     userMap[user.id] = user;
@@ -70,6 +75,10 @@ export default async function Index({ searchParams }: any) {
     user_obj: userMap[item.user] || { name: "Unknown User" },
   }));
 
+  const customers = users.filter(
+    (user: any) => user?.user_metadata?.user_type === "buyer"
+  );
+
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
@@ -79,6 +88,9 @@ export default async function Index({ searchParams }: any) {
             <Link href="/orders/corporate/new">New Order</Link>
           </Button>
         </div>
+      </div>
+      <div className="flex gap-2 items-center mb-4">
+        <UserFilter users={customers || []} />
       </div>
       <Suspense
         fallback={

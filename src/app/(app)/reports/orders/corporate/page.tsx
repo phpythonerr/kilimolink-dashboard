@@ -22,21 +22,31 @@ export default async function Page() {
 
   let { data: purchases, error: purchasesError } = await supabase
     .from("inventory_purchases")
-    .select("unit_price, quantity, payment_status, paid_amount, balance")
-    .neq("payment_status", "Paid");
+    .select("unit_price, quantity, payment_status, paid_amount, balance");
 
   let { data: orders, error: orderError } = await supabase
     .from("orders_order")
     .select("total, payment_status")
-    .neq("payment_status", "Paid");
+    .eq("payment_status", "Unpaid");
 
   // Calculate total unpaid amount for purchases
   const totalUnpaidPurchases = (purchases || []).reduce((acc, purchase) => {
     if (purchase.payment_status === "Partially-Paid") {
       return acc + (purchase.balance || 0);
-    } else {
+    } else if (purchase.payment_status === "Unpaid") {
       return acc + purchase.unit_price * purchase.quantity;
     }
+    return acc;
+  }, 0);
+
+  // Calculate total paid amount for purchases
+  const totalPaidPurchases = (purchases || []).reduce((acc, purchase) => {
+    if (purchase.payment_status === "Paid") {
+      return acc + purchase.unit_price * purchase.quantity;
+    } else if (purchase.payment_status === "Partially-Paid") {
+      return acc + (purchase.paid_amount || 0);
+    }
+    return acc;
   }, 0);
 
   // Calculate total unpaid amount for orders
@@ -56,12 +66,25 @@ export default async function Page() {
               <CardHeader className="relative">
                 <CardDescription>Unpaid Orders</CardDescription>
                 <CardTitle className="@[250px]/card:text-xl text-lg font-semibold tabular-nums">
-                  Ksh.{totalUnpaidOrders.toLocaleString()}
+                  Ksh.{Number(totalUnpaidOrders).toLocaleString()}
                 </CardTitle>
               </CardHeader>
               <CardFooter className="flex-col items-start gap-1 text-sm">
                 <div className="text-muted-foreground">
                   {orders?.length || 0} unpaid orders
+                </div>
+              </CardFooter>
+            </Card>
+            <Card className="@container/card">
+              <CardHeader className="relative">
+                <CardDescription>Paid Purchases</CardDescription>
+                <CardTitle className="@[250px]/card:text-xl text-lg font-semibold tabular-nums">
+                  Ksh.{Number(totalPaidPurchases).toLocaleString()}
+                </CardTitle>
+              </CardHeader>
+              <CardFooter className="flex-col items-start gap-1 text-sm">
+                <div className="text-muted-foreground">
+                  {purchases?.length || 0} unpaid purchases
                 </div>
               </CardFooter>
             </Card>

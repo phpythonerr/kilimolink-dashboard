@@ -77,6 +77,13 @@ export const columns: ColumnDef<Order>[] = [
     },
   },
   {
+    accessorKey: "payment_status",
+    header: "Payment Status",
+    cell: ({ row }) => {
+      return `${row.getValue("payment_status")}`;
+    },
+  },
+  {
     accessorKey: "created",
     header: "Order Date",
     cell: ({ row }) => {
