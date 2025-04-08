@@ -20,28 +20,39 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-export function UserFilter({ users }: any) {
-  const [value, setValue] = useState("");
+interface User {
+  id: string;
+  user_metadata?: {
+    business_name?: string;
+  };
+}
+
+export function UserFilter({ users }: { users: User[] }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
 
   const currentValue = searchParams.get("customer") || "";
   const currentUser = users.find((user: any) => user.id === currentValue);
 
-  if (!users?.length) {
-    return null;
-  }
+  if (!users?.length) return null;
+
+  const filteredUsers = users.filter((user: any) =>
+    user.user_metadata?.business_name
+      ?.toLowerCase()
+      .includes(inputValue.toLowerCase())
+  );
 
   const onSelect = (value: string) => {
     const params = new URLSearchParams(searchParams);
-    if (value) {
+    if (value && value !== currentValue) {
       params.set("customer", value);
     } else {
       params.delete("customer");
     }
-    params.delete("page"); // Reset pagination when filtering
+    params.delete("page");
     router.push(`${pathname}?${params.toString()}`);
     setOpen(false);
   };
@@ -53,36 +64,49 @@ export function UserFilter({ users }: any) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-[250px] justify-between"
         >
-          {value
-            ? users.find((user: any) => user.id === value)?.user_metadata
-                ?.business_name
-            : "Select customer..."}
-          <ChevronsUpDown className="opacity-50" />
+          {currentUser?.user_metadata?.business_name || "Select customer..."}
+          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[250px] p-0">
         <Command>
-          <CommandInput placeholder="Search customer..." />
+          <CommandInput
+            placeholder="Search customer..."
+            value={inputValue}
+            onValueChange={setInputValue}
+          />
           <CommandList>
             <CommandEmpty>No customer found.</CommandEmpty>
             <CommandGroup>
-              {users.map((user: any) => (
+              <CommandItem
+                onSelect={() => {
+                  onSelect("");
+                  setInputValue("");
+                }}
+              >
+                <span>All Customers</span>
+                <Check
+                  className={cn(
+                    "ml-auto h-4 w-4",
+                    !currentValue ? "opacity-100" : "opacity-0"
+                  )}
+                />
+              </CommandItem>
+              {filteredUsers.map((user: any) => (
                 <CommandItem
                   key={user.id}
-                  value={user.id}
-                  onSelect={(currentValue) => {
-                    onSelect(currentValue === value ? "" : currentValue);
-                    setValue(currentValue === value ? "" : currentValue);
-                    setOpen(false);
+                  onSelect={() => {
+                    onSelect(user.id);
+                    setInputValue("");
                   }}
                 >
-                  {user?.user_metadata?.business_name}
+                  {user.user_metadata?.business_name}
                   <Check
                     className={cn(
-                      "ml-auto",
-                      value === user.id ? "opacity-100" : "opacity-0"
+                      "ml-auto h-4 w-4",
+                      currentValue === user.id ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>
