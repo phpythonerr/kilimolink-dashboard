@@ -20,29 +20,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-];
-
 export function UserFilter({ users }: any) {
   const [value, setValue] = useState("");
   const router = useRouter();
@@ -51,7 +28,7 @@ export function UserFilter({ users }: any) {
   const [open, setOpen] = useState(false);
 
   const currentValue = searchParams.get("customer") || "";
-  const currentUser = users.find((user) => user.id === currentValue);
+  const currentUser = users.find((user: any) => user.id === currentValue);
 
   if (!users?.length) {
     return null;
@@ -79,7 +56,7 @@ export function UserFilter({ users }: any) {
           className="w-[200px] justify-between"
         >
           {value
-            ? users.find((user) => user.id === value)?.user_metadata
+            ? users.find((user: any) => user.id === value)?.user_metadata
                 ?.business_name
             : "Select customer..."}
           <ChevronsUpDown className="opacity-50" />
@@ -91,7 +68,7 @@ export function UserFilter({ users }: any) {
           <CommandList>
             <CommandEmpty>No customer found.</CommandEmpty>
             <CommandGroup>
-              {users.map((user) => (
+              {users.map((user: any) => (
                 <CommandItem
                   key={user.id}
                   value={user.id}
