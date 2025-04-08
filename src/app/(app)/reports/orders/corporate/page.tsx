@@ -29,6 +29,16 @@ export default async function Page() {
     .select("total, payment_status")
     .eq("payment_status", "Unpaid");
 
+  const paidPurchases = purchases.filter(
+    (purchase) => purchase.payment_status === "Paid"
+  );
+
+  const unpaidPurchases = purchases.filter(
+    (purchase) =>
+      purchase.payment_status === "Unpaid" ||
+      purchase.payment_status === "Partially-Paid"
+  );
+
   // Calculate total unpaid amount for purchases
   const totalUnpaidPurchases = (purchases || []).reduce((acc, purchase) => {
     if (purchase.payment_status === "Partially-Paid") {
@@ -84,7 +94,7 @@ export default async function Page() {
               </CardHeader>
               <CardFooter className="flex-col items-start gap-1 text-sm">
                 <div className="text-muted-foreground">
-                  {purchases?.length || 0} unpaid purchases
+                  {paidPurchases?.length || 0} paid purchases
                 </div>
               </CardFooter>
             </Card>
@@ -97,8 +107,7 @@ export default async function Page() {
               </CardHeader>
               <CardFooter className="flex-col items-start gap-1 text-sm">
                 <div className="text-muted-foreground">
-                  {" "}
-                  {purchases?.length || 0} unpaid purchases
+                  {unpaidPurchases?.length || 0} unpaid purchases
                 </div>
               </CardFooter>
             </Card>
