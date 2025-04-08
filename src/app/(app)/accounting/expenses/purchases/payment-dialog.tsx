@@ -29,26 +29,14 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { markAsPaid } from "./actions";
 
-const formSchema = z
-  .object({
-    paymentMode: z.enum(["mpesa", "bank", "cash"], {
-      required_error: "Please select a payment mode",
-    }),
-    transactionCode: z.string(),
-  })
-  .refine(
-    (data) => {
-      if (data.paymentMode !== "cash") {
-        return data.transactionCode.length > 0;
-      }
-      return true;
-    },
-    {
-      message: "Transaction code is required for non-cash payments",
-      path: ["transactionCode"],
-    }
-  );
+const formSchema = z.object({
+  paymentMode: z.enum(["mpesa", "bank", "cash"], {
+    required_error: "Please select a payment mode",
+  }),
+  transactionCode: z.string().optional(),
+});
 
 interface PaymentDialogProps {
   open: boolean;
@@ -61,6 +49,8 @@ export function PaymentDialog({
   onOpenChange,
   purchaseId,
 }: PaymentDialogProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -72,16 +62,32 @@ export function PaymentDialog({
   const watchPaymentMode = form.watch("paymentMode");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (isSubmitting) return;
+
     try {
       const formData = new FormData();
-      formData.append("transactionCode", values.transactionCode);
-      formData.append("paymentMode", values.paymentMode);
       formData.append("purchaseId", purchaseId);
+      formData.append("paymentMode", values.paymentMode);
+      formData.append("transactionCode", values.transactionCode || "");
 
-      toast.success("Functionality is currently under development");
-      onOpenChange(false);
+      setIsSubmitting(true);
+      await toast.promise(markAsPaid(formData), {
+        loading: "Updating payment status...",
+        success: (result) => {
+          console.log(result);
+          if (result.error) throw new Error(result.error);
+          onOpenChange(false);
+          return "Purchase marked as paid successfully";
+        },
+        error: "Failed to update payment status",
+        finally: () => setIsSubmitting(false),
+      });
     } catch (error) {
-      toast.error("Failed to update payment status");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to update payment status"
+      );
     }
   }
 
@@ -141,7 +147,9 @@ export function PaymentDialog({
                 )}
               />
             )}
-            <Button type="submit">Submit</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Processing..." : "Submit"}
+            </Button>
           </form>
         </Form>
       </DialogContent>

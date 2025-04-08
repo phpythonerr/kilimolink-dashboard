@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { PaymentDialog } from "./payment-dialog";
+import { isWithinLastThreeDays } from "@/lib/utils";
+import { EditSheet } from "./edit-sheet";
 
 // Define data types
 
@@ -142,6 +144,7 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
     id: "actions",
     cell: ({ row }) => {
       const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+      const [showEditSheet, setShowEditSheet] = useState(false);
       const purchase = row.original;
 
       return (
@@ -154,12 +157,21 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => setShowPaymentDialog(true)}
-                disabled={purchase.payment_status === "paid"}
-              >
-                Mark as Paid
-              </DropdownMenuItem>
+              <DropdownMenuItem>View</DropdownMenuItem>
+              {isWithinLastThreeDays(purchase?.purchase_date) && (
+                <DropdownMenuItem onClick={() => setShowEditSheet(true)}>
+                  Edit
+                </DropdownMenuItem>
+              )}
+
+              {purchase.payment_status !== "Paid" && (
+                <DropdownMenuItem
+                  onClick={() => setShowPaymentDialog(true)}
+                  disabled={purchase.payment_status === "Paid"}
+                >
+                  Mark as Paid
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -167,6 +179,12 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
             open={showPaymentDialog}
             onOpenChange={setShowPaymentDialog}
             purchaseId={purchase.id}
+          />
+
+          <EditSheet
+            open={showEditSheet}
+            onOpenChange={setShowEditSheet}
+            purchase={purchase}
           />
         </>
       );
