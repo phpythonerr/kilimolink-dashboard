@@ -43,7 +43,7 @@ export interface PurchasesInterface {
   quantity: number;
   product_uom: string;
   unit_price: number;
-  payment_status: "Unpaid" | "Paid" | "Cancelled";
+  payment_status: any;
   seller_type: string;
   user_obj: User;
 }
