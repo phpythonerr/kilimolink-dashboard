@@ -29,38 +29,44 @@ export default async function Page() {
     .select("total, payment_status")
     .eq("payment_status", "Unpaid");
 
-  const paidPurchases = purchases.filter(
-    (purchase) => purchase.payment_status === "Paid"
+  const paidPurchases = purchases?.filter(
+    (purchase: any) => purchase?.payment_status === "Paid"
   );
 
-  const unpaidPurchases = purchases.filter(
-    (purchase) =>
-      purchase.payment_status === "Unpaid" ||
-      purchase.payment_status === "Partially-Paid"
+  const unpaidPurchases = purchases?.filter(
+    (purchase: any) =>
+      purchase?.payment_status === "Unpaid" ||
+      purchase?.payment_status === "Partially-Paid"
   );
 
   // Calculate total unpaid amount for purchases
-  const totalUnpaidPurchases = (purchases || []).reduce((acc, purchase) => {
-    if (purchase.payment_status === "Partially-Paid") {
-      return acc + (purchase.balance || 0);
-    } else if (purchase.payment_status === "Unpaid") {
-      return acc + purchase.unit_price * purchase.quantity;
-    }
-    return acc;
-  }, 0);
+  const totalUnpaidPurchases = (purchases || []).reduce(
+    (acc: any, purchase: any) => {
+      if (purchase?.payment_status === "Partially-Paid") {
+        return acc + (purchase?.balance || 0);
+      } else if (purchase?.payment_status === "Unpaid") {
+        return acc + purchase.unit_price * purchase?.quantity;
+      }
+      return acc;
+    },
+    0
+  );
 
   // Calculate total paid amount for purchases
-  const totalPaidPurchases = (purchases || []).reduce((acc, purchase) => {
-    if (purchase.payment_status === "Paid") {
-      return acc + purchase.unit_price * purchase.quantity;
-    } else if (purchase.payment_status === "Partially-Paid") {
-      return acc + (purchase.paid_amount || 0);
-    }
-    return acc;
-  }, 0);
+  const totalPaidPurchases = (purchases || []).reduce(
+    (acc: any, purchase: any) => {
+      if (purchase?.payment_status === "Paid") {
+        return acc + purchase?.unit_price * purchase?.quantity;
+      } else if (purchase?.payment_status === "Partially-Paid") {
+        return acc + (purchase?.paid_amount || 0);
+      }
+      return acc;
+    },
+    0
+  );
 
   // Calculate total unpaid amount for orders
-  const totalUnpaidOrders = (orders || []).reduce((acc, order) => {
+  const totalUnpaidOrders = (orders || []).reduce((acc: any, order: any) => {
     return acc + (order.total || 0);
   }, 0);
 
