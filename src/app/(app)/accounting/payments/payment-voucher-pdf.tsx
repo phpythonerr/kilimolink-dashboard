@@ -177,7 +177,7 @@ export default function PaymentVoucherPDF({ payment }: any) {
 
             {payment?.inventory_purchasepaymentrelation?.map(
               (relation: any, index: number) => (
-                <View key={relation.id} style={styles.row}>
+                <View key={index} style={styles.row}>
                   <View style={[styles.col, { width: "5%" }]}>
                     <Text>{index + 1}</Text>
                   </View>

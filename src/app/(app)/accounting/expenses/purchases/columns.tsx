@@ -37,7 +37,8 @@ interface Product {
 
 export interface PurchasesInterface {
   id: string;
-  created_date: string;
+  created_date: Date;
+  purchase_date: Date;
   product_id: Product;
   quantity: number;
   product_uom: string;
