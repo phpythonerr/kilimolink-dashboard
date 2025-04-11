@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { getUsers } from "@/data/users";
 import { DataTable } from "@/components/app-datatable";
 import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
+import { fetchPaginatedData } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/server";
 import { columns } from "./columns";
 
 export const metadata: Metadata = {
@@ -30,15 +31,25 @@ const breadcrumbs = [
 ];
 
 export default async function Index({ searchParams }: any) {
-  const page = 1;
-  const pageSize = 10;
-  const users = await getUsers();
+  const queryParams = await searchParams;
 
-  const customers = users.filter(
-    (user: any) => user?.user_metadata?.user_type === "buyer"
+  const supabase = await createClient();
+
+  let pageSize: number = Number(queryParams.pageSize) || 10;
+
+  let page: number = Number(queryParams.page) || 1;
+
+  const query = supabase
+    .from("profiles")
+    .select("*")
+    .eq("user_type", "buyer")
+    .order("created_at", { ascending: false });
+
+  const { all, data, count, error, pages } = await fetchPaginatedData(
+    query,
+    pageSize,
+    page
   );
-
-  const totalPages = customers && Math.ceil(customers.length / pageSize);
 
   return (
     <div className="p-4">
@@ -79,9 +90,9 @@ export default async function Index({ searchParams }: any) {
           }
         >
           <DataTable
-            data={customers || []}
+            data={data || []}
             columns={columns}
-            pageCount={10}
+            pageCount={pages}
             currentPage={page}
             pageSize={pageSize}
           />

@@ -4,7 +4,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/app-datatable";
 import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
-import { getUsers } from "@/data/users";
+import { fetchPaginatedData } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/server";
 import { columns } from "./columns";
 
 export const metadata: Metadata = {
@@ -29,15 +30,25 @@ const breadcrumbs = [
 ];
 
 export default async function Index({ searchParams }: any) {
-  const page = 1;
-  const pageSize = 10;
-  const users = await getUsers();
+  const queryParams = await searchParams;
 
-  const vendors = users.filter(
-    (user: any) => user?.user_metadata?.user_type === "vendor"
+  const supabase = await createClient();
+
+  let pageSize: number = Number(queryParams.pageSize) || 10;
+
+  let page: number = Number(queryParams.page) || 1;
+
+  const query = supabase
+    .from("profiles")
+    .select("*")
+    .eq("user_type", "vendor")
+    .order("created_at", { ascending: false });
+
+  const { all, data, count, error, pages } = await fetchPaginatedData(
+    query,
+    pageSize,
+    page
   );
-
-  const totalPages = vendors && Math.ceil(vendors.length / pageSize);
 
   return (
     <div className="p-4">
@@ -78,9 +89,9 @@ export default async function Index({ searchParams }: any) {
           }
         >
           <DataTable
-            data={vendors || []}
+            data={data || []}
             columns={columns}
-            pageCount={totalPages}
+            pageCount={pages}
             currentPage={page}
             pageSize={pageSize}
           />

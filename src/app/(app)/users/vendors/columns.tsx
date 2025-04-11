@@ -13,7 +13,9 @@ interface UserMetadata {
 // Update User interface with all required properties
 export interface User {
   id: string;
-  user_metadata: UserMetadata;
+  business_name: string;
+  first_name: string;
+  last_name: string;
   created_at: string;
   status?: "active" | "inactive";
 }
@@ -24,13 +26,9 @@ export const columns: ColumnDef<User>[] = [
     accessorKey: "id",
     header: "Vendor Name",
     cell: ({ row }) => {
-      const tradeName = row.original.user_metadata?.tradeName;
-      const firstName =
-        row.original.user_metadata?.first_name ||
-        row.original.user_metadata?.firstName;
-      const lastName =
-        row.original.user_metadata?.last_name ||
-        row.original.user_metadata?.lastName;
+      const tradeName = row.original?.business_name;
+      const firstName = row.original?.first_name || row.original?.firstName;
+      const lastName = row.original?.last_name || row.original?.lastName;
 
       const dispayName = tradeName
         ? `${firstName} ${lastName} (${tradeName})`

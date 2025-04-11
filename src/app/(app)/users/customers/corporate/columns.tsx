@@ -13,10 +13,12 @@ interface UserMetadata {
 // Update User interface with all required properties
 export interface User {
   id: string;
-  email: string;
-  user_metadata: UserMetadata;
-  created_at: string;
-  status: "active" | "inactive";
+  email?: string;
+  phone?: string;
+  business_name?: string;
+  first_name?: string;
+  created_at?: string;
+  status?: "active" | "inactive";
 }
 
 // Define your columns
@@ -26,7 +28,7 @@ export const columns: ColumnDef<User>[] = [
     header: "Business Name",
     cell: ({ row }) => {
       const id = row.getValue("id") as string;
-      const business_name = row.original.user_metadata.business_name as string;
+      const business_name = row.original.business_name as string;
       return (
         <Link
           href={`/users/customers/corporate/view?id=${id}`}
@@ -34,7 +36,7 @@ export const columns: ColumnDef<User>[] = [
         >{`${
           business_name ||
           row.original.email ||
-          row.original.user_metadata.first_name ||
+          row.original.first_name ||
           "Business"
         }`}</Link>
       );
