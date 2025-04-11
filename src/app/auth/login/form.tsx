@@ -64,7 +64,11 @@ export function LoginForm({
 
     setSubmitting(true);
 
-    await toast.promise(signIn(data), {
+    const formData = new FormData();
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+
+    await toast.promise(signIn(formData), {
       loading: "Logging in...",
       success: (res: any) => {
         if (res.success) {
