@@ -31,9 +31,12 @@ import { z } from "zod";
 // import { Turnstile } from "@marsidev/react-turnstile";
 
 const FormSchema = z.object({
-  email: z.string().min(10, {
-    message: "Email must be at least 10 characters.",
-  }),
+  email: z
+    .string()
+    .email({ message: "Please enter a valid email address." })
+    .refine((email) => email.endsWith("@kilimolink.com"), {
+      message: "Sorry, you're not allowed to access this service",
+    }),
   password: z.string().min(5, {
     message: "Email must be at least 5 characters.",
   }),
