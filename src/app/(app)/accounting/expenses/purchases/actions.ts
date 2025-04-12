@@ -26,8 +26,6 @@ export async function markAsPaid(formData: FormData) {
 
     const supabase = await createClient();
 
-    console.log("Here");
-
     const { error: updateError } = await supabase
       .from("inventory_purchases")
       .update({
@@ -38,8 +36,6 @@ export async function markAsPaid(formData: FormData) {
         payment_updated_at: new Date().toISOString(),
       })
       .eq("id", validatedFields.data.purchaseId);
-
-    console.log(updateError);
 
     if (updateError) throw new Error("Failed to update purchase status");
 

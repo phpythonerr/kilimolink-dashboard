@@ -39,9 +39,6 @@ export default async function AppLayout({ children }: AppLayoutProps) {
   const userPermissions = await getUserPermissions(user.id);
   const permissionNames = userPermissions.map((p) => p.name);
 
-  // Debug log permissions
-  console.log("User permissions in layout:", permissionNames);
-
   // Get the current path
   const pathname = new URL(headers().get("x-url") || "http://localhost/")
     .pathname;

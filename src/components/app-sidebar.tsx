@@ -543,10 +543,6 @@ export function AppSidebar({
       return hasExplicitItemPermission;
     });
 
-    console.log(`Section '${section.title}' explicit permission check:`, {
-      hasAnyExplicitPermission,
-    });
-
     // Only show sections where the user has at least one explicit permission
     return hasAnyExplicitPermission;
   };
