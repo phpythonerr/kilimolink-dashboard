@@ -69,7 +69,7 @@ export function UserPermissionsManager({
     try {
       // Process additions and removals
       if (permissionsToAdd.length > 0) {
-        const addResult = await toast.promise(
+        const addResult: any = await toast.promise(
           assignPermissionsToUser(userId, permissionsToAdd),
           {
             loading: "Assigning permissions...",
@@ -85,7 +85,7 @@ export function UserPermissionsManager({
       }
 
       if (permissionsToRemove.length > 0) {
-        const removeResult = await toast.promise(
+        const removeResult: any = await toast.promise(
           removePermissionsFromUser(userId, permissionsToRemove),
           {
             loading: "Removing permissions...",

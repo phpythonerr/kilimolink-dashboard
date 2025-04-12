@@ -57,7 +57,7 @@ export function RolePermissionsManager({
     try {
       // Process additions and removals
       if (permissionsToAdd.length > 0) {
-        const addResult = await toast.promise(
+        const addResult: any = await toast.promise(
           assignPermissionsToRole(role.id, permissionsToAdd),
           {
             loading: "Assigning permissions...",
@@ -73,7 +73,7 @@ export function RolePermissionsManager({
       }
 
       if (permissionsToRemove.length > 0) {
-        const removeResult = await toast.promise(
+        const removeResult: any = await toast.promise(
           removePermissionsFromRole(role.id, permissionsToRemove),
           {
             loading: "Removing permissions...",

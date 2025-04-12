@@ -57,7 +57,7 @@ export function UserRolesManager({
     try {
       // Process additions and removals
       if (rolesToAdd.length > 0) {
-        const addResult = await toast.promise(
+        const addResult: any = await toast.promise(
           assignRolesToUser(userId, rolesToAdd),
           {
             loading: "Assigning roles...",
@@ -73,7 +73,7 @@ export function UserRolesManager({
       }
 
       if (rolesToRemove.length > 0) {
-        const removeResult = await toast.promise(
+        const removeResult: any = await toast.promise(
           removeRolesFromUser(userId, rolesToRemove),
           {
             loading: "Removing roles...",
