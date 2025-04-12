@@ -2,8 +2,6 @@
 
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { useEffect } from "react";
-
 import {
   Collapsible,
   CollapsibleContent,
@@ -40,14 +38,6 @@ interface NavItemProps {
 }
 
 export function NavItem({ items, title, userPermissions = [] }: NavItemProps) {
-  // Debug: Log the incoming props
-  useEffect(() => {
-    console.log(`NavItem '${title}' rendering with:`, {
-      itemCount: items.length,
-      userPermissionsCount: userPermissions.length,
-    });
-  }, [items, title, userPermissions]);
-
   // Filter items based on permissions AND ensure each item has at least one accessible sub-item
   const filteredItems = items.filter((item: any) => {
     // For items with subitems, check if the user has explicit permission for any subitem
@@ -104,7 +94,7 @@ export function NavItem({ items, title, userPermissions = [] }: NavItemProps) {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <SidebarMenuSub>
-                    {filteredSubItems?.map((subItem) => (
+                    {filteredSubItems?.map((subItem: any) => (
                       <SidebarMenuSubItem key={subItem.title}>
                         <SidebarMenuSubButton asChild>
                           <Link href={subItem.url}>
