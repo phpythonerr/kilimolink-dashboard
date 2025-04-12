@@ -142,8 +142,8 @@ export async function getUserWithPermissions(
  */
 export function getRequiredPermissions(pathname: string): string[] {
   // First check for exact matches in the PERMISSION_MAP
-  if (PERMISSION_MAP[pathname]) {
-    return PERMISSION_MAP[pathname].permissions;
+  if ((PERMISSION_MAP as any)[pathname]) {
+    return (PERMISSION_MAP as any)[pathname].permissions;
   }
 
   // Check for dynamic route patterns in PERMISSION_MAP
@@ -153,7 +153,7 @@ export function getRequiredPermissions(pathname: string): string[] {
   let bestMatch: string | null = null;
   let bestMatchSegments = 0;
 
-  for (const route in PERMISSION_MAP) {
+  for (const route in PERMISSION_MAP as any) {
     const routeSegments = route.split("/");
 
     // Skip if different number of segments (unless the route ends with a parameter)
@@ -192,14 +192,14 @@ export function getRequiredPermissions(pathname: string): string[] {
   }
 
   if (bestMatch) {
-    return PERMISSION_MAP[bestMatch].permissions;
+    return (PERMISSION_MAP as any)[bestMatch].permissions;
   }
 
   // If no specific match was found, check for path-based matches
   // (e.g., /orders prefixes)
   let longestPrefixMatch = "";
 
-  for (const route in PERMISSION_MAP) {
+  for (const route in PERMISSION_MAP as any) {
     // Skip dynamic routes in this check
     if (route.includes("[")) continue;
 
@@ -213,7 +213,7 @@ export function getRequiredPermissions(pathname: string): string[] {
   }
 
   if (longestPrefixMatch) {
-    return PERMISSION_MAP[longestPrefixMatch].permissions;
+    return (PERMISSION_MAP as any)[longestPrefixMatch]?.permissions;
   }
 
   return [];
