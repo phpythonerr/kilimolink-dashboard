@@ -114,9 +114,19 @@ export async function createPurchase(formData: FormData) {
             ? Number(validatedData.unitPrice) * Number(validatedData.quantity) -
               Number(validatedData.paidAmount)
             : Number(validatedData.unitPrice) * Number(validatedData.quantity),
-      });
+      })
+      .select("id")
+      .single();
 
     if (error) return { error: error.message };
+
+    await updateInventoryQuantity({
+      commodityId: validatedData.productId,
+      changeQuantity: validatedData.quantity,
+      transactionType: "purchase",
+      referenceId: purchase?.id,
+      notes: `Purchase from ${validatedData.vendorId}`,
+    });
 
     return { success: true };
   } catch (error) {
@@ -131,3 +141,44 @@ export async function createPurchase(formData: FormData) {
   }
   return;
 }
+
+export const updateInventoryQuantity = async ({
+  commodityId,
+  changeQuantity,
+  transactionType = "adjustment",
+  referenceId = null,
+  notes = null,
+}: {
+  commodityId: string;
+  changeQuantity: number;
+  transactionType?: string;
+  referenceId?: string | null;
+  notes?: string | null;
+}) => {
+  const supabase = await createClient();
+
+  try {
+    // Call the update_inventory function
+    const { error } = await supabase.rpc("update_inventory", {
+      p_commodity_id: commodityId,
+      p_change_quantity: changeQuantity,
+      p_transaction_type: transactionType,
+      p_reference_id: referenceId,
+      p_notes: notes,
+      p_performed_by: supabase.auth.getUser()?.data?.user?.id,
+    });
+
+    if (error) {
+      console.error("Error updating inventory:", error);
+      throw error;
+    }
+
+    return { commodityId };
+  } catch (error) {
+    console.error(
+      `Error in updateInventoryQuantity for ${commodityId}:`,
+      error
+    );
+    throw error;
+  }
+};
