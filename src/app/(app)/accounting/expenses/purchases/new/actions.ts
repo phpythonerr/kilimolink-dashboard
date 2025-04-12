@@ -121,7 +121,7 @@ export async function createPurchase(formData: FormData) {
     if (error) return { error: error.message };
 
     await updateInventoryQuantity({
-      commodityId: product_id?.productId,
+      commodityId: purchase?.product_id,
       changeQuantity: purchase?.quantity,
       transactionType: "purchase",
       referenceId: purchase?.id,
