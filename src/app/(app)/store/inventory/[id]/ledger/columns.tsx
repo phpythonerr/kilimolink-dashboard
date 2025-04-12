@@ -54,17 +54,4 @@ export const columns: ColumnDef<InventoryLedgerItem>[] = [
       );
     },
   },
-  //   {
-  //     header: "Source",
-  //     accessorKey: "source_document_type",
-  //     cell: ({ row }) => (
-  //       <span>
-  //         {row.original.source_document_type} #{row.original.source_document_id}
-  //       </span>
-  //     ),
-  //   },
-  //   {
-  //     header: "Notes",
-  //     accessorKey: "notes",
-  //   },
 ];

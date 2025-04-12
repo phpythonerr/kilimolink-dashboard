@@ -10,18 +10,14 @@ export interface InventoryItem {
 }
 
 export interface InventoryLedgerItem {
-  id: string;
-  inventory_id: string;
-  product_id: string;
-  quantity: number;
-  unit: string;
-  transaction_type: string;
-  transaction_date: any;
-  source_document_type: string;
-  source_document_id: string;
-  notes: string;
-  created_at: string;
-  created_by: string;
+  id?: string;
+  inventory_id?: string;
+  product_id?: string;
+  uom?: string;
+  transaction_type?: string;
+  notes?: string;
+  change_quantity?: number;
+  transaction_date?: any;
 }
 
 export async function getInventoryItems(
