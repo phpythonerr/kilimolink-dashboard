@@ -122,7 +122,7 @@ export async function createPurchase(formData: FormData) {
 
     await updateInventoryQuantity({
       commodityId: validatedData.productId,
-      changeQuantity: validatedData.quantity,
+      changeQuantity: validatedData.quantity as number,
       transactionType: "purchase",
       referenceId: purchase?.id,
       notes: `Purchase from ${validatedData.vendorId}`,
