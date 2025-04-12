@@ -129,7 +129,7 @@ export async function getUserWithPermissions(
   const permissions = await getUserPermissions(userId);
 
   return {
-    id: user?.user?.id,
+    id: user?.user?.id || "",
     email: user?.user?.email || "",
     user_metadata: user?.user?.user_metadata,
     roles,
