@@ -30,7 +30,7 @@ export async function assignRoleToUser(
       .from("user_roles")
       .select("id")
       .eq("user_id", userId)
-      .eq("role_id", role.id)
+      .eq("role_id", role?.id)
       .maybeSingle();
 
     if (checkError) {
@@ -46,7 +46,7 @@ export async function assignRoleToUser(
     // Assign role to user
     const { error: assignError } = await supabase.from("user_roles").insert({
       user_id: userId,
-      role_id: role.id,
+      role_id: role?.id,
     });
 
     if (assignError) {
@@ -100,7 +100,7 @@ export async function removeRoleFromUser(
       .from("user_roles")
       .delete()
       .eq("user_id", userId)
-      .eq("role_id", role.id);
+      .eq("role_id", role?.id);
 
     if (removeError) {
       console.error("Error removing role:", removeError);
