@@ -18,10 +18,7 @@ interface PageProps {
   };
 }
 
-export default function InventoryLedgerPage({
-  params,
-  searchParams,
-}: PageProps) {
+export default function InventoryLedgerPage({ params, searchParams }: any) {
   const page = parseInt(searchParams.page || "1");
   const pageSize = parseInt(searchParams.pageSize || "10");
 
