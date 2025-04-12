@@ -24,9 +24,10 @@ export default async function EditPermissionPage({ params }: any) {
   }
 
   const breadcrumbs = [
-    { title: "Admin", href: "/admin" },
-    { title: "Permissions", href: "/admin/permissions" },
-    { title: "Edit", href: `/admin/permissions/${params.id}` },
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Admin", href: "/admin" },
+    { label: "Permissions", href: "/admin/permissions" },
+    { label: "Edit", href: "/admin/permissions/edit", current: true },
   ];
 
   return (

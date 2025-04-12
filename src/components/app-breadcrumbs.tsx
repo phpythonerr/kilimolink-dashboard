@@ -9,7 +9,8 @@ import {
 import Link from "next/link";
 
 type BreadcrumbItemType = {
-  label: string;
+  label?: string;
+  title?: string;
   href: string;
   current?: boolean;
 };
@@ -25,7 +26,7 @@ export function AppBreadCrumbs({ items }: { items: BreadcrumbItemType[] }) {
                 <BreadcrumbPage>{item.label}</BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
-                  <Link href={item.href}>{item.label}</Link>
+                  <Link href={item.href}>{item.label || item?.title}</Link>
                 </BreadcrumbLink>
               )}
             </BreadcrumbItem>

@@ -21,8 +21,9 @@ export default async function PermissionsPage() {
     .order("name");
 
   const breadcrumbs = [
-    { title: "Admin", href: "/admin" },
-    { title: "Permissions", href: "/admin/permissions" },
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Admin", href: "/admin" },
+    { label: "Permissions", href: "/admin/permissions", current: true },
   ];
 
   return (

@@ -3,9 +3,10 @@ import { PermissionForm } from "../permission-form";
 
 export default function NewPermissionPage() {
   const breadcrumbs = [
-    { title: "Admin", href: "/admin" },
-    { title: "Permissions", href: "/admin/permissions" },
-    { title: "New", href: "/admin/permissions/new" },
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Admin", href: "/admin" },
+    { label: "Permissions", href: "/admin/permissions" },
+    { label: "New", href: "/admin/permissions/new", current: true },
   ];
 
   return (
