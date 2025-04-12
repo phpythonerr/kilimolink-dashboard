@@ -9,7 +9,7 @@ interface PageProps {
   };
 }
 
-export default async function UserPermissionsPage({ params }: PageProps) {
+export default async function UserPermissionsPage({ params }: any) {
   const supabase = await createClient();
 
   // Fetch the user

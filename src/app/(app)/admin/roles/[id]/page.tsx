@@ -9,7 +9,7 @@ interface PageProps {
   };
 }
 
-export default async function EditRolePage({ params }: PageProps) {
+export default async function EditRolePage({ params }: any) {
   const supabase = await createClient();
 
   // Fetch role data
