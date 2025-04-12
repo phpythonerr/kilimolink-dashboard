@@ -157,6 +157,10 @@ export const updateInventoryQuantity = async ({
 }) => {
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   try {
     // Call the update_inventory function
     const { error } = await supabase.rpc("update_inventory", {
@@ -165,7 +169,7 @@ export const updateInventoryQuantity = async ({
       p_transaction_type: transactionType,
       p_reference_id: referenceId,
       p_notes: notes,
-      p_performed_by: supabase.auth.getUser()?.data?.user?.id,
+      p_performed_by: user?.id,
     });
 
     if (error) {
