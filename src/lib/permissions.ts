@@ -131,7 +131,7 @@ export async function getUserWithPermissions(
   return {
     id: user?.user?.id || "",
     email: user?.user?.email || "",
-    user_metadata: user?.user?.user_metadata,
+    user_metadata: user?.user?.user_metadata || {},
     roles,
     permissions,
   };
