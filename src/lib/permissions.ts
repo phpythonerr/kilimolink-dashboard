@@ -129,9 +129,9 @@ export async function getUserWithPermissions(
   const permissions = await getUserPermissions(userId);
 
   return {
-    id: user.user.id,
-    email: user.user.email || "",
-    user_metadata: user.user.user_metadata,
+    id: user?.user?.id || null,
+    email: user?.user?.email || "",
+    user_metadata: user?.user?.user_metadata,
     roles,
     permissions,
   };
