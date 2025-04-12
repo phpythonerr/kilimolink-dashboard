@@ -53,16 +53,8 @@ export function NavItem({ items, title, userPermissions = [] }: NavItemProps) {
     // For items with subitems, check if the user has explicit permission for any subitem
     if (item.items && item.items.length > 0) {
       const accessibleSubItems = item.items.filter(
-        (subItem) =>
+        (subItem: any) =>
           subItem.permission && userPermissions.includes(subItem.permission)
-      );
-
-      console.log(
-        `Section '${title}' - Item '${item.title}' accessible subitems:`,
-        {
-          totalSubItems: item.items.length,
-          accessibleSubItems: accessibleSubItems.length,
-        }
       );
 
       // If any subitems are accessible with explicit permissions, show this item
@@ -76,11 +68,6 @@ export function NavItem({ items, title, userPermissions = [] }: NavItemProps) {
     return hasItemPermission;
   });
 
-  console.log(`NavItem '${title}' filtered items:`, {
-    originalCount: items.length,
-    filteredCount: filteredItems.length,
-  });
-
   // If there are no items to display after filtering, don't show the section
   if (filteredItems.length === 0) {
     return null;
@@ -90,10 +77,10 @@ export function NavItem({ items, title, userPermissions = [] }: NavItemProps) {
     <SidebarGroup>
       <SidebarGroupLabel>{title}</SidebarGroupLabel>
       <SidebarMenu>
-        {filteredItems.map((item) => {
+        {filteredItems.map((item: any) => {
           // Filter sub-items based on explicit permissions only
           const filteredSubItems = item.items?.filter(
-            (subItem) =>
+            (subItem: any) =>
               subItem.permission && userPermissions.includes(subItem.permission)
           );
 
