@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { InventoryLedgerItem } from "@/data/inventory";
 
-export const columns: ColumnDef<InventoryLedgerItem>[] = [
+export const columns: ColumnDef<any>[] = [
   {
     header: "Date",
     accessorKey: "transaction_date",
@@ -44,8 +44,8 @@ export const columns: ColumnDef<InventoryLedgerItem>[] = [
           className={
             item.transaction_type === "purchase" ||
             item.transaction_type === "initial"
-              ? "text-green-600"
-              : "text-red-600"
+              ? "text-green-600 dark:text-green-400"
+              : "text-red-600 dark:text-red-400"
           }
         >
           {prefix}
