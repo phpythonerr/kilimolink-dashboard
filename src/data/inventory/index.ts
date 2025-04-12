@@ -61,7 +61,7 @@ export async function getInventoryItems(
   }
 
   // Transform the data to match the expected interface
-  const items: InventoryItem[] =
+  const items: any =
     data?.map((item: any) => ({
       id: item.id,
       product_name: item.products?.name || "Unknown Product",

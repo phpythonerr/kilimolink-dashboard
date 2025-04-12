@@ -47,7 +47,7 @@ export const signInWithGoogle = async () => {
           prompt: "consent",
         },
         // Optional: Filter by allowed domains - commenting out for testing
-        // filter: { domain: "kilimolink.com" },
+        filter: { domain: "kilimolink.com" },
       },
     });
 
