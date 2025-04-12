@@ -115,17 +115,17 @@ export async function createPurchase(formData: FormData) {
               Number(validatedData.paidAmount)
             : Number(validatedData.unitPrice) * Number(validatedData.quantity),
       })
-      .select("id")
+      .select("*")
       .single();
 
     if (error) return { error: error.message };
 
     await updateInventoryQuantity({
-      commodityId: validatedData.productId,
-      changeQuantity: validatedData.quantity as number,
+      commodityId: product_id?.productId,
+      changeQuantity: purchase?.quantity,
       transactionType: "purchase",
       referenceId: purchase?.id,
-      notes: `Purchase from ${validatedData.vendorId}`,
+      notes: `Purchase from ${purchase?.vendor}`,
     });
 
     return { success: true };
