@@ -1,6 +1,11 @@
+import { ReactNode, Suspense } from "react";
+import { AppSidebar } from "@/components/app-sidebar";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { getUserPermissions } from "@/lib/permissions";
+import { getRequiredPermissions } from "@/lib/permissions";
 import type { Metadata } from "next";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
 import { Bell, Mail, Bug } from "lucide-react";
 import { ModeToggle } from "@/components/theme-mode-toggle";
 import { Button } from "@/components/ui/button";
@@ -14,22 +19,56 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { getUser } from "@/data/users";
 
-export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "",
-};
+interface AppLayoutProps {
+  children: ReactNode;
+}
 
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const user = await getUser();
+export default async function AppLayout({ children }: AppLayoutProps) {
+  // Get the current session
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  // Always get user permissions for the sidebar
+  const userPermissions = await getUserPermissions(user.id);
+  const permissionNames = userPermissions.map((p) => p.name);
+
+  // Debug log permissions
+  console.log("User permissions in layout:", permissionNames);
+
+  // Get the current path
+  const pathname = new URL(headers().get("x-url") || "http://localhost/")
+    .pathname;
+
+  // Check if user has required permissions for this path
+  const requiredPermissions = getRequiredPermissions(pathname);
+
+  if (requiredPermissions.length > 0) {
+    const hasAllPermissions = requiredPermissions.every((permission) =>
+      permissionNames.includes(permission)
+    );
+
+    if (!hasAllPermissions) {
+      // For section roots (like /reports, /store, etc.), show placeholder content
+      // For specific pages, redirect to unauthorized
+      const pathSegments = pathname.split("/").filter(Boolean);
+
+      if (pathSegments.length > 1) {
+        redirect("/unauthorized");
+      }
+      // Otherwise, we'll render the layout with placeholder content
+    }
+  }
+
   return (
     <SidebarProvider>
-      <AppSidebar user={user} />
+      <AppSidebar user={user} userPermissions={permissionNames} />
       <main className="h-screen w-full flex flex-col gap-4">
         <div className="h-12 px-4 flex items-center justify-between ">
           <SidebarTrigger className="cursor-pointer" />
@@ -66,5 +105,13 @@ export default async function RootLayout({
         <div className="flex-1 overflow-y-auto">{children}</div>
       </main>
     </SidebarProvider>
+  );
+}
+
+// Helper function to get headers in Server Components
+function headers() {
+  return new Headers(
+    // @ts-ignore
+    Object.fromEntries(Object.entries(require("next/headers").headers() || {}))
   );
 }

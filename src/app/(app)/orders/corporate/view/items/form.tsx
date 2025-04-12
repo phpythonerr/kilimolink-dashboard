@@ -164,7 +164,9 @@ export default function Form({ products, items, order }: any) {
 
   const getSelectedProductIds = () => {
     return orderItems
-      .filter((item) => item.commodity_id && item.commodity_id !== "no_item")
+      .filter(
+        (item: any) => item.commodity_id && item.commodity_id !== "no_item"
+      )
       .map((item) => item.commodity_id);
   };
 

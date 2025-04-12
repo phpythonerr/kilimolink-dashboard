@@ -1,6 +1,9 @@
 // Define a more comprehensive permission structure
 // This maps routes to required permissions
 export const PERMISSION_MAP = {
+  // Root path
+  "/auth/login": { permissions: [], redirectPath: "/unauthorized" },
+
   // Admin routes
   "/admin": { permissions: ["admin.access"], redirectPath: "/unauthorized" },
   "/admin/users": { permissions: ["admin.users.view"], redirectPath: "/admin" },
@@ -124,6 +127,10 @@ export const PERMISSION_MAP = {
     permissions: ["accounting.revenues.view"],
     redirectPath: "/unauthorized",
   },
+  "/accounting/payments": {
+    permissions: ["accounting.payments.view"],
+    redirectPath: "/unauthorized",
+  },
 
   // Reports routes
   "/reports/orders/corporate": {
@@ -154,30 +161,88 @@ export const PERMISSION_MAP = {
     permissions: ["reports.accounting.balance-sheet.view"],
     redirectPath: "/unauthorized",
   },
-  "reports/products": {
+  "/reports/products": {
     permissions: ["reports.products.view"],
+    redirectPath: "/unauthorized",
+  },
+  "/reports/logistics/vehicles": {
+    permissions: ["reports.logistics.vehicles.view"],
     redirectPath: "/unauthorized",
   },
 
   // HR Routes
-  "hr/employees/active": {
+  "/hr/employees/active": {
     permissions: ["hr.employees.active.view"],
     redirectPath: "/unauthorized",
   },
-  "hr/employees/inactive": {
+  "/hr/employees/inactive": {
     permissions: ["hr.employees.inactive.view"],
     redirectPath: "/unauthorized",
   },
-  "hr/employees/new": {
+  "/hr/employees/new": {
     permissions: ["hr.employees.create"],
     redirectPath: "/unauthorized",
   },
-  "hr/employees/edit": {
+  "/hr/employees/edit": {
     permissions: ["hr.employees.edit"],
     redirectPath: "/unauthorized",
   },
-  "hr/payroll": {
+  "/hr/employees/working-hours": {
+    permissions: ["hr.employees.working-hours.view"],
+    redirectPath: "/unauthorized",
+  },
+  "/hr/payroll": {
     permissions: ["hr.payroll.view"],
+    redirectPath: "/unauthorized",
+  },
+
+  // Logistics routes
+  "/logistics/vehicles": {
+    permissions: ["logistics.vehicles.view"],
+    redirectPath: "/unauthorized",
+  },
+
+  // Store routes
+  "/store/inventory": {
+    permissions: ["store.inventory.view"],
+    redirectPath: "/unauthorized",
+  },
+  "/store/inventory/[id]/ledger": {
+    permissions: ["store.inventory.ledger.view"],
+    redirectPath: "/unauthorized",
+  },
+  "/store/sales/record": {
+    permissions: ["store.sales.create"],
+    redirectPath: "/unauthorized",
+  },
+  "/store/products": {
+    permissions: ["store.products.view"],
+    redirectPath: "/unauthorized",
+  },
+  "/store/products/categories": {
+    permissions: ["store.products.categories.view"],
+    redirectPath: "/unauthorized",
+  },
+  "/store/pricelists": {
+    permissions: ["store.pricelists.view"],
+    redirectPath: "/unauthorized",
+  },
+
+  // Users routes
+  "/users/customers/corporate": {
+    permissions: ["users.customers.corporate.view"],
+    redirectPath: "/unauthorized",
+  },
+  "/users/vendors": {
+    permissions: ["users.sellers.vendors.view"],
+    redirectPath: "/unauthorized",
+  },
+  "/users/farmers": {
+    permissions: ["users.sellers.farmers.view"],
+    redirectPath: "/unauthorized",
+  },
+  "/users/staff": {
+    permissions: ["users.staff.view"],
     redirectPath: "/unauthorized",
   },
 };

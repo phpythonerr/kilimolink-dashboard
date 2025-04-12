@@ -1,146 +1,220 @@
-// import { createClient } from "@/lib/supabase/server";
-// import { cookies } from "next/headers";
-// import { cache } from "react";
-// import { LucideIcon } from "lucide-react";
+import { createClient } from "./supabase/server";
+import { Permission, Role, UserWithPermissions } from "./supabase/types";
+import { PERMISSION_MAP } from "@/app/permissions";
 
-// // Define types
-// export type Permission = string;
+/**
+ * Get all permissions for a user by combining role-based permissions and direct user permissions
+ */
+export async function getUserPermissions(
+  userId: string
+): Promise<Permission[]> {
+  const supabase = await createClient();
 
-// interface UserRole {
-//   role_id: string;
-// }
+  // Get user's direct permissions
+  const { data: userPermissions } = await supabase
+    .from("user_permissions")
+    .select("permission_id")
+    .eq("user_id", userId);
 
-// interface PermissionRecord {
-//   name: string;
-// }
+  // Get user's roles
+  const { data: userRoles } = await supabase
+    .from("user_roles")
+    .select("role_id")
+    .eq("user_id", userId);
 
-// interface RolePermission {
-//   permissions: PermissionRecord[];
-//   roles: {
-//     id: string;
-//   }[];
-// }
+  // Get role permissions
+  const roleIds = userRoles?.map((ur) => ur.role_id) || [];
 
-// interface UserPermission {
-//   permissions: PermissionRecord;
-// }
+  let rolePermissions: { permission_id: string }[] = [];
+  if (roleIds.length > 0) {
+    const { data: permissions } = await supabase
+      .from("role_permissions")
+      .select("permission_id")
+      .in("role_id", roleIds);
 
-// export interface NavItem {
-//   title: string;
-//   url: string;
-//   icon?: LucideIcon;
-//   permission?: Permission;
-//   isActive?: boolean;
-//   items?: NavItem[];
-// }
+    rolePermissions = permissions || [];
+  }
 
-// // Create a cached function to get user permissions
-// export const getUserPermissions = cache(async (): Promise<string[]> => {
-//   const supabase = await createClient();
+  // Combine direct permissions and role permissions
+  const permissionIds = new Set([
+    ...(userPermissions?.map((up) => up.permission_id) || []),
+    ...(rolePermissions?.map((rp) => rp.permission_id) || []),
+  ]);
 
-//   const {
-//     data: { user },
-//   } = await supabase.auth.getUser();
+  if (permissionIds.size === 0) {
+    return [];
+  }
 
-//   if (!user) return [];
+  // Get the full permission details
+  const { data: fullPermissions } = await supabase
+    .from("permissions")
+    .select("*")
+    .in("id", Array.from(permissionIds));
 
-//   // Get user's role-based permissions
-//   const { data: userRoleIds } = await supabase
-//     .from("user_roles")
-//     .select("role_id")
-//     .eq("user_id", user.id);
+  return fullPermissions || [];
+}
 
-//   if (!userRoleIds?.length) return [];
+/**
+ * Check if a user has a specific permission
+ */
+export async function hasPermission(
+  userId: string,
+  permissionName: string
+): Promise<boolean> {
+  const permissions = await getUserPermissions(userId);
+  return permissions.some((p: any) => p.name === permissionName);
+}
 
-//   const roleIds = userRoleIds.map((role: UserRole) => role.role_id);
+/**
+ * Check if a user has a specific role
+ */
+export async function hasRole(
+  userId: string,
+  roleName: string
+): Promise<boolean> {
+  const supabase = await createClient();
 
-//   const { data: rolePermissions } = await supabase
-//     .from("role_permissions")
-//     .select(
-//       `
-//       permissions (
-//         name
-//       ),
-//       roles!inner (
-//         id
-//       )
-//     `
-//     )
-//     .in("roles.id", roleIds);
+  // Get the role by name
+  const { data: role } = await supabase
+    .from("roles")
+    .select("id")
+    .eq("name", roleName)
+    .single();
 
-//   // Get user's additional permissions
-//   const { data: userPermissions } = await supabase
-//     .from("user_permissions")
-//     .select(
-//       `
-//       permissions (
-//         name
-//       )
-//     `
-//     )
-//     .eq("user_id", user.id);
+  if (!role) return false;
 
-//   // Combine and deduplicate permissions
-//   const permissions = new Set<string>();
+  // Check if user has this role
+  const { data: userRole } = await supabase
+    .from("user_roles")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("role_id", role.id)
+    .single();
 
-//   if (rolePermissions) {
-//     (rolePermissions as unknown as RolePermission[]).forEach((rp: any) => {
-//       rp.permissions.forEach((permission: any) => {
-//         if (permission.name) {
-//           permissions.add(permission.name);
-//         }
-//       });
-//     });
-//   }
+  return !!userRole;
+}
 
-//   ((userPermissions as UserPermission[]) || []).forEach((up: any) => {
-//     if (up.permissions?.name) {
-//       permissions.add(up.permissions.name);
-//     }
-//   });
+/**
+ * Get full user information with roles and permissions
+ */
+export async function getUserWithPermissions(
+  userId: string
+): Promise<UserWithPermissions | null> {
+  const supabase = await createClient();
 
-//   return Array.from(permissions);
-// });
+  // Get user
+  const { data: user } = await supabase.auth.admin.getUserById(userId);
 
-// // Check if user has a specific permission
-// export async function hasPermission(permission?: Permission): Promise<boolean> {
-//   if (!permission) return true;
+  if (!user) return null;
 
-//   const permissions = await getUserPermissions();
+  // Get user's roles
+  const { data: userRoles } = await supabase
+    .from("user_roles")
+    .select("role_id")
+    .eq("user_id", userId);
 
-//   // Check exact permission
-//   if (permissions.includes(permission)) return true;
+  const roleIds = userRoles?.map((ur) => ur.role_id) || [];
 
-//   // Check wildcard permissions (e.g., "reports.*" would match "reports.finance.orders.view")
-//   const parts = permission.split(".");
-//   for (let i = 1; i <= parts.length; i++) {
-//     const partialPermission = [...parts.slice(0, i), "*"].join(".");
-//     if (permissions.includes(partialPermission)) return true;
-//   }
+  let roles: Role[] = [];
+  if (roleIds.length > 0) {
+    const { data: rolesData } = await supabase
+      .from("roles")
+      .select("*")
+      .in("id", roleIds);
 
-//   return false;
-// }
+    roles = rolesData || [];
+  }
 
-// // Filter navigation items based on permissions
-// export async function getAuthorizedNavItems(
-//   items: NavItem[]
-// ): Promise<NavItem[]> {
-//   const authorizedItems: NavItem[] = [];
+  // Get permissions
+  const permissions = await getUserPermissions(userId);
 
-//   for (const item of items) {
-//     if (await hasPermission(item.permission)) {
-//       const authorizedItem = { ...item };
+  return {
+    id: user.user.id,
+    email: user.user.email || "",
+    user_metadata: user.user.user_metadata,
+    roles,
+    permissions,
+  };
+}
 
-//       if (item.items?.length) {
-//         authorizedItem.items = await getAuthorizedNavItems(item.items);
-//       }
+/**
+ * Check if a permission is required for a route
+ */
+export function getRequiredPermissions(pathname: string): string[] {
+  // First check for exact matches in the PERMISSION_MAP
+  if (PERMISSION_MAP[pathname]) {
+    return PERMISSION_MAP[pathname].permissions;
+  }
 
-//       // Only add items that have no subitems or have authorized subitems
-//       if (!item.items || authorizedItem.items?.length) {
-//         authorizedItems.push(authorizedItem);
-//       }
-//     }
-//   }
+  // Check for dynamic route patterns in PERMISSION_MAP
+  const dynamicPathSegments = pathname.split("/");
 
-//   return authorizedItems;
-// }
+  // Store potential matches to find the most specific one
+  let bestMatch: string | null = null;
+  let bestMatchSegments = 0;
+
+  for (const route in PERMISSION_MAP) {
+    const routeSegments = route.split("/");
+
+    // Skip if different number of segments (unless the route ends with a parameter)
+    if (
+      routeSegments.length !== dynamicPathSegments.length &&
+      !(
+        routeSegments[routeSegments.length - 1].startsWith("[") &&
+        routeSegments.length <= dynamicPathSegments.length
+      )
+    ) {
+      continue;
+    }
+
+    let isMatch = true;
+    for (
+      let i = 0;
+      i < Math.min(routeSegments.length, dynamicPathSegments.length);
+      i++
+    ) {
+      // Dynamic segments (e.g., [id]) always match
+      if (routeSegments[i].startsWith("[") && routeSegments[i].endsWith("]")) {
+        continue;
+      }
+
+      // Otherwise, segments must match exactly
+      if (routeSegments[i] !== dynamicPathSegments[i]) {
+        isMatch = false;
+        break;
+      }
+    }
+
+    if (isMatch && routeSegments.length > bestMatchSegments) {
+      bestMatch = route;
+      bestMatchSegments = routeSegments.length;
+    }
+  }
+
+  if (bestMatch) {
+    return PERMISSION_MAP[bestMatch].permissions;
+  }
+
+  // If no specific match was found, check for path-based matches
+  // (e.g., /orders prefixes)
+  let longestPrefixMatch = "";
+
+  for (const route in PERMISSION_MAP) {
+    // Skip dynamic routes in this check
+    if (route.includes("[")) continue;
+
+    if (
+      pathname.startsWith(route) &&
+      route.length > longestPrefixMatch.length &&
+      (pathname === route || pathname.charAt(route.length) === "/")
+    ) {
+      longestPrefixMatch = route;
+    }
+  }
+
+  if (longestPrefixMatch) {
+    return PERMISSION_MAP[longestPrefixMatch].permissions;
+  }
+
+  return [];
+}

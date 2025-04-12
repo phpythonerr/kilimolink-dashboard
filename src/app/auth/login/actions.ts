@@ -2,8 +2,9 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
+import { headers } from "next/headers";
 
-// Validate login information
+// Validate login information (for future use if needed)
 const SignInSchema = z.object({
   email: z
     .string()
@@ -11,57 +12,64 @@ const SignInSchema = z.object({
     .refine((email) => email.endsWith("@kilimolink.com"), {
       message: "Sorry, you're not allowed to access this service",
     }),
-  password: z.string().min(5, "Password must be at least 5 characters"),
 });
 
-export const signIn = async (formData: FormData) => {
+// Helper function to get the current domain
+async function getCurrentDomain() {
   try {
-    const validatedFields = SignInSchema.safeParse({
-      email: formData.get("email"),
-      password: formData.get("password"),
-    });
+    const headersList = await headers();
+    const host = headersList.get("host") || "localhost:3000";
+    const protocol = host.includes("localhost") ? "http" : "https";
+    return `${protocol}://${host}`;
+  } catch (error) {
+    // Fallback to environment variable or default
+    return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  }
+}
 
-    if (!validatedFields.success) {
-      return {
-        error: validatedFields.error.errors[0].message,
-      };
-    }
-
-    const { email, password } = validatedFields.data;
+// Sign in with Google
+export const signInWithGoogle = async () => {
+  try {
     const supabase = await createClient();
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    // Get the current domain dynamically
+    const origin = await getCurrentDomain();
+    const redirectTo = `${origin}/auth/callback`;
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo,
+        queryParams: {
+          // Request offline access for refresh tokens
+          access_type: "offline",
+          // Force consent screen to ensure user sees prompt
+          prompt: "consent",
+        },
+        // Optional: Filter by allowed domains - commenting out for testing
+        // filter: { domain: "kilimolink.com" },
+      },
     });
 
     if (error) {
       return {
         error: error.message,
+        url: null,
       };
     }
 
-    if (data?.user?.user_metadata?.user_type !== "staff") {
-      await supabase.auth.signOut();
-      return {
-        success: true,
-        redirect: "/auth/login",
-        message: "Invalid Login Credentials",
-      };
-    }
-
-    const { data: mfa, error: mfaError } =
-      await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-
+    // Return the URL that the client should redirect to
     return {
-      success: true,
-      mfa: mfa,
-      redirect: "/dashboard",
-      message: "Login successful. You will be redirected shortly",
+      url: data.url,
+      error: null,
     };
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "Failed to sign in",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to sign in with Google",
+      url: null,
     };
   }
 };

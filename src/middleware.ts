@@ -1,100 +1,49 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { updateSession } from "@/lib/supabase/middleware";
-
-// Define allowed organization domains
-const ALLOWED_EMAIL_DOMAINS = ["kilimolink.com"];
-
-// Define public routes that don't require authentication
-const PUBLIC_ROUTES = ["/auth/login"];
-
-interface UserMetadata {
-  user_type?: string;
-  status?: string;
-}
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { createClient } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  const res = NextResponse.next();
-
-  // Create Supabase client
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SB_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          res.cookies.set({
-            name,
-            value,
-            ...options,
-          });
-        },
-        remove(name: string, options: CookieOptions) {
-          res.cookies.set({
-            name,
-            value: "",
-            ...options,
-          });
-        },
-      },
-    }
-  );
-
-  await updateSession(request);
-
+  const { supabase, response } = createClient(request);
   const pathname = request.nextUrl.pathname;
 
-  // Check if the route is public
-  if (PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
-    return res;
+  // Allow access to login page and static assets without authentication
+  if (
+    pathname.startsWith("/auth/login") ||
+    pathname.startsWith("/auth/callback") ||
+    pathname.startsWith("/legals/terms-of-service") ||
+    pathname.startsWith("/legals/privacy-policy") ||
+    pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js)$/) ||
+    pathname.startsWith("/_next")
+  ) {
+    return response;
   }
 
-  try {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
+  // Check if user is authenticated
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-    if (error || !user) {
-      return redirectToLogin(request, "Please Login to Access this Page");
-    }
-
-    // Check if user has an email
-    if (!user.email) {
-      await supabase.auth.signOut();
-      return redirectToLogin(request, "Invalid Email");
-    }
-
-    // Check if email domain is allowed
-    const emailDomain = user.email.split("@")[1];
-    if (!ALLOWED_EMAIL_DOMAINS.includes(emailDomain)) {
-      await supabase.auth.signOut();
-      return redirectToLogin(request, "Unauthorized Email Domain");
-    }
-
-    // Check user type and status
-    const metadata = user.user_metadata as UserMetadata;
-    if (metadata.user_type !== "staff" || metadata.status !== "active") {
-      return redirectToLogin(request, "Unauthorized Access");
-    }
-
-    return res;
-  } catch (error) {
-    console.error("Middleware error:", error);
-    return redirectToLogin(request, "Server Error");
+  // If no session, redirect to login
+  if (!session) {
+    const redirectUrl = new URL("/auth/login", request.url);
+    redirectUrl.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(redirectUrl);
   }
-}
 
-// Helper function for redirects
-function redirectToLogin(request: NextRequest, message: string): NextResponse {
-  const loginUrl = new URL("/auth/login", request.url);
-  loginUrl.searchParams.set("message", message);
-  return NextResponse.redirect(loginUrl);
+  // User is authenticated, allow access
+  return response;
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|public/).*)"],
+  matcher: [
+    /*
+     * Match all request paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - images/ (images folder)
+     * - api/ routes that don't require auth
+     */
+    "/((?!_next/static|_next/image|favicon.ico|images|api/public).*)",
+  ],
 };

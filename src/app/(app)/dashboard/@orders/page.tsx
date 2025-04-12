@@ -18,7 +18,8 @@ export default async function Page() {
     .from("orders_order")
     .select("*", { count: "exact", head: true });
 
-  const todayOrders = data?.filter((order) => order.created === today) || [];
+  const todayOrders =
+    data?.filter((order: any) => order.created === today) || [];
   const todayCount = todayOrders.length;
 
   return (
