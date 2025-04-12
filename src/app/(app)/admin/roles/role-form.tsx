@@ -69,7 +69,7 @@ export function RoleForm({ role }: RoleFormProps) {
         ? updateRole(role.id, formData)
         : createRole(formData);
 
-      const result = await toast.promise(action, {
+      const result: any = await toast.promise(action, {
         loading: isEditing ? "Updating role..." : "Creating role...",
         success: null,
         error: null,

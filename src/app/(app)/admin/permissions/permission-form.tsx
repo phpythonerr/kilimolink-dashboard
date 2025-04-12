@@ -71,7 +71,7 @@ export function PermissionForm({ permission }: PermissionFormProps) {
         ? updatePermission(permission.id, formData)
         : createPermission(formData);
 
-      const result = await toast.promise(action, {
+      const result: any = await toast.promise(action, {
         loading: isEditing
           ? "Updating permission..."
           : "Creating permission...",
