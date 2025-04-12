@@ -16,6 +16,7 @@ export interface InventoryLedgerItem {
   quantity: number;
   unit: string;
   transaction_type: string;
+  transaction_date: any;
   source_document_type: string;
   source_document_id: string;
   notes: string;
