@@ -169,7 +169,7 @@ export const updateInventoryQuantity = async ({
       p_transaction_type: transactionType,
       p_reference_id: referenceId,
       p_notes: notes,
-      p_performed_by: user?.id,
+      p_performed_by: user?.id, // fixed
     });
 
     if (error) {
