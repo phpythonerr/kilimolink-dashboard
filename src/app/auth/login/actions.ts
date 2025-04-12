@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 
+// Validate login information
 const SignInSchema = z.object({
   email: z
     .string()
