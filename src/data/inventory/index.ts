@@ -121,7 +121,7 @@ export async function getInventoryLedger(
   return {
     items: ledgerData || [],
     productId: inventoryId,
-    productName: inventoryData?.products[0]?.name || "Unknown Product",
+    productName: inventoryData?.products?.name || "Unknown Product",
     totalCount: count || 0,
     pageCount: Math.ceil((count || 0) / pageSize),
     currentPage: page,
