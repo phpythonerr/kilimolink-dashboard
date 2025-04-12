@@ -90,7 +90,7 @@ export async function getInventoryLedger(
   const end = start + pageSize - 1;
 
   // First, get the product_id for this inventory item
-  const { data: inventoryData, error: inventoryError } = await supabase
+  const { data: inventoryData, error: inventoryError }: any = await supabase
     .from("inventory_commodity")
     .select("id, products:id (name)")
     .eq("id", inventoryId)
@@ -121,7 +121,7 @@ export async function getInventoryLedger(
   return {
     items: ledgerData || [],
     productId: inventoryId,
-    productName: inventoryData?.products?.name,
+    productName: inventoryData?.products[0]?.name || "Unknown Product",
     totalCount: count || 0,
     pageCount: Math.ceil((count || 0) / pageSize),
     currentPage: page,
