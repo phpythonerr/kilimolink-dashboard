@@ -46,8 +46,6 @@ export const signInWithGoogle = async () => {
           // Force consent screen to ensure user sees prompt
           prompt: "consent",
         },
-        // Optional: Filter by allowed domains - commenting out for testing
-        filter: { domain: "kilimolink.com" },
       },
     });
 
