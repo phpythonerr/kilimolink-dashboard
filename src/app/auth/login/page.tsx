@@ -2,11 +2,7 @@ import { LoginForm } from "./form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+export default async function Page({ searchParams }: { searchParams: any }) {
   const queryParams = await searchParams;
   // Handle error messages from the callback
   const errorMessage = queryParams.error
