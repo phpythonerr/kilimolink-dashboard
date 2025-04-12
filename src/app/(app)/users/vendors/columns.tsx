@@ -27,8 +27,8 @@ export const columns: ColumnDef<User>[] = [
     header: "Vendor Name",
     cell: ({ row }) => {
       const tradeName = row.original?.business_name;
-      const firstName = row.original?.first_name || row.original?.firstName;
-      const lastName = row.original?.last_name || row.original?.lastName;
+      const firstName = row.original?.first_name;
+      const lastName = row.original?.last_name;
 
       const dispayName = tradeName
         ? `${firstName} ${lastName} (${tradeName})`
