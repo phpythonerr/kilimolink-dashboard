@@ -29,7 +29,7 @@ interface UserWithMetadata extends User {
   };
 }
 
-export const columns: ColumnDef<UserWithMetadata>[] = [
+export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "user_metadata",
     header: "User",
