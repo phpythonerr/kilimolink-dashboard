@@ -64,7 +64,7 @@ export default async function UsersWithRolePage({
     data: usersWithRole,
     count,
     error,
-  } = await supabase
+  }: any = await supabase
     .from("user_roles")
     .select(
       `
