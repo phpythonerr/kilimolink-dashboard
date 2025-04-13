@@ -51,7 +51,7 @@ export async function UserRolesTable({
   return (
     <DataTable
       columns={columns}
-      data={data as UserRole[]}
+      data={data}
       pageCount={pageCount}
       currentPage={page}
       pageSize={pageSize}

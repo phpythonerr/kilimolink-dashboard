@@ -50,7 +50,7 @@ export async function RolePermissionsTable({
   return (
     <DataTable
       columns={columns}
-      data={data as RolePermission[]}
+      data={data}
       pageCount={pageCount}
       currentPage={page}
       pageSize={pageSize}
