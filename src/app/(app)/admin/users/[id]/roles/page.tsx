@@ -16,11 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
-export default async function UserRolesPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function UserRolesPage({ params }: { params: any }) {
   const userId = params.id;
   const supabase = await createClient();
 
