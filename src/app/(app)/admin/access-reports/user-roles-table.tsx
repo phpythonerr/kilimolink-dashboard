@@ -15,7 +15,7 @@ export async function UserRolesTable({
   const to = from + pageSize - 1;
 
   // Only show staff users for security reasons
-  const { data, error, count } = await supabase
+  const { data, error, count }: any = await supabase
     .from("user_roles")
     .select(
       `

@@ -28,7 +28,7 @@ export interface UserRole {
   };
 }
 
-export const columns: ColumnDef<UserRole>[] = [
+export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "user",
     header: "User",

@@ -23,7 +23,7 @@ export interface RolePermission {
   };
 }
 
-export const columns: ColumnDef<RolePermission>[] = [
+export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "role.name",
     header: "Role",

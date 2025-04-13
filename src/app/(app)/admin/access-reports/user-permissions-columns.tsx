@@ -29,7 +29,7 @@ export interface UserPermission {
   };
 }
 
-export const columns: ColumnDef<UserPermission>[] = [
+export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "user",
     header: "User",

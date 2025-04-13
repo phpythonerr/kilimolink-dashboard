@@ -14,7 +14,7 @@ export async function RolePermissionsTable({
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  const { data, error, count } = await supabase
+  const { data, error, count }: any = await supabase
     .from("role_permissions")
     .select(
       `
