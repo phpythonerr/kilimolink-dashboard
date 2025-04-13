@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 export default async function PermissionsPage({
   searchParams,
 }: {
-  searchParams: { page?: string; pageSize?: string; category?: string };
+  searchParams: any;
 }) {
   // Get pagination parameters from the URL
   const page = Number(searchParams.page) || 1;

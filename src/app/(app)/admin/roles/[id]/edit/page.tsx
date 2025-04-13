@@ -10,11 +10,7 @@ interface Role {
   updated_at: string;
 }
 
-export default async function EditRolePage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function EditRolePage({ params }: { params: any }) {
   const supabase = await createClient();
 
   // Fetch the role details

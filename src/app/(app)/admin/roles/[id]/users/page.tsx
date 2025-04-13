@@ -34,8 +34,8 @@ export default async function UsersWithRolePage({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams: { page?: string; pageSize?: string };
+  params: any;
+  searchParams: any;
 }) {
   const supabase = await createClient();
 
