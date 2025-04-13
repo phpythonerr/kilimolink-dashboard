@@ -39,9 +39,13 @@ export default async function UsersWithRolePage({
 }) {
   const supabase = await createClient();
 
+  const pageParams = await params;
+
+  const queryParams = await searchParams;
+
   // Get pagination parameters from the URL
-  const page = Number(searchParams.page) || 1;
-  const pageSize = Number(searchParams.pageSize) || 10;
+  const page = Number(queryParams.page) || 1;
+  const pageSize = Number(queryParams.pageSize) || 10;
 
   // Calculate pagination offset
   const from = (page - 1) * pageSize;
@@ -51,7 +55,7 @@ export default async function UsersWithRolePage({
   const { data: role, error: roleError } = await supabase
     .from("roles")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", pageParams.id)
     .single();
 
   if (roleError || !role) {
@@ -85,7 +89,7 @@ export default async function UsersWithRolePage({
     `,
       { count: "exact" }
     )
-    .eq("role_id", params.id)
+    .eq("role_id", params?.id)
     .eq("user.profile.user_type", "staff") // Only include staff users
     .order("created_at", { ascending: false })
     .range(from, to);

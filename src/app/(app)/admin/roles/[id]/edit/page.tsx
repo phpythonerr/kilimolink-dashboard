@@ -12,12 +12,13 @@ interface Role {
 
 export default async function EditRolePage({ params }: { params: any }) {
   const supabase = await createClient();
+  const pageParams = await params;
 
   // Fetch the role details
   const { data: role, error } = await supabase
     .from("roles")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", pageParams.id)
     .single();
 
   if (error || !role) {

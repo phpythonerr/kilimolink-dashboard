@@ -11,12 +11,13 @@ interface PageProps {
 
 export default async function EditPermissionPage({ params }: any) {
   const supabase = await createClient();
+  const pageParams = await params;
 
   // Fetch permission data
   const { data: permission } = await supabase
     .from("permissions")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", pageParams.id)
     .single();
 
   if (!permission) {
