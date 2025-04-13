@@ -110,7 +110,7 @@ export async function assignUserRole(userId: string, roleId: string) {
 }
 
 // Action to delete a user role
-export async function deleteUserRole(formData: FormData) {
+export async function deleteUserRole(formData: any) {
   try {
     const userRoleId = formData.get("userRoleId") as string;
     const userId = formData.get("userId") as string;
