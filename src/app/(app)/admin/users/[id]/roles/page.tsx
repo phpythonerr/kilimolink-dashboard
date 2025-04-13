@@ -21,7 +21,7 @@ export default async function UserRolesPage({ params }: { params: any }) {
   const supabase = await createClient();
 
   // Fetch the user
-  const { data: user, error: userError } = await supabase
+  const { data: user, error: userError }: any = await supabase
     .from("profiles")
     .select("id, full_name, email")
     .eq("user_id", userId)
@@ -37,7 +37,7 @@ export default async function UserRolesPage({ params }: { params: any }) {
     .select("id, name, description");
 
   // Fetch all roles assigned to the user
-  const { data: userRoles, error: rolesError } = await supabase
+  const { data: userRoles, error: rolesError }: any = await supabase
     .from("user_roles")
     .select(
       `
@@ -76,18 +76,18 @@ export default async function UserRolesPage({ params }: { params: any }) {
           <CardContent>
             {userRoles && userRoles.length > 0 ? (
               <div className="space-y-4">
-                {userRoles.map((userRole) => (
+                {userRoles.map((userRole: any) => (
                   <div
-                    key={userRole.id}
+                    key={userRole?.id}
                     className="flex items-center justify-between p-3 border rounded-lg"
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="font-medium">{userRole.role.name}</h4>
+                        <h4 className="font-medium">{userRole?.role.name}</h4>
                         <Badge variant="outline">Role</Badge>
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {userRole.role.description}
+                        {userRole?.role?.description}
                       </p>
                     </div>
                     <form action={deleteUserRole}>
