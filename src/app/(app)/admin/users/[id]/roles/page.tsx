@@ -124,7 +124,7 @@ export default async function UserRolesPage({ params }: { params: any }) {
             <CardDescription>Add a new role to this user</CardDescription>
           </CardHeader>
           <CardContent>
-            <AssignRoleForm userId={userId} roles={allRoles || []} />
+            <UserRoleForm userId={userId} availableRoles={allRoles || []} />
           </CardContent>
         </Card>
 
