@@ -90,7 +90,7 @@ export default async function UserRolesPage({ params }: { params: any }) {
                         {userRole?.role?.description}
                       </p>
                     </div>
-                    <form action={deleteUserRole}>
+                    {/* <form action={deleteUserRole}>
                       <input
                         type="hidden"
                         name="userRoleId"
@@ -106,7 +106,7 @@ export default async function UserRolesPage({ params }: { params: any }) {
                         <Trash2 className="h-4 w-4" />
                         <span className="sr-only">Remove Role</span>
                       </Button>
-                    </form>
+                    </form> */}
                   </div>
                 ))}
               </div>
