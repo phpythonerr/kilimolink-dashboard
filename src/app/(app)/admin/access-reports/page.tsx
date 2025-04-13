@@ -28,23 +28,23 @@ export default async function AccessReportsPage({
   const supabase = await createClient();
 
   // Fetch summary statistics
-  const { data: roleCount } = await supabase
+  const { count: roleCount } = await supabase
     .from("roles")
     .select("id", { count: "exact", head: true });
 
-  const { data: permissionCount } = await supabase
+  const { count: permissionCount } = await supabase
     .from("permissions")
     .select("id", { count: "exact", head: true });
 
-  const { data: userRoleCount } = await supabase
+  const { count: userRoleCount } = await supabase
     .from("user_roles")
     .select("id", { count: "exact", head: true });
 
-  const { data: userPermissionCount } = await supabase
+  const { count: userPermissionCount } = await supabase
     .from("user_permissions")
     .select("id", { count: "exact", head: true });
 
-  const { data: rolePermissionCount } = await supabase
+  const { count: rolePermissionCount } = await supabase
     .from("role_permissions")
     .select("id", { count: "exact", head: true });
 
@@ -64,7 +64,7 @@ export default async function AccessReportsPage({
             <CardTitle className="text-sm font-medium">Total Roles</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{roleCount?.count || 0}</div>
+            <div className="text-2xl font-bold">{roleCount || 0}</div>
             <p className="text-xs text-muted-foreground">
               Defined system roles
             </p>
@@ -77,9 +77,7 @@ export default async function AccessReportsPage({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {permissionCount?.count || 0}
-            </div>
+            <div className="text-2xl font-bold">{permissionCount || 0}</div>
             <p className="text-xs text-muted-foreground">
               Defined system permissions
             </p>
@@ -92,9 +90,7 @@ export default async function AccessReportsPage({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {userRoleCount?.count || 0}
-            </div>
+            <div className="text-2xl font-bold">{userRoleCount || 0}</div>
             <p className="text-xs text-muted-foreground">
               Total user role assignments
             </p>
@@ -107,9 +103,7 @@ export default async function AccessReportsPage({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {userPermissionCount?.count || 0}
-            </div>
+            <div className="text-2xl font-bold">{userPermissionCount || 0}</div>
             <p className="text-xs text-muted-foreground">
               Direct permission assignments
             </p>
