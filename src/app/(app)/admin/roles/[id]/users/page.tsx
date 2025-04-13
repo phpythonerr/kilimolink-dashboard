@@ -98,12 +98,12 @@ export default async function UsersWithRolePage({
   // Transform the data to match the expected format
   const formattedUsers =
     usersWithRole?.map((item) => ({
-      id: item.user.id,
-      email: item.user.email,
-      profile: item.user.profile,
-      created_at: item.user.created_at,
+      id: item.user.id || "",
+      email: item.user.email || "",
+      profile: item.user.profile || {},
+      created_at: item.user.created_at || "",
       role_assignment: {
-        created_at: item.created_at,
+        created_at: item.created_at || "",
       },
     })) || [];
 
