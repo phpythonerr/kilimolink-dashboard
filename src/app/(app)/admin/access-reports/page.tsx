@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 export default async function AccessReportsPage({
   searchParams,
 }: {
-  searchParams: { tab?: string; page?: string; pageSize?: string };
+  searchParams: any;
 }) {
   // Get the active tab from the URL params or default to "user-roles"
   const activeTab = searchParams.tab || "user-roles";

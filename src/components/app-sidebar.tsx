@@ -445,20 +445,6 @@ const navData: NavSection[] = [
           },
         ],
       },
-      {
-        title: "Staff",
-        url: "#",
-        icon: ScrollText,
-        isActive: false,
-        permission: "users.staff.view", // Added specific permission
-        items: [
-          {
-            title: "All Staff",
-            url: "/users/staff",
-            permission: "users.staff.view", // Added specific permission
-          },
-        ],
-      },
     ],
   },
 ];

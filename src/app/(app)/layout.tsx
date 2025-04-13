@@ -1,7 +1,7 @@
 import { ReactNode, Suspense } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import { getUserPermissions } from "@/lib/permissions";
 import { getRequiredPermissions } from "@/lib/permissions";
 import type { Metadata } from "next";
@@ -52,14 +52,8 @@ export default async function AppLayout({ children }: AppLayoutProps) {
     );
 
     if (!hasAllPermissions) {
-      // For section roots (like /reports, /store, etc.), show placeholder content
-      // For specific pages, redirect to unauthorized
-      const pathSegments = pathname.split("/").filter(Boolean);
-
-      if (pathSegments.length > 1) {
-        redirect("/unauthorized");
-      }
-      // Otherwise, we'll render the layout with placeholder content
+      // Show 404 error for any page the user doesn't have permission to access
+      notFound();
     }
   }
 
