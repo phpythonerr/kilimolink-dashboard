@@ -188,14 +188,14 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
                 </DropdownMenuItem>
               )}
 
-              {isWithinLastThreeDays(purchase?.purchase_date) && (
-                <DropdownMenuItem
-                  onClick={() => setShowAlertDialog(true)}
-                  className="text-destructive"
-                >
-                  Delete
-                </DropdownMenuItem>
-              )}
+              {/* {isWithinLastThreeDays(purchase?.purchase_date) && ( */}
+              <DropdownMenuItem
+                onClick={() => setShowAlertDialog(true)}
+                className="text-destructive"
+              >
+                Delete
+              </DropdownMenuItem>
+              {/* )} */}
             </DropdownMenuContent>
           </DropdownMenu>
 
