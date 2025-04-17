@@ -12,6 +12,10 @@ const MarkAsPaidSchema = z.object({
   transactionCode: z.string().optional(),
 });
 
+const DeletePurchaseSchema = z.object({
+  purchaseId: z.string().min(1, "Purchase ID is required"),
+});
+
 export async function markAsPaid(formData: FormData) {
   try {
     const validatedFields = MarkAsPaidSchema.safeParse({
@@ -48,6 +52,52 @@ export async function markAsPaid(formData: FormData) {
         error instanceof Error
           ? error.message
           : "Failed to mark purchase as paid",
+    };
+  }
+}
+
+export async function deletePurchase(formData: FormData) {
+  try {
+    const validatedFields = DeletePurchaseSchema.safeParse({
+      purchaseId: formData.get("purchaseId"),
+    });
+
+    if (!validatedFields.success) {
+      return { error: validatedFields.error.errors[0].message };
+    }
+
+    const supabase = await createClient();
+
+    // Check if the purchase exists
+    const { data: purchase, error: fetchError } = await supabase
+      .from("inventory_purchases")
+      .select()
+      .eq("id", validatedFields.data.purchaseId)
+      .single();
+
+    if (fetchError) {
+      return { error: "Purchase record not found" };
+    }
+
+    // Delete the purchase record
+    const { error: deleteError } = await supabase
+      .from("inventory_purchases")
+      .delete()
+      .eq("id", validatedFields.data.purchaseId);
+
+    if (deleteError) {
+      throw new Error("Failed to delete purchase record");
+    }
+
+    revalidatePath("/accounting/expenses/purchases");
+    return { success: true };
+  } catch (error) {
+    console.error("Delete purchase error:", error);
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to delete purchase record",
     };
   }
 }

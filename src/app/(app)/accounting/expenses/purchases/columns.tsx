@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +14,17 @@ import { Button } from "@/components/ui/button";
 import { PaymentDialog } from "./payment-dialog";
 import { isWithinLastThreeDays } from "@/lib/utils";
 import { EditSheet } from "./edit-sheet";
+import { deletePurchase } from "./actions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // Define data types
 
@@ -146,6 +158,8 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
     cell: ({ row }) => {
       const [showPaymentDialog, setShowPaymentDialog] = useState(false);
       const [showEditSheet, setShowEditSheet] = useState(false);
+      const [showAlertDialog, setShowAlertDialog] = useState(false);
+      const [isDeleting, setIsDeleting] = useState(false);
       const purchase = row.original;
 
       return (
@@ -173,6 +187,15 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
                   Mark as Paid
                 </DropdownMenuItem>
               )}
+
+              {isWithinLastThreeDays(purchase?.purchase_date) && (
+                <DropdownMenuItem
+                  onClick={() => setShowAlertDialog(true)}
+                  className="text-destructive"
+                >
+                  Delete
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -187,6 +210,98 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
             onOpenChange={setShowEditSheet}
             purchase={purchase}
           />
+
+          <AlertDialog open={showAlertDialog} onOpenChange={setShowAlertDialog}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirm Purchase Deletion</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. Are you sure you want to delete
+                  this purchase record?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <div className="py-4">
+                <h3 className="font-medium mb-2">Purchase Summary:</h3>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="text-muted-foreground">Vendor:</div>
+                  <div>
+                    {`${
+                      purchase.user_obj?.user_metadata?.first_name ||
+                      purchase.user_obj?.user_metadata?.firstName ||
+                      ""
+                    } 
+                        ${
+                          purchase.user_obj?.user_metadata?.last_name ||
+                          purchase.user_obj?.user_metadata?.lastName ||
+                          ""
+                        } ${
+                      purchase.user_obj?.user_metadata?.tradeName
+                        ? ` (${purchase.user_obj?.user_metadata?.tradeName})`
+                        : ``
+                    }`}
+                  </div>
+
+                  <div className="text-muted-foreground">Product:</div>
+                  <div>{purchase.product_id?.name || "Unknown Product"}</div>
+
+                  <div className="text-muted-foreground">Purchase Date:</div>
+                  <div>{new Date(purchase.purchase_date).toDateString()}</div>
+
+                  <div className="text-muted-foreground">Quantity:</div>
+                  <div>
+                    {purchase.quantity} {purchase.product_uom}
+                  </div>
+
+                  <div className="text-muted-foreground">Unit Price:</div>
+                  <div>
+                    Ksh.{purchase.unit_price} / {purchase.product_uom}
+                  </div>
+
+                  <div className="text-muted-foreground">Payment Status:</div>
+                  <div>{purchase.payment_status}</div>
+                </div>
+              </div>
+
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    setIsDeleting(true);
+                    const formData = new FormData();
+                    formData.append("purchaseId", purchase.id);
+
+                    toast.promise(
+                      deletePurchase(formData).finally(() => {
+                        setIsDeleting(false);
+                        setShowAlertDialog(false);
+                      }),
+                      {
+                        loading: "Deleting purchase record...",
+                        success: (data) => {
+                          if (data.error) {
+                            throw new Error(data.error);
+                          }
+                          return "Purchase record deleted successfully";
+                        },
+                        error: (error) => {
+                          const errorMessage =
+                            error instanceof Error
+                              ? error.message
+                              : "Failed to delete the purchase record";
+                          return errorMessage;
+                        },
+                      }
+                    );
+                  }}
+                  className="bg-destructive hover:bg-destructive/90"
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </>
       );
     },
