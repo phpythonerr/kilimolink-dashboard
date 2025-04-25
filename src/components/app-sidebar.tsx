@@ -359,6 +359,29 @@ const navData: NavSection[] = [
           },
         ],
       },
+      {
+        title: "Sourcing",
+        url: "#",
+        icon: Bot,
+        permission: "store.sourcing.view", // Added specific permission
+        items: [
+          {
+            title: "Overview",
+            url: "/store/sourcing",
+            permission: "store.sourcing.view", // Added specific permission
+          },
+          {
+            title: "Farms",
+            url: "/store/sourcing/farms",
+            permission: "store.sourcing.farms.view", // Added specific permission
+          },
+          {
+            title: "Farmers",
+            url: "/store/sourcing/farmers",
+            permission: "store.sourcing.farmers.view", // Added specific permission
+          },
+        ],
+      },
     ],
   },
   {
