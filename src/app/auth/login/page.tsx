@@ -35,6 +35,8 @@ function getErrorMessage(errorCode: string): string {
       return "Authentication failed. Please try again.";
     case "use_org_email":
       return "You must use your organization email to sign in.";
+    case "no_identities":
+      return "No identities found. Please check your email or contact support.";
     case "invalid_provider":
       return "Please use your Org Email to sign in.";
     default:

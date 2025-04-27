@@ -31,7 +31,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (user?.identities[0]?.provider !== "google") {
+  if (!user?.identities) {
+    // If the user is authenticated but has no identities, redirect to login
+    await supabase.auth.signOut();
+    const redirectUrl = new URL("/auth/login", request.url);
+    redirectUrl.searchParams.set("redirect", pathname);
+    redirectUrl.searchParams.set("error", "no_identities");
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  if (user?.identities && user?.identities[0]?.provider !== "google") {
     // If the user is authenticated but not via Google, redirect to login
     await supabase.auth.signOut();
     const redirectUrl = new URL("/auth/login", request.url);
