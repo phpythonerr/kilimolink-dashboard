@@ -21,18 +21,27 @@ export async function middleware(request: NextRequest) {
 
   // Check if user is authenticated
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // If no session, redirect to login
-  if (!session) {
+  // If no user, redirect to login
+  if (!user) {
     const redirectUrl = new URL("/auth/login", request.url);
     redirectUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
+  if (user?.identities[0]?.provider !== "google") {
+    // If the user is authenticated but not via Google, redirect to login
+    await supabase.auth.signOut();
+    const redirectUrl = new URL("/auth/login", request.url);
+    redirectUrl.searchParams.set("redirect", pathname);
+    redirectUrl.searchParams.set("error", "invalid_provider");
+    return NextResponse.redirect(redirectUrl);
+  }
+
   // User is authenticated, now check permissions for the requested route
-  if (session?.user?.id) {
+  if (user?.user?.id) {
     // Check if this route requires permissions
     const requiredPermissions = getRequiredPermissionsForPath(pathname);
 
@@ -41,13 +50,13 @@ export async function middleware(request: NextRequest) {
       const { data: userPermissions } = await supabase
         .from("user_permissions")
         .select("permission_id")
-        .eq("user_id", session.user.id);
+        .eq("user_id", user.id);
 
       // Get user's roles
       const { data: userRoles } = await supabase
         .from("user_roles")
         .select("role_id")
-        .eq("user_id", session.user.id);
+        .eq("user_id", user.id);
 
       const roleIds = userRoles?.map((ur) => ur.role_id) || [];
 

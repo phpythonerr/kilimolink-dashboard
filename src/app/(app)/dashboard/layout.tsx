@@ -26,14 +26,14 @@ export default async function Layout({
   // Check if user has access to dashboard components
   const supabase = await createClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     redirect("/auth/login");
   }
 
-  const userPermissions = await getUserPermissions(session.user.id);
+  const userPermissions = await getUserPermissions(user.id);
   const permissionNames = userPermissions.map((p) => p.name);
 
   // Define which permissions are needed for each component

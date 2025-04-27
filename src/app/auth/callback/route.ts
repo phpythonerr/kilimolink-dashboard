@@ -26,12 +26,12 @@ export async function GET(request: Request) {
 
       // Check if the user has staff status
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
+        data: { user },
+      } = await supabase.auth.getUser();
 
       if (
-        session?.user.user_metadata?.user_type !== "staff" &&
-        !session?.user.email?.endsWith("@kilimolink.com")
+        user?.user_metadata?.user_type !== "staff" &&
+        !user?.email?.endsWith("@kilimolink.com")
       ) {
         // If not a staff member, sign them out
         await supabase.auth.signOut();

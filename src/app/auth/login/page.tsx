@@ -33,6 +33,10 @@ function getErrorMessage(errorCode: string): string {
       return "An error occurred during sign in. Please try again later.";
     case "no_code":
       return "Authentication failed. Please try again.";
+    case "use_org_email":
+      return "You must use your organization email to sign in.";
+    case "invalid_provider":
+      return "Please use your Org Email to sign in.";
     default:
       return "An unknown error occurred. Please try again.";
   }
