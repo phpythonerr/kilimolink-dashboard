@@ -112,7 +112,8 @@ export async function generateStatement(
       )
       .eq("user", customerId) // Changed from .in() to .eq()
       .gte("delivery_date", isoStartDate) // Use ISO string dates
-      .lte("delivery_date", isoEndDate);
+      .lte("delivery_date", isoEndDate)
+      .order("order_number", { ascending: false }); // Order by order_number descending
 
     if (ordersError) throw ordersError;
 
