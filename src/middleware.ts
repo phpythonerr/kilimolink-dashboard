@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
   // Check if user is authenticated
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  }: any = await supabase.auth.getUser();
 
   // If no user, redirect to login
   if (!user) {
