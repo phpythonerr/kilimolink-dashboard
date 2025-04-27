@@ -9,20 +9,33 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer";
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"; // Or your actual base URL
+
 Font.register({
-  family: "Nunito Sans",
-  src: "http://fonts.gstatic.com/s/nunitosans/v2/iJ4p9wO0GDKJ-D5teKuZqp0EAVxt0G0biEntp43Qt6E.ttf",
+  family: "Geist Sans",
+  fonts: [
+    {
+      src: `${baseUrl}/fonts/Geist/static/Geist-Regular.ttf`, // Verify actual filename
+      fontWeight: "normal",
+    },
+    {
+      src: `${baseUrl}/fonts/Geist/static/Geist-Bold.ttf`, // Verify actual filename
+      fontWeight: "bold",
+    },
+    // Add other weights (e.g., 'semibold', 'medium') if needed and available
+  ],
 });
 
 const styles = StyleSheet.create({
-  page: { backgroundColor: "white" },
+  page: { fontFamily: "Geist Sans", backgroundColor: "white" },
   body: {
     paddingTop: 35,
     paddingBottom: 65,
     paddingHorizontal: 35,
-    fontFamily: "Nunito Sans",
+    fontFamily: "Geist Sans",
   },
   pageHeader: {
+    fontFamily: "Geist Sans",
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 15,
@@ -30,14 +43,17 @@ const styles = StyleSheet.create({
     color: "#1f2937",
   },
   image: {
+    fontFamily: "Geist Sans",
     width: "auto",
     height: 30,
   },
   table: {
+    fontFamily: "Geist Sans",
     fontSize: 8,
     color: "#374151",
   },
   thead: {
+    fontFamily: "Geist Sans",
     borderTop: "1px solid #d1d5db",
     flexDirection: "row",
     alignItems: "center",
@@ -46,17 +62,20 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   row: {
+    fontFamily: "Geist Sans",
     flexDirection: "row",
     alignItems: "center",
     borderBottom: "0.5px solid #d1d5db",
     borderTop: "0.5px solid #d1d5db",
   },
   col: {
+    fontFamily: "Geist Sans",
     height: "100%",
     paddingHorizontal: "5px",
     paddingVertical: "8px",
   },
   footer: {
+    fontFamily: "Geist Sans",
     position: "absolute",
     fontSize: 8,
     bottom: 30,

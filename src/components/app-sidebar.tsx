@@ -281,7 +281,7 @@ const navData: NavSection[] = [
           },
           {
             title: "Statements of Accounts",
-            url: "#",
+            url: "/reports/accounting/statement-of-accounts",
             permission: "reports.accounting.statements.view", // Added specific permission
           },
         ],
