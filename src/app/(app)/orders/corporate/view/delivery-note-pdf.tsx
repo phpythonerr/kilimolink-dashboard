@@ -70,7 +70,12 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function DeliveryNote({ order_number, items, customer }: any) {
+export default function DeliveryNote({
+  id,
+  order_number,
+  items,
+  customer,
+}: any) {
   return (
     <Document
       title={`Delivery Note ${order_number}`}
