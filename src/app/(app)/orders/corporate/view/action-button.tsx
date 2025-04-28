@@ -311,7 +311,7 @@ export function ActionButton({
                   <FormLabel>Reason</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="e.g., Goodwill gesture"
+                      placeholder="e.g., Goods not delivered"
                       {...field}
                       required // Added required
                     />
