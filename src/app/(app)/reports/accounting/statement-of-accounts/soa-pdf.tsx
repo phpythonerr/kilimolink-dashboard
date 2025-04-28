@@ -366,7 +366,9 @@ const StatementPDF: React.FC<StatementPDFProps> = ({
   if (hasBranch) footerLabelWidth += parseFloat(styles.colBranchBase.width);
   footerLabelWidth += parseFloat(colWidths.invoiceNum.width);
   footerLabelWidth += parseFloat(colWidths.date.width);
-  if (hasPO) footerLabelWidth += parseFloat(colWidths.po.width); // Add PO width if present
+  if (hasPO) {
+    footerLabelWidth += parseFloat(styles.colPOBase.width); // Access the base style width directly
+  }
   // DO NOT add discount width here
 
   const footerLabelStyle = { width: `${footerLabelWidth}%` };
