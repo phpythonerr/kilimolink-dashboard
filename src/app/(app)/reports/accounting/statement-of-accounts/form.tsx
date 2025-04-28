@@ -8,6 +8,7 @@ import { format } from "date-fns";
 import Image from "next/image";
 import { CalendarIcon, Check, ChevronsUpDown, Download } from "lucide-react";
 import { PDFDownloadLink } from "@react-pdf/renderer"; // Import PDFDownloadLink
+import { useTheme } from "next-themes"; // Import useTheme
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -63,6 +64,7 @@ export default function StatementForm({ customers }: StatementFormProps) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [openCombobox, setOpenCombobox] = React.useState(false);
+  const { theme } = useTheme(); // Get the current theme
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -410,7 +412,12 @@ export default function StatementForm({ customers }: StatementFormProps) {
                   <div className="mb-6 flex items-start justify-between">
                     <div>
                       <Image
-                        src="/img/logo/logo-primary-by-lolkirr.png"
+                        // Conditionally set the src based on the theme
+                        src={
+                          theme === "dark"
+                            ? "/img/logo/logo-white-primary.svg" // Dark mode logo
+                            : "/img/logo/logo-primary-by-lolkirr.png" // Light mode logo
+                        }
                         alt="Kilimolink" // Added alt text
                         width={200} // Set width prop (rounded)
                         height={50} // Set height prop
