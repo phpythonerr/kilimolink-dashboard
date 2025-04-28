@@ -35,48 +35,59 @@ Font.register({
 // Helper function to format currency (KES) - PDF version
 const formatCurrencyPDF = (
   value: number | null | undefined,
-  includeSymbol: boolean = false
+  includeSymbol: boolean = false // Keep this parameter, but we'll mostly use false now
 ): string => {
   if (value === null || value === undefined || isNaN(value)) {
     return "N/A";
   }
   const options: Intl.NumberFormatOptions = {
-    style: "decimal", // Use decimal style by default for PDF alignment
+    style: "decimal", // Always use decimal for PDF to control spacing
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   };
-  if (includeSymbol) {
-    // Prepend symbol manually if needed, as direct currency style can cause issues
-    return `KES ${new Intl.NumberFormat("en-KE", options).format(value)}`;
-  }
-  return new Intl.NumberFormat("en-KE", options).format(value);
+  const formattedValue = new Intl.NumberFormat("en-KE", options).format(value);
+  // Only prepend symbol if explicitly asked, which we won't for the footer totals
+  return includeSymbol ? `KES ${formattedValue}` : formattedValue;
 };
 
 // Helper function to calculate totals and check for optional columns/status - PDF version
 const getStatementInfoPDF = (invoices: StatementData["invoices"]) => {
-  let totalAmount = 0;
-  let totalPaid = 0; // This will now sum totals of 'Paid' invoices
+  let totalPreDiscount = 0;
+  let totalDiscountAmount = 0;
+  let totalPaidDisplay = 0; // Total for the 'Paid' column display logic
   let totalOwed = 0;
   let hasDiscount = false;
   let hasBranch = false;
+  let hasPO = false; // Added check for PO Number
   let isAnyUnpaid = false;
 
   invoices.forEach((invoice) => {
-    const invoiceTotal = invoice.total ?? 0;
-    totalAmount += invoiceTotal;
-    // totalPaid += invoice.amountPaid; // OLD LOGIC
+    const invoicePreDiscountTotal = invoice.total ?? 0;
+    const discountAmount = invoice.discount?.amount ?? 0;
+    const discountedTotal = invoicePreDiscountTotal - discountAmount;
+
+    totalPreDiscount += invoicePreDiscountTotal;
     totalOwed += invoice.amountOwed;
 
-    // NEW LOGIC: Sum totals only if status is 'Paid'
+    // Calculate value for 'Paid' column display
+    let paidColumnValue = 0;
     if (invoice.paymentStatus === "Paid") {
-      totalPaid += invoiceTotal;
+      paidColumnValue = discountedTotal; // Show discounted total if paid
+    } else {
+      paidColumnValue = invoice.amountPaid; // Show actual amount paid otherwise
     }
+    totalPaidDisplay += paidColumnValue; // Sum the displayed paid values
 
-    if (invoice.discount && invoice.discount > 0) {
+    if (invoice.discount && invoice.discount.amount > 0) {
       hasDiscount = true;
+      totalDiscountAmount += invoice.discount.amount;
     }
     if (invoice.branch) {
       hasBranch = true;
+    }
+    if (invoice.poNumber) {
+      // Check if PO number exists
+      hasPO = true;
     }
     if (invoice.amountOwed > 0) {
       isAnyUnpaid = true;
@@ -84,11 +95,13 @@ const getStatementInfoPDF = (invoices: StatementData["invoices"]) => {
   });
 
   return {
-    totalAmount,
-    totalPaid, // Now represents sum of totals for 'Paid' invoices
+    totalPreDiscount,
+    totalDiscountAmount,
+    totalPaidDisplay, // Use this for the footer 'Paid' total
     totalOwed,
     hasDiscount,
     hasBranch,
+    hasPO, // Return hasPO
     isAnyUnpaid,
   };
 };
@@ -230,22 +243,23 @@ const styles = StyleSheet.create({
   colInvoiceNumBase: { width: "11%" },
   colDateBase: { width: "11%" },
   colPOBase: { width: "11%" },
-  colDiscountBase: { width: "7%", textAlign: "right" },
-  colTotalBase: { width: "14%", textAlign: "right" },
-  colPaidBase: { width: "14%", textAlign: "right" },
-  colUnpaidBase: { width: "14%", textAlign: "right" },
-  colStatusBase: { width: "9%" },
+  // Adjusted discount width slightly, might need more depending on format
+  colDiscountBase: { width: "10%", textAlign: "right" },
+  colTotalBase: { width: "14%", textAlign: "right" }, // Pre-discount total
+  colPaidBase: { width: "12%", textAlign: "right" }, // Amount paid
+  colUnpaidBase: { width: "12%", textAlign: "right" }, // Amount owed (after discount)
+  colStatusBase: { width: "10%" }, // Status
   // --- Width Adjustments (when columns are hidden) ---
   // Define adjustments or alternative full sets of widths if needed
   // Example: Increase other columns slightly if branch is hidden
-  colInvoiceNumNoBranch: { width: "13%" },
-  colDateNoBranch: { width: "13%" },
-  colPONoBranch: { width: "13%" },
+  colInvoiceNumNoBranch: { width: "12%" },
+  colDateNoBranch: { width: "12%" },
+  colPONoBranch: { width: "12%" },
   // Example: Increase other columns slightly if discount is hidden
   colTotalNoDiscount: { width: "16%", textAlign: "right" },
   colPaidNoDiscount: { width: "16%", textAlign: "right" },
   colUnpaidNoDiscount: { width: "16%", textAlign: "right" },
-  colStatusNoDiscount: { width: "10%" },
+  colStatusNoDiscount: { width: "12%" },
   // --- End Column Widths ---
 
   tableFooter: {
@@ -265,6 +279,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 7, // Match reduced font size
     fontFamily: "Geist Sans", // Apply font to footer
+    paddingRight: 8, // Add a bit more space after the label
   },
   footerTotalValue: {
     // Base style, width added dynamically
@@ -318,13 +333,15 @@ const StatementPDF: React.FC<StatementPDFProps> = ({
     );
   }
 
-  // Calculate totals using the helper
+  // Calculate totals using the updated helper
   const {
-    totalAmount,
-    totalPaid,
+    totalPreDiscount, // Use updated name
+    totalDiscountAmount,
+    totalPaidDisplay, // Get the calculated total for display
     totalOwed,
-    hasDiscount, // Keep these for potential future use
+    hasDiscount,
     hasBranch,
+    hasPO, // Get hasPO
     isAnyUnpaid,
   } = getStatementInfoPDF(statement.invoices);
 
@@ -335,21 +352,22 @@ const StatementPDF: React.FC<StatementPDFProps> = ({
       ? styles.colInvoiceNumBase
       : styles.colInvoiceNumNoBranch,
     date: hasBranch ? styles.colDateBase : styles.colDateNoBranch,
-    po: hasBranch ? styles.colPOBase : styles.colPONoBranch,
-    discount: hasDiscount ? styles.colDiscountBase : {}, // Empty object if hidden
+    po: hasPO ? styles.colPOBase : {}, // Use PO width if hasPO, else empty
+    // New Order
     total: hasDiscount ? styles.colTotalBase : styles.colTotalNoDiscount,
+    discount: hasDiscount ? styles.colDiscountBase : {}, // Empty object if hidden
     paid: hasDiscount ? styles.colPaidBase : styles.colPaidNoDiscount,
     unpaid: hasDiscount ? styles.colUnpaidBase : styles.colUnpaidNoDiscount,
     status: hasDiscount ? styles.colStatusBase : styles.colStatusNoDiscount,
   };
 
-  // Calculate dynamic footer label width
+  // Calculate dynamic footer label width (stops BEFORE Total column)
   let footerLabelWidth = 0;
   if (hasBranch) footerLabelWidth += parseFloat(styles.colBranchBase.width);
   footerLabelWidth += parseFloat(colWidths.invoiceNum.width);
   footerLabelWidth += parseFloat(colWidths.date.width);
-  footerLabelWidth += parseFloat(colWidths.po.width);
-  if (hasDiscount) footerLabelWidth += parseFloat(styles.colDiscountBase.width);
+  if (hasPO) footerLabelWidth += parseFloat(colWidths.po.width); // Add PO width if present
+  // DO NOT add discount width here
 
   const footerLabelStyle = { width: `${footerLabelWidth}%` };
   // --- End Dynamic Width Calculation ---
@@ -426,17 +444,19 @@ const StatementPDF: React.FC<StatementPDFProps> = ({
               <Text style={[styles.tableColHeader, colWidths.date]}>
                 Invoice Date
               </Text>
-              <Text style={[styles.tableColHeader, colWidths.po]}>
-                PO Number
+              {hasPO && ( // Conditionally render PO Header
+                <Text style={[styles.tableColHeader, colWidths.po]}>
+                  PO Number
+                </Text>
+              )}
+              <Text style={[styles.tableColHeader, colWidths.total]}>
+                Total
               </Text>
               {hasDiscount && ( // Conditionally render Discount
                 <Text style={[styles.tableColHeader, colWidths.discount]}>
                   Discount
                 </Text>
               )}
-              <Text style={[styles.tableColHeader, colWidths.total]}>
-                Total
-              </Text>
               <Text style={[styles.tableColHeader, colWidths.paid]}>Paid</Text>
               <Text style={[styles.tableColHeader, colWidths.unpaid]}>
                 Unpaid
@@ -446,69 +466,91 @@ const StatementPDF: React.FC<StatementPDFProps> = ({
               </Text>
             </View>
             {/* Table Body - Dynamic Layout */}
-            {statement.invoices.map((invoice: any) => (
-              <View
-                style={styles.tableRow}
-                key={invoice.invoiceId}
-                wrap={false} // Prevent rows from breaking across pages if possible
-              >
-                {hasBranch && ( // Conditionally render Branch
-                  <Text style={[styles.tableCol, colWidths.branch]}>
-                    {invoice.branch || "-"}
-                  </Text>
-                )}
-                <Text style={[styles.tableCol, colWidths.invoiceNum]}>
-                  {invoice.invoiceNumber || "-"}
-                </Text>
-                <Text style={[styles.tableCol, colWidths.date]}>
-                  {invoice.invoiceDate
-                    ? format(new Date(invoice.invoiceDate), "MMM dd, yyyy")
-                    : "-"}
-                </Text>
-                <Text style={[styles.tableCol, colWidths.po]}>
-                  {invoice.poNumber || "-"}
-                </Text>
-                {hasDiscount && ( // Conditionally render Discount
-                  <Text style={[styles.tableCol, colWidths.discount]}>
-                    {invoice.discount?.toFixed(2) ?? "0.00"}
-                  </Text>
-                )}
-                <Text style={[styles.tableCol, colWidths.total]}>
-                  {formatCurrencyPDF(invoice.total, false)}
-                </Text>
-                <Text style={[styles.tableCol, colWidths.paid]}>
-                  {/* Conditionally display total if status is Paid */}
-                  {formatCurrencyPDF(
-                    invoice.paymentStatus === "Paid"
-                      ? invoice.total // Show total if Paid
-                      : invoice.amountPaid, // Otherwise show actual amount paid
-                    false
+            {statement.invoices.map((invoice: any) => {
+              // Calculate value for this row's 'Paid' cell
+              const invoicePreDiscountTotal = invoice.total ?? 0;
+              const discountAmount = invoice.discount?.amount ?? 0;
+              const discountedTotal = invoicePreDiscountTotal - discountAmount;
+              const paidColumnValue =
+                invoice.paymentStatus === "Paid"
+                  ? discountedTotal // Show discounted total if paid
+                  : invoice.amountPaid; // Show actual amount paid otherwise
+
+              return (
+                <View
+                  style={styles.tableRow}
+                  key={invoice.invoiceId}
+                  wrap={false} // Prevent rows from breaking across pages if possible
+                >
+                  {hasBranch && ( // Conditionally render Branch
+                    <Text style={[styles.tableCol, colWidths.branch]}>
+                      {invoice.branch || "-"}
+                    </Text>
                   )}
-                </Text>
-                <Text style={[styles.tableCol, colWidths.unpaid]}>
-                  {formatCurrencyPDF(invoice.amountOwed, false)}
-                </Text>
-                <Text style={[styles.tableCol, colWidths.status]}>
-                  {invoice.paymentStatus || "N/A"}
-                </Text>
-              </View>
-            ))}
+                  <Text style={[styles.tableCol, colWidths.invoiceNum]}>
+                    {invoice.invoiceNumber || "-"}
+                  </Text>
+                  <Text style={[styles.tableCol, colWidths.date]}>
+                    {invoice.invoiceDate
+                      ? format(new Date(invoice.invoiceDate), "MMM dd, yyyy")
+                      : "-"}
+                  </Text>
+                  {hasPO && ( // Conditionally render PO Cell
+                    <Text style={[styles.tableCol, colWidths.po]}>
+                      {invoice.poNumber || "-"}
+                    </Text>
+                  )}
+                  <Text style={[styles.tableCol, colWidths.total]}>
+                    {formatCurrencyPDF(invoice.total, false)}
+                  </Text>
+                  {hasDiscount && (
+                    <Text style={[styles.tableCol, colWidths.discount]}>
+                      {invoice.discount
+                        ? `${formatCurrencyPDF(
+                            invoice.discount.amount,
+                            false // No KES symbol
+                          )}${
+                            invoice.discount.percentage
+                              ? ` (${invoice.discount.percentage}%)`
+                              : ""
+                          }`
+                        : "-"}
+                    </Text>
+                  )}
+                  {/* Updated Paid Cell */}
+                  <Text style={[styles.tableCol, colWidths.paid]}>
+                    {formatCurrencyPDF(paidColumnValue, false)}
+                  </Text>
+                  <Text style={[styles.tableCol, colWidths.unpaid]}>
+                    {formatCurrencyPDF(invoice.amountOwed, false)}
+                  </Text>
+                  <Text style={[styles.tableCol, colWidths.status]}>
+                    {invoice.paymentStatus || "N/A"}
+                  </Text>
+                </View>
+              );
+            })}
             {/* Table Footer - Dynamic Layout */}
             <View style={styles.tableFooter}>
-              {/* Apply dynamic width to label */}
+              {/* Updated Totals Label */}
               <Text style={[styles.footerTotalsLabel, footerLabelStyle]}>
-                Totals:
+                Totals (KES):
               </Text>
-              {/* Apply dynamic widths to values/status */}
+              {/* Order: Total(Pre), Discount?, Paid, Unpaid, Status */}
+              {/* Corrected Order and Formatting */}
               <Text style={[styles.footerTotalValue, colWidths.total]}>
-                {formatCurrencyPDF(totalAmount, true)}
+                {formatCurrencyPDF(totalPreDiscount, false)}
               </Text>
+              {hasDiscount && (
+                <Text style={[styles.footerTotalValue, colWidths.discount]}>
+                  {formatCurrencyPDF(totalDiscountAmount, false)}
+                </Text>
+              )}
               <Text style={[styles.footerTotalValue, colWidths.paid]}>
-                {/* Display the newly calculated totalPaid */}
-                {formatCurrencyPDF(totalPaid, true)}
+                {formatCurrencyPDF(totalPaidDisplay, false)}
               </Text>
               <Text style={[styles.footerTotalValue, colWidths.unpaid]}>
-                {formatCurrencyPDF(totalOwed, true)}
+                {formatCurrencyPDF(totalOwed, false)}
               </Text>
               <Text style={[styles.footerStatus, colWidths.status]}>
                 {isAnyUnpaid ? "Due" : ""}

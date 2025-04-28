@@ -20,6 +20,12 @@ type BankDetails = {
   accName: string | null;
 };
 
+// Define the structure for discount details
+type DiscountDetails = {
+  amount: number; // The calculated monetary discount amount
+  percentage?: number; // The original percentage, if applicable
+};
+
 // Define the structure of the returned data
 export type StatementData = {
   customerId: string;
@@ -32,8 +38,8 @@ export type StatementData = {
     invoiceDate: string | null; // Added Invoice Date (from delivery_date)
     poNumber: string | null; // Added PO Number
     branch: string | null; // Added Branch
-    total: number | null; // This will be order total + sum of POSITIVE revenues
-    discount: number | null; // Added Discount
+    total: number | null; // Changed: Now PRE-DISCOUNT total (base + charges)
+    discount: DiscountDetails | null; // Changed to object or null
     paymentStatus: string | null; // Status from orders_order table
     amountPaid: number; // Calculated from finance_revenue (negative values)
     amountOwed: number; // Calculated based on status: (total + positive revenues) - payments IF Partially Paid, OR total + positive revenues IF Unpaid, OR 0 IF Paid
@@ -108,7 +114,7 @@ export async function generateStatement(
     const { data: ordersData, error: ordersError } = await supabase
       .from("orders_order") // Use table name as string
       .select(
-        "id, user, order_number, po_number, branch, total, discount, payment_status, delivery_date" // Added branch
+        "id, user, order_number, po_number, branch, total, discount, discount_type, payment_status, delivery_date" // Added discount_type
       )
       .eq("user", customerId) // Changed from .in() to .eq()
       .gte("delivery_date", isoStartDate) // Use ISO string dates
@@ -117,7 +123,7 @@ export async function generateStatement(
 
     if (ordersError) throw ordersError;
 
-    // Map to expected structure (adjust column names as needed)
+    // Map to expected structure including discountType
     const orders = (ordersData || []).map((o: any) => ({
       id: o.id,
       customerId: o.user,
@@ -125,7 +131,8 @@ export async function generateStatement(
       poNumber: o.po_number, // Added po_number
       branch: o.branch, // Added branch
       total: o.total,
-      discount: o.discount, // Added discount
+      discountValue: o.discount, // Keep original value
+      discountType: o.discount_type, // Add discount type
       paymentStatus: o.payment_status,
       deliveryDate: o.delivery_date, // Added deliveryDate
     }));
@@ -185,7 +192,7 @@ export async function generateStatement(
       {} as Record<number, { charges: number; payments: number }> // Structure to hold both
     );
 
-    // 7. Structure the data (Adjusting calculations)
+    // 7. Structure the data (Adjusting calculations for discount type)
     const customerOrders = orders;
     const result: StatementData = {
       customerId: customerProfile.id,
@@ -209,24 +216,52 @@ export async function generateStatement(
         // Calculate the effective total including positive revenues/charges
         const effectiveTotal = baseTotal + additionalCharges;
 
-        // Calculate amount owed based on payment status
+        // --- Apply Discount Conditionally ---
+        let discountAmount = 0;
+        let discountDetails: DiscountDetails | null = null; // Initialize as null
+        const discountValue =
+          typeof order.discountValue === "number" && order.discountValue > 0
+            ? order.discountValue
+            : 0;
+
+        if (discountValue > 0) {
+          if (order.discountType === "Percentage") {
+            discountAmount = (effectiveTotal * discountValue) / 100;
+            discountDetails = {
+              amount: discountAmount,
+              percentage: discountValue, // Store the percentage
+            };
+          } else if (order.discountType === "Amount") {
+            discountAmount = discountValue;
+            discountDetails = {
+              amount: discountAmount, // Store the amount, no percentage
+            };
+          } else {
+            // Default or unknown type, treat as no discount
+            discountAmount = 0;
+            discountDetails = null; // Or { amount: 0 } if you prefer
+          }
+        } else {
+          discountDetails = null; // Explicitly null if no discount value
+        }
+
+        // Calculate the total AFTER discount for owed calculation
+        const discountedTotal = effectiveTotal - discountAmount;
+        // --- End Apply Discount ---
+
+        // Calculate amount owed based on payment status AND discounted total
         let calculatedAmountOwed = 0;
         if (order.paymentStatus === "Unpaid") {
-          // If status is Unpaid, the full effective total is owed.
-          calculatedAmountOwed = effectiveTotal;
+          // If status is Unpaid, the full discounted total is owed.
+          calculatedAmountOwed = discountedTotal;
         } else if (order.paymentStatus === "Partially Paid") {
-          // If status is Partially Paid, the difference is owed.
-          calculatedAmountOwed = effectiveTotal - amountPaid;
+          // If status is Partially Paid, the difference from the discounted total is owed.
+          calculatedAmountOwed = discountedTotal - amountPaid;
         }
         // If status is 'Paid' or anything else, amount owed remains 0.
 
         // Ensure amount owed isn't negative (e.g., due to overpayment or data issues)
         calculatedAmountOwed = Math.max(0, calculatedAmountOwed);
-
-        const discount =
-          typeof order.discount === "number"
-            ? order.discount
-            : parseFloat(order.discount || "0");
 
         return {
           invoiceId: order.id,
@@ -234,11 +269,11 @@ export async function generateStatement(
           invoiceDate: order.deliveryDate,
           poNumber: order.poNumber,
           branch: order.branch,
-          total: effectiveTotal === 0 ? null : effectiveTotal,
-          discount: isNaN(discount) ? null : discount,
+          total: effectiveTotal === 0 ? null : effectiveTotal, // Return PRE-DISCOUNT total
+          discount: discountDetails, // Assign the object or null
           paymentStatus: order.paymentStatus,
-          amountPaid: amountPaid,
-          // Use the amount owed calculated based on status
+          amountPaid: amountPaid, // Actual amount paid remains the same
+          // Use the amount owed calculated based on status and discounted total
           amountOwed: calculatedAmountOwed,
         };
       }),

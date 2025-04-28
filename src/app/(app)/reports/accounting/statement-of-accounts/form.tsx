@@ -126,29 +126,41 @@ export default function StatementForm({ customers }: StatementFormProps) {
 
   // Helper function to calculate totals and check for optional columns/status
   const getStatementInfo = (invoices: StatementData["invoices"]) => {
-    let totalAmount = 0;
-    let totalPaid = 0; // This will now sum totals of 'Paid' invoices
+    let totalPreDiscount = 0;
+    let totalDiscountAmount = 0;
+    let totalPaidDisplay = 0; // Total for the 'Paid' column display logic
     let totalOwed = 0;
     let hasDiscount = false;
     let hasBranch = false;
+    let hasPO = false;
     let isAnyUnpaid = false;
 
     invoices.forEach((invoice) => {
-      const invoiceTotal = invoice.total ?? 0;
-      totalAmount += invoiceTotal;
-      // totalPaid += invoice.amountPaid; // OLD LOGIC
+      const invoicePreDiscountTotal = invoice.total ?? 0;
+      const discountAmount = invoice.discount?.amount ?? 0;
+      const discountedTotal = invoicePreDiscountTotal - discountAmount;
+
+      totalPreDiscount += invoicePreDiscountTotal;
       totalOwed += invoice.amountOwed;
 
-      // NEW LOGIC: Sum totals only if status is 'Paid'
+      // Calculate value for 'Paid' column display
+      let paidColumnValue = 0;
       if (invoice.paymentStatus === "Paid") {
-        totalPaid += invoiceTotal;
+        paidColumnValue = discountedTotal; // Show discounted total if paid
+      } else {
+        paidColumnValue = invoice.amountPaid; // Show actual amount paid otherwise
       }
+      totalPaidDisplay += paidColumnValue; // Sum the displayed paid values
 
-      if (invoice.discount && invoice.discount > 0) {
+      if (invoice.discount && invoice.discount.amount > 0) {
         hasDiscount = true;
+        totalDiscountAmount += invoice.discount.amount;
       }
       if (invoice.branch) {
         hasBranch = true;
+      }
+      if (invoice.poNumber) {
+        hasPO = true;
       }
       if (invoice.amountOwed > 0) {
         isAnyUnpaid = true;
@@ -156,11 +168,13 @@ export default function StatementForm({ customers }: StatementFormProps) {
     });
 
     return {
-      totalAmount,
-      totalPaid, // Now represents sum of totals for 'Paid' invoices
+      totalPreDiscount,
+      totalDiscountAmount,
+      totalPaidDisplay, // Use this for the footer 'Paid' total
       totalOwed,
       hasDiscount,
       hasBranch,
+      hasPO,
       isAnyUnpaid,
     };
   };
@@ -393,17 +407,20 @@ export default function StatementForm({ customers }: StatementFormProps) {
           <div className="rounded-lg border bg-white p-6 shadow-md dark:border-gray-700 dark:bg-gray-900">
             {statementData.map((statement: any) => {
               const {
-                totalAmount,
-                totalPaid,
+                totalPreDiscount, // Use updated name
+                totalDiscountAmount,
+                totalPaidDisplay, // Get the calculated total for display
                 totalOwed,
                 hasDiscount,
                 hasBranch,
+                hasPO, // Get hasPO
                 isAnyUnpaid,
               } = getStatementInfo(statement.invoices);
 
-              let footerColSpan = 3;
-              if (hasBranch) footerColSpan++;
-              if (hasDiscount) footerColSpan++;
+              // Adjust colspan calculation for label (stops before Total column)
+              let footerLabelColSpan = 2; // Base: Invoice#, Date
+              if (hasBranch) footerLabelColSpan++;
+              if (hasPO) footerLabelColSpan++; // Use hasPO here
 
               return (
                 // Added dark mode text color
@@ -467,30 +484,33 @@ export default function StatementForm({ customers }: StatementFormProps) {
                       <thead>
                         {/* Updated theme color for border */}
                         <tr className="border-b bg-muted/50 dark:border-gray-700 dark:bg-gray-800/50">
+                          {/* Order: Branch?, Invoice#, Date, PO# */}
                           {hasBranch && (
-                            // Added dark mode classes
                             <th className="px-3 py-2 text-left font-medium text-muted-foreground dark:text-gray-400">
                               Affiliate
                             </th>
                           )}
-                          {/* Added dark mode classes to other th elements */}
                           <th className="px-3 py-2 text-left font-medium text-muted-foreground dark:text-gray-400">
                             Invoice #
                           </th>
                           <th className="px-3 py-2 text-left font-medium text-muted-foreground dark:text-gray-400">
                             Invoice Date
                           </th>
-                          <th className="px-3 py-2 text-left font-medium text-muted-foreground dark:text-gray-400">
-                            PO Number
+                          {/* Conditionally render PO Header based on hasPO */}
+                          {hasPO && (
+                            <th className="px-3 py-2 text-left font-medium text-muted-foreground dark:text-gray-400">
+                              PO Number
+                            </th>
+                          )}
+                          {/* Order: Total, Discount?, Paid, Unpaid, Status */}
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground dark:text-gray-400">
+                            Total {/* (Pre-Discount) */}
                           </th>
                           {hasDiscount && (
                             <th className="px-3 py-2 text-right font-medium text-muted-foreground dark:text-gray-400">
-                              Discount (%)
+                              Discount
                             </th>
                           )}
-                          <th className="px-3 py-2 text-right font-medium text-muted-foreground dark:text-gray-400">
-                            Total
-                          </th>
                           <th className="px-3 py-2 text-right font-medium text-muted-foreground dark:text-gray-400">
                             Paid
                           </th>
@@ -503,78 +523,103 @@ export default function StatementForm({ customers }: StatementFormProps) {
                         </tr>
                       </thead>
                       <tbody>
-                        {statement.invoices.map((invoice: any, index: any) => (
-                          // Added dark mode classes for rows and zebra striping
-                          <tr
-                            key={invoice.invoiceId}
-                            className={cn(
-                              "border-b dark:border-gray-700",
-                              index % 2 !== 0 &&
-                                "bg-muted/20 dark:bg-gray-800/30" // Darker zebra stripe
-                            )}
-                          >
-                            {/* ... table cells ... */}
-                            {/* Example for one cell, apply similar dark:text-gray-300 to others */}
-                            {hasBranch && (
-                              <td className="px-3 py-2 dark:text-gray-300">
-                                {invoice.branch || "-"}
-                              </td>
-                            )}
-                            <td className="px-3 py-2 dark:text-gray-300">
-                              {invoice.invoiceNumber}
-                            </td>
-                            <td className="px-3 py-2 dark:text-gray-300">
-                              {invoice.invoiceDate
-                                ? format(
-                                    new Date(invoice.invoiceDate),
-                                    "LLL dd, y"
-                                  )
-                                : "-"}
-                            </td>
-                            <td className="px-3 py-2 dark:text-gray-300">
-                              {invoice.poNumber || "-"}
-                            </td>
-                            {hasDiscount && (
-                              <td className="px-3 py-2 text-right dark:text-gray-300">
-                                {invoice.discount?.toFixed(2) ?? "N/A"}
-                              </td>
-                            )}
-                            <td className="px-3 py-2 text-right dark:text-gray-300">
-                              {formatCurrency(invoice.total, false)}
-                            </td>
-                            <td className="px-3 py-2 text-right dark:text-gray-300">
-                              {/* Conditionally display total if status is Paid */}
-                              {formatCurrency(
-                                invoice.paymentStatus === "Paid"
-                                  ? invoice.total // Show total if Paid
-                                  : invoice.amountPaid, // Otherwise show actual amount paid
-                                false
+                        {statement.invoices.map((invoice: any, index: any) => {
+                          // Calculate value for this row's 'Paid' cell
+                          const invoicePreDiscountTotal = invoice.total ?? 0;
+                          const discountAmount = invoice.discount?.amount ?? 0;
+                          const discountedTotal =
+                            invoicePreDiscountTotal - discountAmount;
+                          const paidColumnValue =
+                            invoice.paymentStatus === "Paid"
+                              ? discountedTotal // Show discounted total if paid
+                              : invoice.amountPaid; // Show actual amount paid otherwise
+
+                          return (
+                            // Added dark mode classes for rows and zebra striping
+                            <tr
+                              key={invoice.invoiceId}
+                              className={cn(
+                                "border-b dark:border-gray-700",
+                                index % 2 !== 0 &&
+                                  "bg-muted/20 dark:bg-gray-800/30" // Darker zebra stripe
                               )}
-                            </td>
-                            <td className="px-3 py-2 text-right dark:text-gray-300">
-                              {formatCurrency(invoice.amountOwed, false)}
-                            </td>
-                            <td className="px-3 py-2 dark:text-gray-300">
-                              {invoice.paymentStatus}
-                            </td>
-                          </tr>
-                        ))}
+                            >
+                              {/* Order: Branch?, Invoice#, Date, PO# */}
+                              {hasBranch && (
+                                <td className="px-3 py-2 dark:text-gray-300">
+                                  {invoice.branch || "-"}
+                                </td>
+                              )}
+                              <td className="px-3 py-2 dark:text-gray-300">
+                                {invoice.invoiceNumber}
+                              </td>
+                              <td className="px-3 py-2 dark:text-gray-300">
+                                {invoice.invoiceDate
+                                  ? format(
+                                      new Date(invoice.invoiceDate),
+                                      "LLL dd, y"
+                                    )
+                                  : "-"}
+                              </td>
+                              {/* Conditionally render PO Cell based on hasPO */}
+                              {hasPO && (
+                                <td className="px-3 py-2 dark:text-gray-300">
+                                  {invoice.poNumber || "-"}
+                                </td>
+                              )}
+                              {/* Order: Total, Discount?, Paid, Unpaid, Status */}
+                              <td className="px-3 py-2 text-right dark:text-gray-300">
+                                {formatCurrency(invoice.total, false)}
+                              </td>
+                              {hasDiscount && (
+                                <td className="px-3 py-2 text-right dark:text-gray-300">
+                                  {invoice.discount
+                                    ? `${formatCurrency(
+                                        invoice.discount.amount,
+                                        false
+                                      )}${
+                                        invoice.discount.percentage
+                                          ? ` (${invoice.discount.percentage}%)`
+                                          : ""
+                                      }`
+                                    : "-"}
+                                </td>
+                              )}
+                              {/* Updated Paid Cell */}
+                              <td className="px-3 py-2 text-right dark:text-gray-300">
+                                {formatCurrency(paidColumnValue, false)}
+                              </td>
+                              <td className="px-3 py-2 text-right dark:text-gray-300">
+                                {formatCurrency(invoice.amountOwed, false)}
+                              </td>
+                              <td className="px-3 py-2 dark:text-gray-300">
+                                {invoice.paymentStatus}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                       <tfoot>
                         {/* Updated theme color for border */}
                         <tr className="border-t-2 border-green-500 font-semibold dark:border-green-400">
                           <td
-                            colSpan={footerColSpan}
+                            colSpan={footerLabelColSpan} // Adjusted colspan
                             className="px-3 py-2 text-right"
                           >
                             Totals:
                           </td>
+                          {/* Order: Total(Pre), Discount?, Paid, Unpaid, Status */}
                           <td className="px-3 py-2 text-right">
-                            {formatCurrency(totalAmount, true)}
+                            {formatCurrency(totalPreDiscount, true)}
                           </td>
+                          {hasDiscount && (
+                            <td className="px-3 py-2 text-right">
+                              {formatCurrency(totalDiscountAmount, true)}
+                            </td>
+                          )}
+                          {/* Updated Footer Paid Cell */}
                           <td className="px-3 py-2 text-right">
-                            {/* Display the newly calculated totalPaid */}
-                            {formatCurrency(totalPaid, true)}
+                            {formatCurrency(totalPaidDisplay, true)}
                           </td>
                           <td className="px-3 py-2 text-right">
                             {formatCurrency(totalOwed, true)}

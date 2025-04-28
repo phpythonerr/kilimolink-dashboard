@@ -210,8 +210,7 @@ export default function Form({ products, items, order }: any) {
             <span>{index + 1}. </span>
           </TableCell>
           <TableCell>
-            {isWithinLastThreeDays(order?.delivery_date) ||
-            order?.allow_edit_beyond_deadline ? (
+            {isWithinLastThreeDays(order?.delivery_date) ? (
               <Popover
                 open={productPopoverOpenStates[index]}
                 onOpenChange={(open) => handleOpenChange(index, open)}
@@ -339,8 +338,7 @@ export default function Form({ products, items, order }: any) {
             )}
           </TableCell>
           <TableCell>
-            {isWithinLastThreeDays(order?.delivery_date) ||
-            order?.allow_edit_beyond_deadline ? (
+            {isWithinLastThreeDays(order?.delivery_date) ? (
               <Input
                 type="text"
                 disabled={item?.id === "no_item"}
@@ -383,8 +381,7 @@ export default function Form({ products, items, order }: any) {
             )}
           </TableCell>
           <TableCell>
-            {isWithinLastThreeDays(order?.delivery_date) ||
-            order?.allow_edit_beyond_deadline ? (
+            {isWithinLastThreeDays(order?.delivery_date) ? (
               <Select
                 disabled={item?.id === "no_item"}
                 onValueChange={async (value: string) => {
@@ -424,8 +421,7 @@ export default function Form({ products, items, order }: any) {
             )}
           </TableCell>
           <TableCell>
-            {isWithinLastThreeDays(order?.delivery_date) ||
-            order?.allow_edit_beyond_deadline ? (
+            {isWithinLastThreeDays(order?.delivery_date) ? (
               <Input
                 type="text"
                 disabled={item?.id === "no_item"}
@@ -468,8 +464,7 @@ export default function Form({ products, items, order }: any) {
             )}
           </TableCell>
           <TableCell>
-            {isWithinLastThreeDays(order?.delivery_date) ||
-            order?.allow_edit_beyond_deadline ? (
+            {isWithinLastThreeDays(order?.delivery_date) ? (
               <Input
                 type="text"
                 disabled={item?.id === "no_item"}
@@ -523,8 +518,7 @@ export default function Form({ products, items, order }: any) {
           <TableCell className="text-xs">
             {calculateTotals(item).margin}
           </TableCell>
-          {isWithinLastThreeDays(order?.delivery_date) ||
-          order?.allow_edit_beyond_deadline ? (
+          {isWithinLastThreeDays(order?.delivery_date) ? (
             item.loading ? (
               <TableCell
                 colSpan={9}
@@ -557,16 +551,15 @@ export default function Form({ products, items, order }: any) {
           )}
         </TableRow>
       ))}
-      {isWithinLastThreeDays(order?.delivery_date) ||
-        (order?.allow_edit_beyond_deadline && (
-          <TableRow>
-            <TableCell colSpan={9}>
-              <Button type="button" onClick={addItemRow} variant="outline">
-                Add Product
-              </Button>
-            </TableCell>
-          </TableRow>
-        ))}
+      {isWithinLastThreeDays(order?.delivery_date) && (
+        <TableRow>
+          <TableCell colSpan={9}>
+            <Button type="button" onClick={addItemRow} variant="outline">
+              Add Product
+            </Button>
+          </TableCell>
+        </TableRow>
+      )}
     </TableBody>
   );
 }
