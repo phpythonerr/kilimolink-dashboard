@@ -233,7 +233,7 @@ export function ActionButton({
             }}
           >
             <FileText className="h-4 w-4 mr-2" />
-            <span>Add Credit Note / Discount</span>
+            <span>Add Credit Note</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -241,10 +241,10 @@ export function ActionButton({
       {/* Dialog Content */}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Credit Note / Discount</DialogTitle>
+          <DialogTitle>Add Credit Note</DialogTitle>
           <DialogDescription>
-            Apply a credit note or discount to order #{order_number}. Max
-            Amount: KES {orderTotal.toFixed(2)}.
+            Apply a credit note to order #{order_number}. Max Amount: KES{" "}
+            {orderTotal.toFixed(2)}.
           </DialogDescription>
         </DialogHeader>
         {/* Form using react-hook-form */}
