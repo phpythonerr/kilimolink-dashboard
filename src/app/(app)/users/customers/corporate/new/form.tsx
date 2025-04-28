@@ -120,7 +120,7 @@ export default function CustomerForm({
         // Handle field-specific errors if returned from action
         if (result && result.errors) {
           Object.entries(result.errors).forEach(([field, messages]) => {
-            if (messages && messages.length > 0) {
+            if (messages) {
               form.setError(field as keyof CustomerFormData, {
                 type: "server",
                 message: messages.join(", "),
