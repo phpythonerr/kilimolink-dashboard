@@ -86,6 +86,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     color: "#9ca3af",
   },
+
+  watermark: {
+    position: "absolute",
+    top: "35%", // Adjust vertical position
+    left: "30%", // Adjust horizontal position
+    width: 300, // Set desired width for the watermark image
+    height: 300, // Set desired height (or let it scale based on width)
+    opacity: 0.08, // Adjust opacity
+    zIndex: -1, // Ensure it's behind other content
+    // Removed text-specific styles (fontSize, color, transform, fontFamily, fontWeight)
+  },
 });
 
 export default function Invoice({
@@ -105,6 +116,11 @@ export default function Invoice({
       subject={`Invoice # ${order_number}`}
     >
       <Page size="A4" style={styles.body} wrap>
+        {/* <Image
+          style={styles.watermark}
+          src={`${baseUrl}/img/logo/kilimolink-logo-symbol.png`} // Use absolute URL
+          fixed
+        /> */}
         <View>
           <View style={styles.pageHeader}>
             <View>

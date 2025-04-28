@@ -106,6 +106,7 @@ const styles = StyleSheet.create({
     paddingRight: 40,
     paddingBottom: 50, // Add more bottom padding for page number
     color: "#333",
+    position: "relative", // Needed for absolute positioning of children
   },
   // Header Section
   header: {
@@ -283,6 +284,18 @@ const styles = StyleSheet.create({
     fontFamily: "Geist Sans", // Apply font to footer
   },
   // --- End Table Styles ---
+
+  // Watermark Style (Updated for Image)
+  watermark: {
+    position: "absolute",
+    top: "35%", // Adjust vertical position
+    left: "30%", // Adjust horizontal position
+    width: 300, // Set desired width for the watermark image
+    height: 300, // Set desired height (or let it scale based on width)
+    opacity: 0.08, // Adjust opacity
+    zIndex: -1, // Ensure it's behind other content
+    // Removed text-specific styles (fontSize, color, transform, fontFamily, fontWeight)
+  },
 });
 
 interface StatementPDFProps {
@@ -344,6 +357,13 @@ const StatementPDF: React.FC<StatementPDFProps> = ({
   return (
     <Document title={`Statement-${statement.customerName}-${dateRange}`}>
       <Page size="A4" style={styles.page}>
+        {/* Watermark Image - Place early or use zIndex */}
+        {/* <Image
+          style={styles.watermark}
+          src={`${baseUrl}/img/logo/kilimolink-logo-symbol.png`} // Use absolute URL
+          fixed
+        /> */}
+
         {/* Fixed View for Page Numbers */}
         <Text
           style={styles.pageNumber}
