@@ -161,6 +161,10 @@ export const PERMISSION_MAP = {
     permissions: ["reports.accounting.balance-sheet.view"],
     redirectPath: "/unauthorized",
   },
+  "/reports/accounting/statement-of-accounts": {
+    permissions: ["reports.accounting.statements.view"],
+    redirectPath: "/unauthorized",
+  },
   "/reports/products": {
     permissions: ["reports.products.view"],
     redirectPath: "/unauthorized",
