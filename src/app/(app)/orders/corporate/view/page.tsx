@@ -98,6 +98,7 @@ export default async function Page({ searchParams }: any) {
           items={items}
           revenue={revenue}
           bankAccount={bankAccount}
+          orderTotal={order?.total || 0}
         />
       </div>
       <Tabs defaultValue="details" className="w-[350px]">
