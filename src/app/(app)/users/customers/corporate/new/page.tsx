@@ -91,7 +91,7 @@ export default async function NewCorporateCustomerPage() {
             Fill in the details below to add a new corporate customer.
           </p>
         </div>
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<div>Loading...</div>}>
           <Form
             priceLists={priceLists}
             bankAccounts={bankAccounts}
