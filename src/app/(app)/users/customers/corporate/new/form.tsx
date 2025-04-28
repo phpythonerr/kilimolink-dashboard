@@ -123,7 +123,7 @@ export default function CustomerForm({
             if (messages) {
               form.setError(field as keyof CustomerFormData, {
                 type: "server",
-                message: messages.join(", "),
+                message: JSON.stringify(messages),
               });
             }
           });
