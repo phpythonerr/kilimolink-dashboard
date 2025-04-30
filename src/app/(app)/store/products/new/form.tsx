@@ -39,6 +39,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { toast } from "sonner";
 
 // Helper function to generate cropped image (you might want to move this to a utils file)
 async function getCroppedImg(
@@ -355,8 +356,15 @@ export default function ProductForm({
       if (croppedFile) {
         // Update the form state with the cropped file
         setValue("image", croppedFile as any, { shouldValidate: true });
+
+        // Create a new object URL for the cropped image to display
         const previewUrl = URL.createObjectURL(croppedFile);
         setCroppedImagePreview(previewUrl);
+
+        // Revoke any previous object URL to prevent memory leaks
+        if (croppedImagePreview) {
+          URL.revokeObjectURL(croppedImagePreview);
+        }
       } else {
         console.error("Failed to crop image.");
         // Use our safe placeholder instead of null/undefined
@@ -388,7 +396,7 @@ export default function ProductForm({
     if (data.image instanceof File) {
       formData.append("image", data.image);
     } else {
-      console.error("Invalid image file");
+      toast.error("Invalid image file");
       return; // Return early to prevent submission with invalid image
     }
     // Append defaultUom if it exists
@@ -407,17 +415,30 @@ export default function ProductForm({
     // Add sourcedFromFarmers to formData
     formData.append("sourcedFromFarmers", String(data.sourcedFromFarmers));
 
-    try {
-      console.log("Submitting Data:", data);
-      await createProduct(formData);
-      console.log("Product created successfully");
-      reset();
-      setCroppedImagePreview(null);
-      setImagePreview(null);
-      setOriginalFileName("");
-    } catch (error) {
-      console.error("Failed to create product:", error);
-    }
+    // Use toast.promise instead of try/catch
+    toast.promise(createProduct(formData), {
+      loading: "Creating product...",
+      success: (result) => {
+        // Reset form state
+        reset();
+        setCroppedImagePreview(null);
+        setImagePreview(null);
+        setOriginalFileName("");
+
+        // Redirect to the product view page
+        if (result?.productId) {
+          // Use a slight delay to ensure toast is visible before redirect
+          setTimeout(() => {
+            window.location.href = `/store/products/view?id=${result.productId}`;
+          }, 800);
+          return "Product created successfully! Redirecting...";
+        }
+        return "Product created successfully!";
+      },
+      error: (err) => {
+        return `Error: ${err.message || "Failed to create product"}`;
+      },
+    });
   };
 
   // Cleanup object URL
@@ -741,7 +762,7 @@ export default function ProductForm({
           </CardContent>
         </Card>
         {/* Submit Button */}
-        <div className="flex justify-end">
+        <div className="flex justify-start">
           <Button type="submit" disabled={isSubmitting} size="lg">
             {isSubmitting ? "Adding Product..." : "Add Product"}
           </Button>
