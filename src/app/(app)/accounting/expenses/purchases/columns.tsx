@@ -34,7 +34,7 @@ interface UserMetadata {
   firstName?: string;
   last_name?: string;
   lastName?: string;
-  location?: string;
+  location?: any;
 }
 
 interface User {
@@ -108,8 +108,36 @@ export const columns: ColumnDef<PurchasesInterface>[] = [
     header: "Location",
     cell: ({ row }) => {
       const { user_obj: user } = row.original;
+      const location = user?.user_metadata?.location;
 
-      return user?.user_metadata?.location;
+      // Check if location is null, undefined, or an actual object
+      if (
+        location === null ||
+        location === undefined ||
+        (typeof location === "object" && location !== null)
+      ) {
+        return "-";
+      }
+
+      // Check if location is a string that looks like a JSON object
+      if (typeof location === "string") {
+        const trimmedLocation = location.trim();
+        if (trimmedLocation.startsWith("{") && trimmedLocation.endsWith("}")) {
+          // Attempt to parse to be sure, though startsWith/endsWith might be sufficient
+          try {
+            JSON.parse(trimmedLocation);
+            return "-"; // It's a stringified object
+          } catch (e) {
+            // It's not valid JSON, but still looks like an object string, treat as invalid
+            return "-";
+          }
+        }
+        // It's a regular string, display it
+        return location;
+      }
+
+      // Fallback for unexpected types (though should be covered above)
+      return "-";
     },
   },
   {
