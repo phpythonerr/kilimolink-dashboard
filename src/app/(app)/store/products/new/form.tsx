@@ -698,7 +698,7 @@ export default function ProductForm({
                           />
                           {errors.prices?.[pricelist.id]?.[uomId] && (
                             <p className="text-sm text-red-500">
-                              {errors.prices[pricelist.id][uomId]?.message}
+                              {errors.prices?.[pricelist.id]?.[uomId]?.message}
                             </p>
                           )}
                         </div>
