@@ -352,7 +352,7 @@ export default function ProductForm({
         setCroppedImagePreview(previewUrl);
       } else {e.error("Failed to crop image.");
         // Handle error if cropping failed (e.g., show message)
-        console.error("Failed to crop image.");e've adjusted our schema
+        console.error("Failed to crop image.");
         // Clear potentially invalid image statealidate: true });
         setValue("image", undefined, { shouldValidate: true });
         setCroppedImagePreview(null);
