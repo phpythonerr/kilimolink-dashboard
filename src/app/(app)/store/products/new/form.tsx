@@ -127,7 +127,7 @@ const getUomLabel = (uomId: string): string => {
   return uom ? uom.label : uomId;
 };
 
-// Update Zod schema to include pricing
+// Update Zod schema to include defaultPrice
 const productSchema = z
   .object({
     name: z.string().min(1, "Product name is required"),
@@ -140,6 +140,11 @@ const productSchema = z
       message: "You have to select at least one UOM.",
     }),
     defaultUom: z.string().optional(), // Add optional defaultUom
+    // Add default price field
+    defaultPrice: z.preprocess(
+      (val) => (val === "" ? undefined : Number(val)),
+      z.number().min(0, "Default price must be positive").optional()
+    ),
     // Add prices field - a nested record structure
     prices: z
       .record(
@@ -232,6 +237,7 @@ export default function ProductForm({
       image: undefined, // Initialize image as undefined
       uoms: [], // Initialize uoms as an empty array
       defaultUom: "", // Initialize defaultUom
+      defaultPrice: undefined, // Add default price
       prices: {}, // Initialize empty prices object
       sourcedFromFarmers: false, // Add the default value for sourcedFromFarmers
     },
@@ -373,6 +379,11 @@ export default function ProductForm({
     // Append defaultUom if it exists
     if (data.defaultUom) {
       formData.append("defaultUom", data.defaultUom);
+    }
+
+    // Add defaultPrice to formData if it exists
+    if (data.defaultPrice !== undefined) {
+      formData.append("defaultPrice", data.defaultPrice.toString());
     }
 
     // Add prices to formData if they exist
@@ -609,6 +620,39 @@ export default function ProductForm({
                 {errors.defaultUom && (
                   <p className="mt-1 text-sm text-red-500">
                     {errors.defaultUom.message}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Default Price Card - Only show if a default UOM is selected */}
+        {getValues("defaultUom") && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Default Price</CardTitle>
+              <CardDescription>
+                Enter the default selling price for this product in your base
+                currency
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-2">
+                <Label htmlFor="defaultPrice">
+                  Default Price ({getUomLabel(getValues("defaultUom") || "")})
+                </Label>
+                <Input
+                  id="defaultPrice"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  {...register("defaultPrice")}
+                />
+                {errors.defaultPrice && (
+                  <p className="text-sm text-red-500">
+                    {errors.defaultPrice.message}
                   </p>
                 )}
               </div>
