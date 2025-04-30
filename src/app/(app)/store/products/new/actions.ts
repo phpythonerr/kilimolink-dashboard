@@ -33,7 +33,7 @@ export async function createProduct(formData: FormData) {
     : {};
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // 1. Upload image to Supabase Storage
     const fileName = `${Date.now()}-${image.name}`;
