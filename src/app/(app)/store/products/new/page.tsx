@@ -57,7 +57,7 @@ export default async function NewProductPage() {
             </p>{" "}
             {/* Updated text */}
           </div>
-          <Suspense fallback={<Loading />}>
+          <Suspense fallback={<div>Loading...</div>}>
             {" "}
             {/* Use Loading component */}
             {/* Pass fetched categories and pricelists to the form */}

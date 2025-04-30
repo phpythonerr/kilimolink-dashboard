@@ -80,7 +80,7 @@ export async function createProduct(formData: FormData) {
     // 3. Insert price list prices
     if (Object.keys(prices).length > 0) {
       const priceListEntries = Object.entries(prices).map(
-        ([pricelistId, uomPrices]) => {
+        ([pricelistId, uomPrices]: any) => {
           // Get the default UOM price for this pricelist
           const defaultUomPrice = uomPrices[defaultUom] || defaultPrice;
 
@@ -90,7 +90,7 @@ export async function createProduct(formData: FormData) {
               ([uomId]) =>
                 uomId !== defaultUom && uomPrices[uomId] !== undefined
             )
-            .map(([uomId, price]) => ({
+            .map(([uomId, price]: any) => ({
               uom: uomId,
               price: price.toString(),
             }));

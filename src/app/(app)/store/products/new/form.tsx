@@ -478,7 +478,7 @@ export default function ProductForm({
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                       <SelectContent>
-                        {categories.map((category) => (
+                        {categories.map((category: any) => (
                           <SelectItem key={category.id} value={category.id}>
                             {category.name}
                           </SelectItem>
@@ -555,7 +555,7 @@ export default function ProductForm({
               render={({ field }) => (
                 // Use gap for checkbox grid - border already provided by Card
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                  {uomOptions.map((item) => (
+                  {uomOptions.map((item: any) => (
                     <div key={item.id} className="flex items-center gap-2">
                       <Checkbox
                         id={`uom-${item.id}`}
@@ -615,7 +615,7 @@ export default function ProductForm({
                         <SelectValue placeholder="Select default UOM" />
                       </SelectTrigger>
                       <SelectContent>
-                        {availableDefaultUoms.map((uom) => (
+                        {availableDefaultUoms.map((uom: any) => (
                           <SelectItem key={uom.id} value={uom.id}>
                             {uom.label}
                           </SelectItem>
@@ -676,11 +676,11 @@ export default function ProductForm({
             </CardHeader>
             <CardContent>
               <div className="space-y-8">
-                {pricelists.map((pricelist) => (
+                {pricelists.map((pricelist: any) => (
                   <div key={pricelist.id} className="space-y-4">
                     <h3 className="font-medium text-lg">{pricelist.name}</h3>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                      {selectedUoms.map((uomId) => (
+                      {selectedUoms.map((uomId: any) => (
                         <div
                           key={`${pricelist.id}-${uomId}`}
                           className="flex flex-col gap-2"
