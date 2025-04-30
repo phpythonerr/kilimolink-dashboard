@@ -347,366 +347,349 @@ export default function ProductForm({
       if (croppedFile) {
         // Update the form state with the cropped file
         setValue("image", croppedFile, { shouldValidate: true }); // Set and validate
-        // Generate a preview URL for the cropped imageile);
+        // Generate a preview URL for the cropped image
         const previewUrl = URL.createObjectURL(croppedFile);
         setCroppedImagePreview(previewUrl);
-      } else {e.error("Failed to crop image.");
-        // Handle error if cropping failed (e.g., show message)
+      } else {
         console.error("Failed to crop image.");
-        // Clear potentially invalid image statealidate: true });
+        // Handle error if cropping failed (e.g., show message)
         setValue("image", undefined, { shouldValidate: true });
         setCroppedImagePreview(null);
-      }lse {
-    } else {e.error("Cannot save crop: Missing image preview or crop dimensions.");
-      console.error(assertion to bypass TypeScript checking
+      }
+    } else {
+      console.error(
         "Cannot save crop: Missing image preview or crop dimensions."
-      );tCroppedImagePreview(null);
+      );
       // Clear potentially invalid image state
       setValue("image", undefined, { shouldValidate: true });
       setCroppedImagePreview(null);
     }
     setIsCropperOpen(false); // Close dialog regardless of success/failure
-  };setIsCropperOpen(false);
-    setImagePreview(null); // Clear original preview if cancelled
-  const handleCancelCrop = () => {view here, keep the last successful crop if any
-    setIsCropperOpen(false);value either, unless explicitly desired
+  };
+
+  const handleCancelCrop = () => {
+    setIsCropperOpen(false);
     setImagePreview(null); // Clear original preview if cancelled
     // Don't clear croppedImagePreview here, keep the last successful crop if any
-    // Don't clear the form value either, unless explicitly desired{
-  };const formData = new FormData();
-    formData.append("name", data.name);
+    // Don't clear the form value either, unless explicitly desired
+  };
+
   const onSubmit: SubmitHandler<ProductFormData> = async (data) => {
     const formData = new FormData();
-    formData.append("name", data.name);age exists before appending
+    formData.append("name", data.name);
     formData.append("categoryId", data.categoryId);
-      formData.append("image", data.image);
     // Fix type error by checking if image exists before appending
-    if (data.image instanceof File) {le");
-      formData.append("image", data.image);bmission with invalid image
+    if (data.image instanceof File) {
+      formData.append("image", data.image);
     } else {
       console.error("Invalid image file");
       return; // Return early to prevent submission with invalid image
     }
     // Append defaultUom if it exists
     formData.append("uoms", JSON.stringify(data.uoms));
-      formData.append("defaultUom", data.defaultUom);
-    // Append defaultUom if it exists
     if (data.defaultUom) {
       formData.append("defaultUom", data.defaultUom);
-    }f (data.defaultPrice !== undefined) {
-      formData.append("defaultPrice", data.defaultPrice.toString());
+    }
     // Add defaultPrice to formData if it exists
     if (data.defaultPrice !== undefined) {
       formData.append("defaultPrice", data.defaultPrice.toString());
-    }f (data.prices && Object.keys(data.prices).length > 0) {
-      formData.append("prices", JSON.stringify(data.prices));
+    }
     // Add prices to formData if they exist
     if (data.prices && Object.keys(data.prices).length > 0) {
       formData.append("prices", JSON.stringify(data.prices));
-    }ormData.append("sourcedFromFarmers", String(data.sourcedFromFarmers));
-
-    // Add sourcedFromFarmers to formData;
+    }
+    // Add sourcedFromFarmers to formData
     formData.append("sourcedFromFarmers", String(data.sourcedFromFarmers));
+
     try {
-    console.log("Submitting Data:", data);
-      console.log("Product created successfully");
-    try {et();
+      console.log("Submitting Data:", data);
       await createProduct(formData);
       console.log("Product created successfully");
-      reset();nalFileName("");
+      reset();
       setCroppedImagePreview(null);
-      setImagePreview(null);to create product:", error);
+      setImagePreview(null);
       setOriginalFileName("");
     } catch (error) {
       console.error("Failed to create product:", error);
-    }Cleanup object URL
-  };eEffect(() => {
-    const currentPreview = croppedImagePreview;
+    }
+  };
+
   // Cleanup object URL
-  useEffect(() => {eview) {
+  useEffect(() => {
     const currentPreview = croppedImagePreview;
     return () => {
       if (currentPreview) {
         URL.revokeObjectURL(currentPreview);
       }
-    };ptional: Watch UOMs for debugging
-  }, [croppedImagePreview]);tch("uoms");
-  // useEffect(() => {
-  // Optional: Watch UOMs for debugginglectedUoms);
+    };
+  }, [croppedImagePreview]);
+
+  // Optional: Watch UOMs for debugging
   // const selectedUoms = watch("uoms");
   // useEffect(() => {
   //   console.log("Selected UOMs:", selectedUoms);
-  // }, [selectedUoms]);ontainer and center it
+  // }, [selectedUoms]);
+
+  return (
+    // Add a max-width container and center it
     <div className="p-4">
-  return (Main form container */}
-    // Add a max-width container and center itclassName="space-y-8">
-    <div className="p-4">lumns with different proportions */}
-      {/* Main form container */}-cols-1 gap-8 lg:grid-cols-3">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">eens */}
+      {/* Main form container */}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Top Row: 2 columns with different proportions */}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Product Details Card - Takes 2/3 of width on large screens */}
           <Card className="lg:col-span-2">
-            <CardHeader>e name and category for the new product.
+            <CardHeader>
               <CardTitle>Product Details</CardTitle>
               <CardDescription>
                 Enter the name and category for the new product.
-              </CardDescription>ection */}
-            </CardHeader>ame="grid gap-2">
-            <CardContent className="grid gap-6">me</Label>
-              {/* Product Name Section */}ter("name")} />
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-6">
+              {/* Product Name Section */}
               <div className="grid gap-2">
-                <Label htmlFor="name">Product Name</Label>ors.name.message}</p>
+                <Label htmlFor="name">Product Name</Label>
                 <Input id="name" {...register("name")} />
                 {errors.name && (
                   <p className="text-sm text-red-500">{errors.name.message}</p>
-                )} className="grid gap-2">
-              </div>el htmlFor="category">Category</Label>
+                )}
+              </div>
               {/* Category Section */}
               <div className="grid gap-2">
                 <Label htmlFor="category">Category</Label>
-                <Controller{ field }) => (
+                <Controller
                   name="categoryId"
-                  control={control}={(value) => {
-                  render={({ field }) => (ue);
-                    <Selectgger("categoryId");
+                  control={control}
+                  render={({ field }) => (
+                    <Select
                       onValueChange={(value) => {
                         field.onChange(value);
-                        trigger("categoryId");e}
+                        trigger("categoryId");
                       }}
-                      value={field.value}category" className="w-full">
-                      defaultValue={field.value}="Select a category" />
-                    > </SelectTrigger>
+                      value={field.value}
+                    >
                       <SelectTrigger id="category" className="w-full">
                         <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>key={category.id} value={category.id}>
-                      <SelectContent>.name}
+                      </SelectTrigger>
+                      <SelectContent>
                         {categories.map((category) => (
                           <SelectItem key={category.id} value={category.id}>
                             {category.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
-                    </Select>oryId && (
-                  )} className="text-sm text-red-500">
-                />  {errors.categoryId.message}
+                    </Select>
+                  )}
+                />
                 {errors.categoryId && (
                   <p className="text-sm text-red-500">
                     {errors.categoryId.message}
-                  </p>ent>
+                  </p>
                 )}
               </div>
-            </CardContent> Card - Takes 1/3 of width and has a more compact design */}
-          </Card>lassName="lg:col-span-1">
-            <CardHeader className="pb-2">
+            </CardContent>
+          </Card>
           {/* Image Upload Card - Takes 1/3 of width and has a more compact design */}
           <Card className="lg:col-span-1">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Product Image</CardTitle>
-            </CardHeader>="overflow-hidden cursor-pointer rounded-md border hover:border-primary"
-            <CardContent className="">utRef.current?.click()}
+            </CardHeader>
+            <CardContent className="">
               <div
                 className="overflow-hidden cursor-pointer rounded-md border hover:border-primary"
                 onClick={() => fileInputRef.current?.click()}
-              >   <AspectRatio ratio={ASPECT_RATIO} className="bg-muted">
+              >
                 {/* Make the AspectRatio component smaller with a max width */}
                 <div className="max-w-[220px] mx-auto">
                   <AspectRatio ratio={ASPECT_RATIO} className="bg-muted">
-                    {croppedImagePreview ? ( preview"
-                      <imgassName="object-cover w-full h-full"
+                    {croppedImagePreview ? (
+                      <img
                         src={croppedImagePreview}
                         alt="Cropped product preview"
-                        className="object-cover w-full h-full"er justify-center h-full text-muted-foreground">
-                      /><Upload className="h-8 w-8" />
-                    ) : (span className="mt-1 text-xs">Click to upload</span>
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
                       <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                         <Upload className="h-8 w-8" />
                         <span className="mt-1 text-xs">Click to upload</span>
                       </div>
                     )}
                   </AspectRatio>
-                </div>ileInputRef}
-              </div>image-upload"
-              <Input="image-upload"
+                </div>
+              </div>
+              <Input
                 ref={fileInputRef}
                 id="image-upload"
-                name="image-upload"eChange}
-                type="file"hidden"
+                name="image-upload"
+                type="file"
                 accept="image/*"
                 onChange={handleFileChange}
-                className="hidden" text-sm text-red-500">
-              />  {errors.image.message}
+                className="hidden"
+              />
               {errors.image && (
                 <p className="mt-2 text-sm text-red-500">
                   {errors.image.message}
                 </p>
               )}
             </CardContent>
-          </Card>Card */}
+          </Card>
         </div>
+        {/* UOMs Card */}
+        <Card>
           <CardHeader>
-        {/* UOMs Card */}its of Measurement (UOMs)</CardTitle>
-        <Card>ardDescription>
-          <CardHeader>ll applicable units for this product.
             <CardTitle>Units of Measurement (UOMs)</CardTitle>
             <CardDescription>
               Select all applicable units for this product.
             </CardDescription>
-          </CardHeader>s"
-          <CardContent>control}
-            <Controller{ field }) => (
-              name="uoms"p for checkbox grid - border already provided by Card
-              control={control}"grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-              render={({ field }) => (m) => (
+          </CardHeader>
+          <CardContent>
+            <Controller
+              name="uoms"
+              control={control}
+              render={({ field }) => (
                 // Use gap for checkbox grid - border already provided by Card
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                   {uomOptions.map((item) => (
                     <div key={item.id} className="flex items-center gap-2">
-                      <CheckboxedChange={(checked) => {
-                        id={`uom-${item.id}`}ecked
+                      <Checkbox
+                        id={`uom-${item.id}`}
                         checked={field.value?.includes(item.id)}
-                        onCheckedChange={(checked) => {r(
-                          const newValue = checked== item.id
+                        onCheckedChange={(checked) => {
+                          const newValue = checked
                             ? [...(field.value || []), item.id]
                             : (field.value || []).filter(
-                                (value) => value !== item.idtion for uoms array itself
-                              );gger defaultUom validation in case the list becomes empty/non-empty
+                                (value) => value !== item.id
+                              );
                           field.onChange(newValue);
                           trigger("uoms"); // Trigger validation for uoms array itself
                           // Trigger defaultUom validation in case the list becomes empty/non-empty
                           trigger("defaultUom");
-                        }}mlFor={`uom-${item.id}`}
-                      />className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        }}
+                      />
                       <Label
                         htmlFor={`uom-${item.id}`}
                         className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >iv>
+                      >
                         {item.label}
                       </Label>
                     </div>
                   ))}
-                </div>ms && (
-              )} className="mt-2 text-sm text-red-500">{errors.uoms.message}</p> // Added margin-top
+                </div>
+              )}
             />
             {errors.uoms && (
               <p className="mt-2 text-sm text-red-500">{errors.uoms.message}</p> // Added margin-top
             )}
-          </CardContent>Card - Conditionally Rendered */}
-        </Card>bleDefaultUoms.length > 0 && (
-          <Card>
+          </CardContent>
+        </Card>
         {/* Default UOM Card - Conditionally Rendered */}
-        {availableDefaultUoms.length > 0 && (tle>
-          <Card>ardDescription>
-            <CardHeader>he primary unit for displaying this product.
+        {availableDefaultUoms.length > 0 && (
+          <Card>
+            <CardHeader>
               <CardTitle>Default Unit</CardTitle>
               <CardDescription>
                 Select the primary unit for displaying this product.
-              </CardDescription>id gap-2">
-            </CardHeader>mlFor="defaultUom">Default UOM</Label>
-            <CardContent>er
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
               <div className="grid gap-2">
                 <Label htmlFor="defaultUom">Default UOM</Label>
-                <Controller{ field }) => (
+                <Controller
                   name="defaultUom"
-                  control={control}={(value) => {
-                  render={({ field }) => (ue);
-                    <Selectgger("defaultUom"); // Validate on change
+                  control={control}
+                  render={({ field }) => (
+                    <Select
                       onValueChange={(value) => {
                         field.onChange(value);
                         trigger("defaultUom"); // Validate on change
                       }}
-                      value={field.value}defaultUom" className="w-full">
-                      defaultValue={field.value}="Select default UOM" />
-                    > </SelectTrigger>
+                      value={field.value}
+                    >
                       <SelectTrigger id="defaultUom" className="w-full">
                         <SelectValue placeholder="Select default UOM" />
-                      </SelectTrigger>key={uom.id} value={uom.id}>
-                      <SelectContent>l}
+                      </SelectTrigger>
+                      <SelectContent>
                         {availableDefaultUoms.map((uom) => (
                           <SelectItem key={uom.id} value={uom.id}>
                             {uom.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
-                    </Select>ltUom && (
-                  )} className="mt-1 text-sm text-red-500">
-                />  {errors.defaultUom.message}
+                    </Select>
+                  )}
+                />
                 {errors.defaultUom && (
                   <p className="mt-1 text-sm text-red-500">
                     {errors.defaultUom.message}
-                  </p>ent>
+                  </p>
                 )}
               </div>
             </CardContent>
-          </Card>lt Price Card - Only show if a default UOM is selected */}
-        )}etValues("defaultUom") && (
-          <Card>
+          </Card>
+        )}
         {/* Default Price Card - Only show if a default UOM is selected */}
-        {getValues("defaultUom") && (e</CardTitle>
-          <Card>ardDescription>
-            <CardHeader>e default selling price for this product in your base
+        {getValues("defaultUom") && (
+          <Card>
+            <CardHeader>
               <CardTitle>Default Price</CardTitle>
-              <CardDescription>>
+              <CardDescription>
                 Enter the default selling price for this product in your base
-                currency>
-              </CardDescription>id gap-2">
-            </CardHeader>mlFor="defaultPrice">
-            <CardContent> Price ({getUomLabel(getValues("defaultUom") || "")})
+                currency
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
               <div className="grid gap-2">
                 <Label htmlFor="defaultPrice">
                   Default Price ({getUomLabel(getValues("defaultUom") || "")})
-                </Label>number"
-                <Input="0.01"
+                </Label>
+                <Input
                   id="defaultPrice"
-                  type="number"0.00"
-                  step="0.01"r("defaultPrice")}
+                  type="number"
+                  step="0.01"
                   min="0"
-                  placeholder="0.00" && (
-                  {...register("defaultPrice")}d-500">
-                />  {errors.defaultPrice.message}
+                  placeholder="0.00"
+                  {...register("defaultPrice")}
+                />
                 {errors.defaultPrice && (
                   <p className="text-sm text-red-500">
                     {errors.defaultPrice.message}
-                  </p>ent>
+                  </p>
                 )}
               </div>
             </CardContent>
-          </Card>ng Card - Only show if we have both UOMs and price lists */}
-        )}electedUoms.length > 0 && pricelists.length > 0 && (
-          <Card>
+          </Card>
+        )}
         {/* Pricing Card - Only show if we have both UOMs and price lists */}
         {selectedUoms.length > 0 && pricelists.length > 0 && (
-          <Card>ardDescription>
-            <CardHeader>icing for each unit across different price lists.
+          <Card>
+            <CardHeader>
               <CardTitle>Product Pricing</CardTitle>
               <CardDescription>
                 Enter pricing for each unit across different price lists.
-              </CardDescription>ace-y-8">
-            </CardHeader>ts.map((pricelist) => (
-            <CardContent>y={pricelist.id} className="space-y-4">
-              <div className="space-y-8">edium text-lg">{pricelist.name}</h3>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-8">
                 {pricelists.map((pricelist) => (
-                  <div key={pricelist.id} className="space-y-4">id-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                  <div key={pricelist.id} className="space-y-4">
                     <h3 className="font-medium text-lg">{pricelist.name}</h3>
-                        <div
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                      {selectedUoms.map((uomId) => (ap-2"
+                      {selectedUoms.map((uomId) => (
                         <div
-                          key={`${pricelist.id}-${uomId}`}st.id}-${uomId}`}>
+                          key={`${pricelist.id}-${uomId}`}
                           className="flex flex-col gap-2"
-                        > </Label>
+                        >
                           <Label htmlFor={`price-${pricelist.id}-${uomId}`}>
-                            {getUomLabel(uomId)}st.id}-${uomId}`}
-                          </Label>number"
-                          <Input="0.01"
+                            {getUomLabel(uomId)}
+                          </Label>
+                          <Input
                             id={`price-${pricelist.id}-${uomId}`}
-                            type="number"0.00"
-                            step="0.01"w-full"
-                            min="0"ister(`prices.${pricelist.id}.${uomId}`)}
+                            type="number"
+                            step="0.01"
+                            min="0"
                             placeholder="0.00"
-                            className="w-full"celist.id]?.[uomId] && (
                             {...register(`prices.${pricelist.id}.${uomId}`)}
-                          />  {errors.prices[pricelist.id][uomId]?.message}
+                          />
                           {errors.prices?.[pricelist.id]?.[uomId] && (
                             <p className="text-sm text-red-500">
                               {errors.prices[pricelist.id][uomId]?.message}
@@ -715,89 +698,88 @@ export default function ProductForm({
                         </div>
                       ))}
                     </div>
-                  </div>t>
+                  </div>
                 ))}
               </div>
             </CardContent>
-          </Card>ed from Farmers Card */}
-        )}ard>
+          </Card>
+        )}
+        {/* Sourced from Farmers Card */}
+        <Card>
           <CardHeader>
-        {/* Sourced from Farmers Card */}e>
-        <Card>ardDescription>
-          <CardHeader>sourcing options for this product
             <CardTitle>Sourcing</CardTitle>
             <CardDescription>
               Specify sourcing options for this product
-            </CardDescription>ex items-center space-x-2">
-          </CardHeader>er
-          <CardContent>ourcedFromFarmers"
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <div className="flex items-center space-x-2">
-              <Controller{ field }) => (
+              <Controller
                 name="sourcedFromFarmers"
-                control={control}omFarmers"
-                render={({ field }) => (}
-                  <CheckboxedChange={field.onChange}
+                control={control}
+                render={({ field }) => (
+                  <Checkbox
                     id="sourcedFromFarmers"
                     checked={field.value}
                     onCheckedChange={field.onChange}
                   />
-                )}mlFor="sourcedFromFarmers"
-              />className="text-base font-medium"
+                )}
+              />
               <Label
-                htmlFor="sourcedFromFarmers"mers
+                htmlFor="sourcedFromFarmers"
                 className="text-base font-medium"
-              >iv>
+              >
                 Source this product from farmers
               </Label>
             </div>
-          </CardContent>n */}
-        </Card>assName="flex justify-end">
-          <Button type="submit" disabled={isSubmitting} size="lg">
-        {/* Submit Button */}Adding Product..." : "Add Product"}
+          </CardContent>
+        </Card>
+        {/* Submit Button */}
         <div className="flex justify-end">
           <Button type="submit" disabled={isSubmitting} size="lg">
             {isSubmitting ? "Adding Product..." : "Add Product"}
           </Button>
-        </div>per Dialog */}
-      </form> open={isCropperOpen} onOpenChange={setIsCropperOpen}>
-        <DialogContent className="max-w-3xl">
+        </div>
+      </form>
       {/* Cropper Dialog */}
       <Dialog open={isCropperOpen} onOpenChange={setIsCropperOpen}>
         <DialogContent className="max-w-3xl">
-          <DialogHeader>="my-4 max-h-[70vh] overflow-auto">
+          <DialogHeader>
             <DialogTitle>Crop Image (4x3)</DialogTitle>
           </DialogHeader>
           <div className="my-4 max-h-[70vh] overflow-auto">
-            {imagePreview && (percentCrop) => setCrop(percentCrop)}
-              <ReactCropte={(c) => setCompletedCrop(c)}
-                crop={crop}ECT_RATIO}
+            {imagePreview && (
+              <ReactCrop
+                crop={crop}
                 onChange={(_, percentCrop) => setCrop(percentCrop)}
                 onComplete={(c) => setCompletedCrop(c)}
                 aspect={ASPECT_RATIO}
                 minWidth={MIN_DIMENSION}
-                keepSelection}
-              >   alt="Crop preview"
-                <imgc={imagePreview}
-                  ref={imgRef}ageLoad}
-                  alt="Crop preview": "60vh" }}
+                keepSelection
+              >
+                <img
+                  ref={imgRef}
+                  alt="Crop preview"
                   src={imagePreview}
                   onLoad={onImageLoad}
                   style={{ maxHeight: "60vh" }}
                 />
               </ReactCrop>
-            )}utton variant="outline" onClick={handleCancelCrop}>
-          </div>ncel
+            )}
+          </div>
           <DialogFooter>
             <Button variant="outline" onClick={handleCancelCrop}>
-              Cancelk={handleSaveCrop}
-            </Button>d={!completedCrop || completedCrop.width === 0}
+              Cancel
+            </Button>
             <Button
               onClick={handleSaveCrop}
               disabled={!completedCrop || completedCrop.width === 0}
-            >ialogFooter>
-              Save Crop>
+            >
+              Save Crop
             </Button>
-          </DialogFooter>idth container
+          </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div> // Close max-width container  );}
+    </div>
+  );
+}
