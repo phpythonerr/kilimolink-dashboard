@@ -7,7 +7,7 @@ import { z } from "zod";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox"; // Import Checkbox
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -21,7 +21,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Upload } from "lucide-react";
@@ -33,7 +32,13 @@ import ReactCrop, {
 } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { createProduct } from "./actions";
-import { Separator } from "@/components/ui/separator";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 // Helper function to generate cropped image (you might want to move this to a utils file)
 async function getCroppedImg(
@@ -97,6 +102,12 @@ type Category = {
   name: string;
 };
 
+// Type for price lists passed from the server
+type PriceList = {
+  id: string;
+  name: string;
+};
+
 // Define UOM options
 const uomOptions = [
   { id: "g", label: "Grams (g)" },
@@ -110,33 +121,88 @@ const uomOptions = [
   { id: "tray", label: "Tray" },
 ] as const; // Use 'as const' for stricter typing
 
-// Update Zod schema to include UOMs
-const productSchema = z.object({
-  name: z.string().min(1, "Product name is required"),
-  categoryId: z.string().min(1, "Category is required"),
-  image: z
-    .instanceof(File, { message: "Product image is required." })
-    .refine((file) => file.size > 0, "Product image is required.")
-    .refine(
-      (file) => file.type.startsWith("image/"),
-      "Only image files are allowed."
-    )
-    .refine((file) => file.size <= 5 * 1024 * 1024, `Max file size is 5MB.`), // Example: 5MB limit
-  uoms: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: "You have to select at least one UOM.",
-  }),
-});
+// Helper function to get UOM label by id
+const getUomLabel = (uomId: string): string => {
+  const uom = uomOptions.find((u) => u.id === uomId);
+  return uom ? uom.label : uomId;
+};
+
+// Update Zod schema to include pricing
+const productSchema = z
+  .object({
+    name: z.string().min(1, "Product name is required"),
+    categoryId: z.string().min(1, "Category is required"),
+    image: z
+      .instanceof(File, { message: "Product image is required." })
+      // ...existing image refinements...
+      .refine((file) => file.size <= 5 * 1024 * 1024, `Max file size is 5MB.`),
+    uoms: z.array(z.string()).refine((value) => value.some((item) => item), {
+      message: "You have to select at least one UOM.",
+    }),
+    defaultUom: z.string().optional(), // Add optional defaultUom
+    // Add prices field - a nested record structure
+    prices: z
+      .record(
+        z.record(
+          z.preprocess(
+            // Preprocess string inputs to numbers or undefined
+            (val) => (val === "" ? undefined : Number(val)),
+            z.number().min(0, "Price must be positive").optional()
+          )
+        )
+      )
+      .optional(),
+    // Add the new sourcedFromFarmers field
+    sourcedFromFarmers: z.boolean().default(false),
+  })
+  .refine(
+    (data) => {
+      // If UOMs are selected, defaultUom must also be selected
+      if (data.uoms.length > 0 && !data.defaultUom) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Please select a default UOM from the chosen units.",
+      path: ["defaultUom"], // Specify the path for the error message
+    }
+  )
+  .refine(
+    (data) => {
+      // If defaultUom is set, it must be one of the selected uoms
+      if (
+        data.defaultUom &&
+        data.uoms.length > 0 &&
+        !data.uoms.includes(data.defaultUom)
+      ) {
+        // Reset defaultUom if it's no longer valid (optional, but good UX)
+        // This refine check primarily ensures validation on submit.
+        // Handling the reset directly might be better done via useEffect watching uoms.
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Default UOM must be one of the selected UOMs.",
+      path: ["defaultUom"],
+    }
+  );
 
 type ProductFormData = z.infer<typeof productSchema>;
 
 interface ProductFormProps {
   categories: Category[];
+  pricelists: PriceList[];
 }
 
 const ASPECT_RATIO = 4 / 3;
 const MIN_DIMENSION = 150;
 
-export default function ProductForm({ categories }: ProductFormProps) {
+export default function ProductForm({
+  categories,
+  pricelists,
+}: ProductFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null); // Original image for cropper
@@ -157,6 +223,7 @@ export default function ProductForm({ categories }: ProductFormProps) {
     reset,
     trigger, // To manually trigger validation after setting image value
     watch, // Watch uoms for debugging if needed
+    getValues, // To get current values if needed
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -164,8 +231,35 @@ export default function ProductForm({ categories }: ProductFormProps) {
       categoryId: "",
       image: undefined, // Initialize image as undefined
       uoms: [], // Initialize uoms as an empty array
+      defaultUom: "", // Initialize defaultUom
+      prices: {}, // Initialize empty prices object
+      sourcedFromFarmers: false, // Add the default value for sourcedFromFarmers
     },
   });
+
+  // Watch the selected UOMs
+  const selectedUoms = watch("uoms");
+
+  // Filter uomOptions based on selectedUoms
+  const availableDefaultUoms = React.useMemo(() => {
+    return uomOptions.filter((option) => selectedUoms?.includes(option.id));
+  }, [selectedUoms]);
+
+  // Effect to reset defaultUom if it's no longer in the selected UOMs list
+  useEffect(() => {
+    const currentDefaultUom = getValues("defaultUom");
+    if (
+      currentDefaultUom &&
+      selectedUoms &&
+      !selectedUoms.includes(currentDefaultUom)
+    ) {
+      setValue("defaultUom", "", { shouldValidate: true }); // Reset and validate
+    }
+    // Also trigger validation if the list becomes non-empty and default is empty
+    if (selectedUoms?.length > 0 && !getValues("defaultUom")) {
+      trigger("defaultUom");
+    }
+  }, [selectedUoms, setValue, getValues, trigger]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -265,14 +359,31 @@ export default function ProductForm({ categories }: ProductFormProps) {
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("categoryId", data.categoryId);
-    formData.append("image", data.image); // Append the validated File object
-    // Append UOMs - Server action needs to handle receiving this array
-    // Common ways: JSON stringify, or append each item individually
-    formData.append("uoms", JSON.stringify(data.uoms)); // Example: sending as JSON string
-    // OR append individually: data.uoms.forEach(uom => formData.append('uoms[]', uom));
 
-    console.log("Submitting Data:", data); // Log the structured data
-    // console.log("Submitting FormData:", formData); // Inspect FormData if needed
+    // Fix type error by checking if image exists before appending
+    if (data.image instanceof File) {
+      formData.append("image", data.image);
+    } else {
+      console.error("Invalid image file");
+      return; // Return early to prevent submission with invalid image
+    }
+
+    formData.append("uoms", JSON.stringify(data.uoms));
+
+    // Append defaultUom if it exists
+    if (data.defaultUom) {
+      formData.append("defaultUom", data.defaultUom);
+    }
+
+    // Add prices to formData if they exist
+    if (data.prices && Object.keys(data.prices).length > 0) {
+      formData.append("prices", JSON.stringify(data.prices));
+    }
+
+    // Add sourcedFromFarmers to formData
+    formData.append("sourcedFromFarmers", String(data.sourcedFromFarmers));
+
+    console.log("Submitting Data:", data);
 
     try {
       await createProduct(formData);
@@ -283,7 +394,6 @@ export default function ProductForm({ categories }: ProductFormProps) {
       setOriginalFileName("");
     } catch (error) {
       console.error("Failed to create product:", error);
-      // Handle submission error (e.g., show error message to user)
     }
   };
 
@@ -304,165 +414,289 @@ export default function ProductForm({ categories }: ProductFormProps) {
   // }, [selectedUoms]);
 
   return (
-    <>
-      {/* Main form container using flex and gap */}
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
-        {/* Top Row: Use Flexbox for large screens, Grid for stacking */}
-        <div className="flex flex-col lg:flex-row lg:justify-between gap-8 items-start">
-          {/* Left Side: Name & Category (arranged in rows) */}
-          {/* Allow this side to grow but set a max width if needed, or let flex handle it */}
-          <div className="flex flex-col gap-6 w-full lg:w-auto lg:flex-grow lg:pr-8">
-            {" "}
-            {/* Added padding-right on lg */}
-            {/* Product Name Section */}
-            <div className="flex flex-col gap-2">
-              {" "}
-              {/* Use gap */}
-              <Label htmlFor="name" className="text-base font-medium">
-                Product Name
-              </Label>
-              <Input id="name" {...register("name")} />
-              {errors.name && (
-                <p className="text-sm text-red-500">{errors.name.message}</p>
-              )}
-            </div>
-            {/* Category Section */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="category" className="text-base font-medium">
-                Category
-              </Label>
-              <Controller
-                name="categoryId"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      trigger("categoryId");
-                    }}
-                    value={field.value}
-                    defaultValue={field.value}
-                  >
-                    {/* Ensure SelectTrigger takes full width */}
-                    <SelectTrigger id="category" className="w-full">
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+    // Add a max-width container and center it
+    <div className="p-4">
+      {/* Main form container */}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        {/* Top Row: 2 columns with different proportions */}
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {/* Product Details Card - Takes 2/3 of width on large screens */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Product Details</CardTitle>
+              <CardDescription>
+                Enter the name and category for the new product.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-6">
+              {/* Product Name Section */}
+              <div className="grid gap-2">
+                <Label htmlFor="name">Product Name</Label>
+                <Input id="name" {...register("name")} />
+                {errors.name && (
+                  <p className="text-sm text-red-500">{errors.name.message}</p>
                 )}
+              </div>
+              {/* Category Section */}
+              <div className="grid gap-2">
+                <Label htmlFor="category">Category</Label>
+                <Controller
+                  name="categoryId"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        trigger("categoryId");
+                      }}
+                      value={field.value}
+                      defaultValue={field.value}
+                    >
+                      <SelectTrigger id="category" className="w-full">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.categoryId && (
+                  <p className="text-sm text-red-500">
+                    {errors.categoryId.message}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Image Upload Card - Takes 1/3 of width and has a more compact design */}
+          <Card className="lg:col-span-1">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Product Image</CardTitle>
+            </CardHeader>
+            <CardContent className="">
+              <div
+                className="overflow-hidden cursor-pointer rounded-md border hover:border-primary"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {/* Make the AspectRatio component smaller with a max width */}
+                <div className="max-w-[220px] mx-auto">
+                  <AspectRatio ratio={ASPECT_RATIO} className="bg-muted">
+                    {croppedImagePreview ? (
+                      <img
+                        src={croppedImagePreview}
+                        alt="Cropped product preview"
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                        <Upload className="h-8 w-8" />
+                        <span className="mt-1 text-xs">Click to upload</span>
+                      </div>
+                    )}
+                  </AspectRatio>
+                </div>
+              </div>
+              <Input
+                ref={fileInputRef}
+                id="image-upload"
+                name="image-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
               />
-              {errors.categoryId && (
-                <p className="text-sm text-red-500">
-                  {errors.categoryId.message}
+              {errors.image && (
+                <p className="mt-2 text-sm text-red-500">
+                  {errors.image.message}
                 </p>
               )}
-            </div>
-          </div>
-
-          {/* Right Side: Image Selector */}
-          {/* Define a width for the image selector section on large screens */}
-          <div className="w-full lg:w-1/3 lg:max-w-sm flex flex-col gap-2 flex-shrink-0">
-            {" "}
-            {/* Adjusted width and added flex-shrink-0 */}
-            <Label htmlFor="image-trigger" className="text-base font-medium">
-              Product Image
-            </Label>
-            <p className="text-sm text-muted-foreground">
-              Upload a 4x3 image (max 5MB).
-            </p>
-            <div
-              className="overflow-hidden cursor-pointer rounded-md border hover:border-primary"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <AspectRatio ratio={ASPECT_RATIO} className="bg-muted">
-                {croppedImagePreview ? (
-                  <img
-                    src={croppedImagePreview}
-                    alt="Cropped product preview"
-                    className="object-cover w-full h-full"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                    <Upload className="h-12 w-12" />
-                    <span className="mt-2 text-sm">Click to upload</span>
-                  </div>
-                )}
-              </AspectRatio>
-            </div>
-            <Input
-              ref={fileInputRef}
-              id="image-upload"
-              name="image-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            {errors.image && (
-              <p className="text-sm text-red-500">{errors.image.message}</p>
-            )}
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Separator */}
-        <Separator />
+        {/* UOMs Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Units of Measurement (UOMs)</CardTitle>
+            <CardDescription>
+              Select all applicable units for this product.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Controller
+              name="uoms"
+              control={control}
+              render={({ field }) => (
+                // Use gap for checkbox grid - border already provided by Card
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                  {uomOptions.map((item) => (
+                    <div key={item.id} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`uom-${item.id}`}
+                        checked={field.value?.includes(item.id)}
+                        onCheckedChange={(checked) => {
+                          const newValue = checked
+                            ? [...(field.value || []), item.id]
+                            : (field.value || []).filter(
+                                (value) => value !== item.id
+                              );
+                          field.onChange(newValue);
+                          trigger("uoms"); // Trigger validation for uoms array itself
+                          // Trigger defaultUom validation in case the list becomes empty/non-empty
+                          trigger("defaultUom");
+                        }}
+                      />
+                      <Label
+                        htmlFor={`uom-${item.id}`}
+                        className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {item.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            />
+            {errors.uoms && (
+              <p className="mt-2 text-sm text-red-500">{errors.uoms.message}</p> // Added margin-top
+            )}
+          </CardContent>
+        </Card>
 
-        {/* Bottom Row: UOMs */}
-        <div className="flex flex-col gap-3">
-          {" "}
-          {/* Use gap */}
-          <Label className="text-base font-medium">
-            Applicable Units of Measurement (UOMs)
-          </Label>
-          <Controller
-            name="uoms"
-            control={control}
-            render={({ field }) => (
-              // Use gap for checkbox grid
-              <div className="grid grid-cols-2 gap-4 rounded-lg border p-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                {uomOptions.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center gap-2" // Use gap
-                  >
-                    <Checkbox
-                      id={`uom-${item.id}`}
-                      checked={field.value?.includes(item.id)}
-                      onCheckedChange={(checked) => {
-                        const newValue = checked
-                          ? [...(field.value || []), item.id]
-                          : (field.value || []).filter(
-                              (value) => value !== item.id
-                            );
-                        field.onChange(newValue);
+        {/* Default UOM Card - Conditionally Rendered */}
+        {availableDefaultUoms.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Default Unit</CardTitle>
+              <CardDescription>
+                Select the primary unit for displaying this product.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-2">
+                <Label htmlFor="defaultUom">Default UOM</Label>
+                <Controller
+                  name="defaultUom"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        trigger("defaultUom"); // Validate on change
                       }}
-                    />
-                    <Label
-                      htmlFor={`uom-${item.id}`}
-                      className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      value={field.value}
+                      defaultValue={field.value}
                     >
-                      {item.label}
-                    </Label>
+                      <SelectTrigger id="defaultUom" className="w-full">
+                        <SelectValue placeholder="Select default UOM" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableDefaultUoms.map((uom) => (
+                          <SelectItem key={uom.id} value={uom.id}>
+                            {uom.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.defaultUom && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.defaultUom.message}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Pricing Card - Only show if we have both UOMs and price lists */}
+        {selectedUoms.length > 0 && pricelists.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Product Pricing</CardTitle>
+              <CardDescription>
+                Enter pricing for each unit across different price lists.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-8">
+                {pricelists.map((pricelist) => (
+                  <div key={pricelist.id} className="space-y-4">
+                    <h3 className="font-medium text-lg">{pricelist.name}</h3>
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                      {selectedUoms.map((uomId) => (
+                        <div
+                          key={`${pricelist.id}-${uomId}`}
+                          className="flex flex-col gap-2"
+                        >
+                          <Label htmlFor={`price-${pricelist.id}-${uomId}`}>
+                            {getUomLabel(uomId)}
+                          </Label>
+                          <Input
+                            id={`price-${pricelist.id}-${uomId}`}
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="0.00"
+                            className="w-full"
+                            {...register(`prices.${pricelist.id}.${uomId}`)}
+                          />
+                          {errors.prices?.[pricelist.id]?.[uomId] && (
+                            <p className="text-sm text-red-500">
+                              {errors.prices[pricelist.id][uomId]?.message}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
-            )}
-          />
-          {errors.uoms && (
-            <p className="text-sm text-red-500">{errors.uoms.message}</p>
-          )}
-        </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Sourced from Farmers Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Sourcing</CardTitle>
+            <CardDescription>
+              Specify sourcing options for this product
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center space-x-2">
+              <Controller
+                name="sourcedFromFarmers"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox
+                    id="sourcedFromFarmers"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+              <Label
+                htmlFor="sourcedFromFarmers"
+                className="text-base font-medium"
+              >
+                Source this product from farmers
+              </Label>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Submit Button */}
         <div className="flex justify-end">
-          {" "}
-          {/* Keep alignment helper */}
           <Button type="submit" disabled={isSubmitting} size="lg">
             {isSubmitting ? "Adding Product..." : "Add Product"}
           </Button>
@@ -508,6 +742,6 @@ export default function ProductForm({ categories }: ProductFormProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div> // Close max-width container
   );
 }

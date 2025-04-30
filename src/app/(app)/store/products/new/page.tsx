@@ -17,6 +17,8 @@ import { AppBreadCrumbs } from "@/components/app-breadcrumbs";
 import Loading from "@/components/loading";
 // Update the import path for the data fetching function to the new location
 import { getCommodityCategories } from "@/data/commodities"; // Corrected import path
+// Import the function to get active price lists (assuming location)
+import { getActivePriceLists } from "@/data/pricelists"; // Added import
 
 export const metadata: Metadata = {
   title: "Add Product", // Updated title
@@ -37,16 +39,17 @@ const breadcrumbs = [
 
 export default async function NewProductPage() {
   // Renamed function
-  // Fetch categories on the server
+  // Fetch categories and price lists on the server
   const categories = await getCommodityCategories(); // Ensure this function returns { id: string, name: string }[]
+  const pricelists = await getActivePriceLists(); // Fetch active price lists
 
   return (
-    <div className="p-4">
+    <div className="p-4 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <AppBreadCrumbs items={breadcrumbs} />
       </div>
-      <div>
-        <div className="flex flex-col gap-4 w-full max-w-md">
+      <div className="flex-1">
+        <div className="flex-1 flex flex-col gap-4 w-full">
           <div className="mb-4">
             <h1 className="font-bold text-xl">Add Product</h1>
             <p className="text-sm text-muted-foreground">
@@ -57,8 +60,8 @@ export default async function NewProductPage() {
           <Suspense fallback={<Loading />}>
             {" "}
             {/* Use Loading component */}
-            {/* Pass fetched categories to the form */}
-            <ProductForm categories={categories} />
+            {/* Pass fetched categories and pricelists to the form */}
+            <ProductForm categories={categories} pricelists={pricelists} />
           </Suspense>
         </div>
       </div>
