@@ -127,6 +127,11 @@ const getUomLabel = (uomId: string): string => {
   return uom ? uom.label : uomId;
 };
 
+// We need to create a safer approach to handle the File type in the form
+// Add this type near your other types at the top of the file
+type EmptyFileValue = { _type: "empty_file" };
+const EMPTY_FILE_VALUE: EmptyFileValue = { _type: "empty_file" };
+
 // Update Zod schema to allow undefined/null for image during form validation
 const productSchema = z
   .object({
@@ -145,7 +150,10 @@ const productSchema = z
             (file) => file.size <= 5 * 1024 * 1024,
             `Max file size is 5MB.`
           ),
-        z.undefined(),
+        z.custom<EmptyFileValue>(
+          (val) => val && (val as any)._type === "empty_file",
+          { message: "Image is required" }
+        ),
       ])
       .refine((val) => val instanceof File, {
         message: "Product image is required.",
@@ -248,7 +256,7 @@ export default function ProductForm({
     defaultValues: {
       name: "",
       categoryId: "",
-      image: undefined, // Initialize image as undefined
+      image: EMPTY_FILE_VALUE as any, // Use our placeholder instead of undefined
       uoms: [], // Initialize uoms as an empty array
       defaultUom: "", // Initialize defaultUom
       defaultPrice: undefined, // Add default price
@@ -342,29 +350,27 @@ export default function ProductForm({
       const croppedFile = await getCroppedImg(
         imagePreview,
         completedCrop,
-        originalFileName // Pass the original file name
+        originalFileName
       );
       if (croppedFile) {
         // Update the form state with the cropped file
-        setValue("image", croppedFile, { shouldValidate: true }); // Set and validate
-        // Generate a preview URL for the cropped image
+        setValue("image", croppedFile as any, { shouldValidate: true });
         const previewUrl = URL.createObjectURL(croppedFile);
         setCroppedImagePreview(previewUrl);
       } else {
         console.error("Failed to crop image.");
-        // Handle error if cropping failed (e.g., show message)
-        setValue("image", undefined, { shouldValidate: true });
+        // Use our safe placeholder instead of null/undefined
+        setValue("image", EMPTY_FILE_VALUE as any, { shouldValidate: true });
         setCroppedImagePreview(null);
       }
     } else {
       console.error(
         "Cannot save crop: Missing image preview or crop dimensions."
       );
-      // Clear potentially invalid image state
-      setValue("image", undefined, { shouldValidate: true });
+      setValue("image", EMPTY_FILE_VALUE as any, { shouldValidate: true });
       setCroppedImagePreview(null);
     }
-    setIsCropperOpen(false); // Close dialog regardless of success/failure
+    setIsCropperOpen(false);
   };
 
   const handleCancelCrop = () => {
