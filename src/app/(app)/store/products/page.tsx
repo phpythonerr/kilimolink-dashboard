@@ -29,16 +29,16 @@ export default async function Index({ searchParams }: any) {
 
   const supabase = await createClient();
 
-  const pageSize = Number(searchParams.pageSize) || 10;
-  let page = Number(searchParams.page) || 1;
+  const pageSize = Number(queryParams.pageSize) || 10;
+  let page = Number(queryParams.page) || 1;
   let totalPages = 0;
 
   let query = supabase
     .from("commodities_commodity")
     .select("id, name, classification, selling_price, quantity_unit, image");
 
-  if (searchParams.category) {
-    query = query.eq("category_id", searchParams.category);
+  if (queryParams.category) {
+    query = query.eq("category_id", queryParams.category);
   }
 
   query = query.order("name", { ascending: true });

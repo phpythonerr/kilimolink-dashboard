@@ -348,36 +348,42 @@ export default function ProductForm({
       completedCrop.width > 0 &&
       completedCrop.height > 0
     ) {
-      const croppedFile = await getCroppedImg(
-        imagePreview,
-        completedCrop,
-        originalFileName
-      );
-      if (croppedFile) {
-        // Update the form state with the cropped file
-        setValue("image", croppedFile as any, { shouldValidate: true });
+      try {
+        const croppedFile = await getCroppedImg(
+          imagePreview,
+          completedCrop,
+          originalFileName
+        );
 
-        // Create a new object URL for the cropped image to display
-        const previewUrl = URL.createObjectURL(croppedFile);
-        setCroppedImagePreview(previewUrl);
+        if (croppedFile) {
+          // Clean up any previous preview
+          if (croppedImagePreview) {
+            URL.revokeObjectURL(croppedImagePreview);
+          }
 
-        // Revoke any previous object URL to prevent memory leaks
-        if (croppedImagePreview) {
-          URL.revokeObjectURL(croppedImagePreview);
+          // Create a new preview URL and set it
+          const previewUrl = URL.createObjectURL(croppedFile);
+          setCroppedImagePreview(previewUrl);
+
+          // Update the form value
+          setValue("image", croppedFile as any, { shouldValidate: true });
+        } else {
+          toast.error("Failed to crop image");
+          setValue("image", EMPTY_FILE_VALUE as any, { shouldValidate: true });
+          setCroppedImagePreview(null);
         }
-      } else {
-        console.error("Failed to crop image.");
-        // Use our safe placeholder instead of null/undefined
+      } catch (err) {
+        console.error("Error during image cropping:", err);
+        toast.error("Failed to process image");
         setValue("image", EMPTY_FILE_VALUE as any, { shouldValidate: true });
         setCroppedImagePreview(null);
       }
     } else {
-      console.error(
-        "Cannot save crop: Missing image preview or crop dimensions."
-      );
+      toast.error("Please select an area to crop");
       setValue("image", EMPTY_FILE_VALUE as any, { shouldValidate: true });
       setCroppedImagePreview(null);
     }
+
     setIsCropperOpen(false);
   };
 
@@ -415,30 +421,32 @@ export default function ProductForm({
     // Add sourcedFromFarmers to formData
     formData.append("sourcedFromFarmers", String(data.sourcedFromFarmers));
 
-    // Use toast.promise instead of try/catch
-    toast.promise(createProduct(formData), {
-      loading: "Creating product...",
-      success: (result) => {
-        // Reset form state
-        reset();
-        setCroppedImagePreview(null);
-        setImagePreview(null);
-        setOriginalFileName("");
+    try {
+      // Use await directly instead of toast.promise to have more control over the flow
+      toast.loading("Creating product...");
+      const result = await createProduct(formData);
 
-        // Redirect to the product view page
-        if (result?.productId) {
-          // Use a slight delay to ensure toast is visible before redirect
-          setTimeout(() => {
-            window.location.href = `/store/products/view?id=${result.productId}`;
-          }, 800);
-          return "Product created successfully! Redirecting...";
-        }
-        return "Product created successfully!";
-      },
-      error: (err) => {
-        return `Error: ${err.message || "Failed to create product"}`;
-      },
-    });
+      // Clear the loading toast
+      toast.dismiss();
+      toast.success("Product created successfully!");
+
+      // Reset form
+      reset();
+      setCroppedImagePreview(null);
+      setImagePreview(null);
+      setOriginalFileName("");
+
+      // Redirect only if we have a valid result with productId
+      if (result?.productId) {
+        // Use a slight delay to ensure success toast is visible before redirect
+        setTimeout(() => {
+          window.location.href = `/store/products/view?id=${result.productId}`;
+        }, 1000);
+      }
+    } catch (error: any) {
+      toast.dismiss();
+      toast.error(`Error: ${error.message || "Failed to create product"}`);
+    }
   };
 
   // Cleanup object URL
@@ -456,6 +464,8 @@ export default function ProductForm({
   // useEffect(() => {
   //   console.log("Selected UOMs:", selectedUoms);
   // }, [selectedUoms]);
+
+  console.log(categories);
 
   return (
     // Add a max-width container and center it
@@ -496,7 +506,10 @@ export default function ProductForm({
                       value={field.value}
                     >
                       <SelectTrigger id="category" className="w-full">
-                        <SelectValue placeholder="Select a category" />
+                        <SelectValue placeholder="Select a category">
+                          {field.value &&
+                            categories.find((c) => c.id === field.value)?.name}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {categories.map((category: any) => (
@@ -533,7 +546,7 @@ export default function ProductForm({
                       <img
                         src={croppedImagePreview}
                         alt="Cropped product preview"
-                        className="object-cover w-full h-full"
+                        className="object-contain w-full h-full" // Changed from object-cover to object-contain
                       />
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
@@ -772,7 +785,7 @@ export default function ProductForm({
       <Dialog open={isCropperOpen} onOpenChange={setIsCropperOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Crop Image (4x3)</DialogTitle>
+            <DialogTitle>Edit Image</DialogTitle>
           </DialogHeader>
           <div className="my-4 max-h-[70vh] overflow-auto">
             {imagePreview && (
@@ -802,7 +815,7 @@ export default function ProductForm({
               onClick={handleSaveCrop}
               disabled={!completedCrop || completedCrop.width === 0}
             >
-              Save Crop
+              Save Image
             </Button>
           </DialogFooter>
         </DialogContent>
