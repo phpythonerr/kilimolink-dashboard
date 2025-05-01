@@ -465,13 +465,10 @@ export default function ProductForm({
   //   console.log("Selected UOMs:", selectedUoms);
   // }, [selectedUoms]);
 
-  console.log(categories);
-
   return (
-    // Add a max-width container and center it
     <div className="p-4">
       {/* Main form container */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
         {/* Top Row: 2 columns with different proportions */}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Product Details Card - Takes 2/3 of width on large screens */}
@@ -709,9 +706,9 @@ export default function ProductForm({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-8">
+              <div className="flex flex-col gap-8">
                 {pricelists.map((pricelist: any) => (
-                  <div key={pricelist.id} className="space-y-4">
+                  <div key={pricelist.id} className="flex flex-col gap-4">
                     <h3 className="font-medium text-lg">{pricelist.name}</h3>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                       {selectedUoms.map((uomId: any) => (
@@ -753,7 +750,7 @@ export default function ProductForm({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <Controller
                 name="sourcedFromFarmers"
                 control={control}

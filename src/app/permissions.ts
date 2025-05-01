@@ -231,6 +231,10 @@ export const PERMISSION_MAP = {
     permissions: ["store.pricelists.view"],
     redirectPath: "/unauthorized",
   },
+  "/store/pricelists/suggester": {
+    permissions: ["store.pricelists.suggester.view"],
+    redirectPath: "/unauthorized",
+  },
   "/store/sourcing/farmers": {
     permissions: ["store.sourcing.farmers.view"],
     redirectPath: "/unauthorized",

@@ -59,6 +59,14 @@ export default async function Index({ searchParams }: any) {
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
         <AppBreadCrumbs items={breadcrumbs} />
+        <div>
+          <Link
+            href="/store/pricelists/suggester"
+            className="text-primary font-medium"
+          >
+            Prices Suggester &raquo;
+          </Link>
+        </div>
       </div>
       <Suspense fallback={<div>Loading...</div>}>
         <DataTable
