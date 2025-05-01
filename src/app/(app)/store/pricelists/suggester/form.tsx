@@ -152,7 +152,7 @@ export default function Form({ categories }: FormProps) {
   };
 
   // Format percentage change with color
-  const formatPercentChange = (change: number | undefined): JSX.Element => {
+  const formatPercentChange = (change: number | undefined): React.ReactNode => {
     if (change === undefined) return <span>—</span>;
 
     const isPositive = change >= 0;
