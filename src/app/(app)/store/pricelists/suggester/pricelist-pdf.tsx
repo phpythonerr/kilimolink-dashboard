@@ -88,7 +88,9 @@ const styles = StyleSheet.create({
   },
   table: {
     fontFamily: "Geist Sans",
-    display: "table",
+    // Replace "table" with "flex" as "table" is not a valid display value in react-pdf
+    display: "flex",
+    flexDirection: "column",
     width: "100%",
     borderStyle: "solid",
     borderWidth: 1,
