@@ -100,9 +100,11 @@ export async function getBatchPriceSuggestions(
     );
 
     // Convert array of results to a record object with commodity ID as key
+    // Use type assertion to help TypeScript understand that suggestion exists when success is true
     return suggestions.reduce((acc, result) => {
-      if (result.success) {
-        acc[result.id] = result.suggestion;
+      if (result.success && result.suggestion) {
+        // Add explicit check for suggestion
+        acc[result.id] = result.suggestion as PriceSuggestion;
       }
       return acc;
     }, {} as Record<string, PriceSuggestion>);
