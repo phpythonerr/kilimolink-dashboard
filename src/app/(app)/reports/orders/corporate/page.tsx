@@ -86,6 +86,14 @@ export default async function Page({ searchParams }: any) {
     return acc + (order.total || 0);
   }, 0);
 
+  // Calculate total value of all purchases
+  const totalPurchasesValue = (purchases || []).reduce(
+    (acc: any, purchase: any) => {
+      return acc + purchase.quantity * purchase.unit_price;
+    },
+    0
+  );
+
   return (
     <div className="p-4 flex flex-col gap-4">
       <div>
@@ -116,6 +124,22 @@ export default async function Page({ searchParams }: any) {
                 </div>
               </CardFooter>
             </Card>
+
+            {/* New card for Total Purchases */}
+            <Card className="@container/card">
+              <CardHeader className="relative">
+                <CardDescription>Total Purchases</CardDescription>
+                <CardTitle className="@[250px]/card:text-xl text-lg font-semibold tabular-nums">
+                  Ksh.{Number(totalPurchasesValue).toLocaleString()}
+                </CardTitle>
+              </CardHeader>
+              <CardFooter className="flex-col items-start gap-1 text-sm">
+                <div className="text-muted-foreground">
+                  {purchases?.length || 0} purchases
+                </div>
+              </CardFooter>
+            </Card>
+
             <Card className="@container/card">
               <CardHeader className="relative">
                 <CardDescription>Paid Purchases</CardDescription>
