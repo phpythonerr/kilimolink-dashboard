@@ -12,7 +12,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import Menu from "./menu";
 import DateFilter from "./date-filter";
-import { startOfMonth, endOfMonth } from "date-fns";
+import { startOfMonth, endOfMonth, format } from "date-fns";
 
 export const metadata: Metadata = {
   title: "Summary | Corporate Order Reports",
@@ -97,8 +97,8 @@ export default async function Page({ searchParams }: any) {
         <DateFilter />
 
         <h2 className="text-lg font-medium">
-          Summary for period: {startDate.toLocaleDateString()} -{" "}
-          {endDate.toLocaleDateString()}
+          Summary for period: {format(startDate, "dd MMM yyyy")} -{" "}
+          {format(endDate, "dd MMM yyyy")}
         </h2>
 
         <Suspense fallback={`Loading`}>
