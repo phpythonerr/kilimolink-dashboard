@@ -56,7 +56,7 @@ export default async function Page({ searchParams }: any) {
   );
 
   // Calculate total unpaid amount for purchases
-  const totalUnpaidPurchases = (purchases || []).reduce(
+  const totalUnpaidPurchases = (unpaidPurchases || []).reduce(
     (acc: any, purchase: any) => {
       if (purchase?.payment_status === "Partially-Paid") {
         return acc + (purchase?.balance || 0);
@@ -69,7 +69,7 @@ export default async function Page({ searchParams }: any) {
   );
 
   // Calculate total paid amount for purchases
-  const totalPaidPurchases = (purchases || []).reduce(
+  const totalPaidPurchases = (paidPurchases || []).reduce(
     (acc: any, purchase: any) => {
       if (purchase?.payment_status === "Paid") {
         return acc + purchase?.unit_price * purchase?.quantity;
