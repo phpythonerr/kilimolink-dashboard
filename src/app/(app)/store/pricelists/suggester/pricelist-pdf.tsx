@@ -126,6 +126,14 @@ const styles = StyleSheet.create({
     fontFamily: "Geist Sans",
     padding: 8,
   },
+  tableColNumber: {
+    fontFamily: "Geist Sans",
+    width: "5%",
+    borderRightWidth: 1,
+    borderRightColor: "#DDDDDD",
+    padding: 8,
+    textAlign: "center",
+  },
   tableColProduct: {
     fontFamily: "Geist Sans",
     width: "35%",
@@ -242,6 +250,7 @@ export const PricelistPdf: React.FC<PricelistPdfProps> = ({
   const calculateColumnWidths = () => {
     // Count the number of selected columns
     let selectedColumnsCount = 1; // Start with 1 for the product column which is always included
+    // Note: Number column (5%) is not included in this calculation
 
     if (columns.currentPrice) selectedColumnsCount++;
     if (columns.suggestedPrice) selectedColumnsCount++;
@@ -250,10 +259,10 @@ export const PricelistPdf: React.FC<PricelistPdfProps> = ({
     if (showComparison && columns.comparisonPrice) selectedColumnsCount++;
     if (showComparison && columns.change) selectedColumnsCount++;
 
-    // Calculate remaining width after product column (which takes 35%)
+    // Calculate remaining width after number column (5%) and product column (35%)
     const productColumnWidth = "35%";
     const remainingColumns = selectedColumnsCount - 1;
-    const remainingWidth = 65; // 100% - 35% for product column
+    const remainingWidth = 60; // 100% - 5% - 35% = 60%
 
     // Distribute remaining width evenly
     const otherColumnWidth =
@@ -296,18 +305,28 @@ export const PricelistPdf: React.FC<PricelistPdfProps> = ({
           </View>
           <View style={styles.headerText}>
             <Text style={styles.title}>Price List</Text>
-            <Text style={styles.subtitle}>sales@kilimolink.shop</Text>
+            {/* <Text style={styles.subtitle}>sales@kilimolink.shop</Text> */}
           </View>
         </View>
 
         <View style={styles.customerInfo}>
           <Text style={styles.customerName}>{customerName}</Text>
-          <Text style={styles.date}>{date}</Text>
+          <Text style={styles.date}>
+            Date:{" "}
+            {new Date(date).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </Text>
         </View>
 
         <View style={styles.table}>
           {/* Table Header */}
           <View style={[styles.tableRow, styles.tableRowHeader]}>
+            <View style={{ ...styles.tableColNumber, width: "5%" }}>
+              <Text style={styles.tableHeader}>#</Text>
+            </View>
             <View
               style={{ ...styles.tableColProduct, width: columnWidths.product }}
             >
@@ -366,8 +385,11 @@ export const PricelistPdf: React.FC<PricelistPdfProps> = ({
           </View>
 
           {/* Table Rows */}
-          {commoditiesWithPrices.map((commodity: any) => (
+          {commoditiesWithPrices.map((commodity: any, index: number) => (
             <View key={commodity.id} style={getRowStyle(commodity)}>
+              <View style={{ ...styles.tableColNumber, width: "5%" }}>
+                <Text style={styles.tableCell}>{index + 1}</Text>
+              </View>
               <View
                 style={{
                   ...styles.tableColProduct,
