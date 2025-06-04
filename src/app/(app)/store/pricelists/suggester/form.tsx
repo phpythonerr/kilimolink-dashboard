@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -541,6 +542,11 @@ export default function Form({ categories }: FormProps) {
     }
   };
 
+  const handleRemoveItem = (commodityId: string) => {
+    setCommodities((prev) => prev.filter((c) => c.id !== commodityId));
+    toast.success("Product removed from list");
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -689,6 +695,7 @@ export default function Form({ categories }: FormProps) {
                     {compareWithPricelist && selectedPricelistId && (
                       <TableHead>Change %</TableHead>
                     )}
+                    <TableHead className="w-24"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -763,7 +770,7 @@ export default function Form({ categories }: FormProps) {
                         <div className="relative">
                           <Input
                             type="text"
-                            className="pl-9"
+                            className=""
                             value={
                               commodity.customPrice !== undefined
                                 ? formatCurrency(commodity.customPrice, {
@@ -798,11 +805,6 @@ export default function Form({ categories }: FormProps) {
                             // Make sure input allows sufficient width for price values
                             style={{ minWidth: "120px" }}
                           />
-                          {commodity.customPrice === undefined && (
-                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                              Ksh
-                            </span>
-                          )}
                         </div>
                       </TableCell>
 
@@ -811,6 +813,16 @@ export default function Form({ categories }: FormProps) {
                           {formatPercentChange(commodity.priceChangePercent)}
                         </TableCell>
                       )}
+
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleRemoveItem(commodity.id)}
+                          size="icon"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
