@@ -107,6 +107,21 @@ const styles = StyleSheet.create({
     fontFamily: "Geist Sans",
     backgroundColor: "#F3F4F6",
   },
+  // Add styles for rows with price changes
+  tableRowIncrease: {
+    fontFamily: "Geist Sans",
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "#DDDDDD",
+    backgroundColor: "#FEF2F2", // Light red background for price increases
+  },
+  tableRowDecrease: {
+    fontFamily: "Geist Sans",
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "#DDDDDD",
+    backgroundColor: "#ECFDF5", // Light green background for price decreases
+  },
   tableCol: {
     fontFamily: "Geist Sans",
     padding: 8,
@@ -186,11 +201,23 @@ interface PricelistPdfProps {
     id: string;
     name: string;
     customPrice?: number;
+    currentPrice?: number;
+    suggestedPrice?: number;
+    margin?: number;
     comparisonPrice?: number;
     priceChangePercent?: number;
   }>;
   customerName: string;
   showComparison: boolean;
+  columns: {
+    product: boolean;
+    currentPrice: boolean;
+    suggestedPrice: boolean;
+    customPrice: boolean;
+    margin: boolean;
+    change: boolean;
+    comparisonPrice: boolean;
+  };
   date: string;
 }
 
@@ -198,6 +225,7 @@ export const PricelistPdf: React.FC<PricelistPdfProps> = ({
   commodities,
   customerName,
   showComparison,
+  columns,
   date,
 }) => {
   // Filter out commodities without prices
@@ -208,6 +236,52 @@ export const PricelistPdf: React.FC<PricelistPdfProps> = ({
   const formatCurrency = (value?: number) => {
     if (value === undefined) return "-";
     return `Ksh ${value.toFixed(2)}`;
+  };
+
+  // Calculate dynamic column widths based on selection
+  const calculateColumnWidths = () => {
+    // Count the number of selected columns
+    let selectedColumnsCount = 1; // Start with 1 for the product column which is always included
+
+    if (columns.currentPrice) selectedColumnsCount++;
+    if (columns.suggestedPrice) selectedColumnsCount++;
+    if (columns.customPrice) selectedColumnsCount++;
+    if (columns.margin) selectedColumnsCount++;
+    if (showComparison && columns.comparisonPrice) selectedColumnsCount++;
+    if (showComparison && columns.change) selectedColumnsCount++;
+
+    // Calculate remaining width after product column (which takes 35%)
+    const productColumnWidth = "35%";
+    const remainingColumns = selectedColumnsCount - 1;
+    const remainingWidth = 65; // 100% - 35% for product column
+
+    // Distribute remaining width evenly
+    const otherColumnWidth =
+      remainingColumns > 0 ? `${remainingWidth / remainingColumns}%` : "0%";
+
+    return {
+      product: productColumnWidth,
+      other: otherColumnWidth,
+    };
+  };
+
+  const columnWidths = calculateColumnWidths();
+
+  // Determine which style to use for each row based on price change
+  const getRowStyle = (commodity: any) => {
+    // Only apply highlighting when comparing prices and there's a change percentage available
+    if (showComparison && commodity.priceChangePercent !== undefined) {
+      // Price increase (red background)
+      if (commodity.priceChangePercent > 0) {
+        return styles.tableRowIncrease;
+      }
+      // Price decrease (green background)
+      else if (commodity.priceChangePercent < 0) {
+        return styles.tableRowDecrease;
+      }
+    }
+    // Default row style
+    return styles.tableRow;
   };
 
   return (
@@ -234,73 +308,149 @@ export const PricelistPdf: React.FC<PricelistPdfProps> = ({
         <View style={styles.table}>
           {/* Table Header */}
           <View style={[styles.tableRow, styles.tableRowHeader]}>
-            <View style={styles.tableColProduct}>
+            <View
+              style={{ ...styles.tableColProduct, width: columnWidths.product }}
+            >
               <Text style={styles.tableHeader}>Product</Text>
             </View>
-            {showComparison && (
-              <>
-                <View style={styles.tableColCompare}>
-                  <Text style={styles.tableHeader}>Previous Price</Text>
-                </View>
-                <View style={styles.tableColPrice}>
-                  <Text style={styles.tableHeader}>Current Price</Text>
-                </View>
-                <View style={styles.tableColChange}>
-                  <Text style={styles.tableHeader}>Change %</Text>
-                </View>
-              </>
+
+            {columns.currentPrice && (
+              <View
+                style={{ ...styles.tableColPrice, width: columnWidths.other }}
+              >
+                <Text style={styles.tableHeader}>Current Avg. Cost</Text>
+              </View>
             )}
-            {!showComparison && (
-              <View style={styles.tableColPrice}>
-                <Text style={styles.tableHeader}>Price</Text>
+
+            {columns.suggestedPrice && (
+              <View
+                style={{ ...styles.tableColPrice, width: columnWidths.other }}
+              >
+                <Text style={styles.tableHeader}>Suggested Price</Text>
+              </View>
+            )}
+
+            {showComparison && columns.comparisonPrice && (
+              <View
+                style={{ ...styles.tableColPrice, width: columnWidths.other }}
+              >
+                <Text style={styles.tableHeader}>Previous Price</Text>
+              </View>
+            )}
+
+            {columns.customPrice && (
+              <View
+                style={{ ...styles.tableColPrice, width: columnWidths.other }}
+              >
+                <Text style={styles.tableHeader}>
+                  {showComparison ? "Current Price" : "Price"}
+                </Text>
+              </View>
+            )}
+
+            {columns.margin && (
+              <View
+                style={{ ...styles.tableColPrice, width: columnWidths.other }}
+              >
+                <Text style={styles.tableHeader}>Margin (%)</Text>
+              </View>
+            )}
+
+            {showComparison && columns.change && (
+              <View
+                style={{ ...styles.tableColChange, width: columnWidths.other }}
+              >
+                <Text style={styles.tableHeader}>Change %</Text>
               </View>
             )}
           </View>
 
           {/* Table Rows */}
           {commoditiesWithPrices.map((commodity: any) => (
-            <View key={commodity.id} style={styles.tableRow}>
-              <View style={styles.tableColProduct}>
+            <View key={commodity.id} style={getRowStyle(commodity)}>
+              <View
+                style={{
+                  ...styles.tableColProduct,
+                  width: columnWidths.product,
+                }}
+              >
                 <Text style={styles.tableCell}>{commodity.name}</Text>
               </View>
 
-              {showComparison && (
-                <>
-                  <View style={styles.tableColCompare}>
-                    <Text style={styles.tableCell}>
-                      {formatCurrency(commodity.comparisonPrice)}
-                    </Text>
-                  </View>
-                  <View style={styles.tableColPrice}>
-                    <Text style={styles.tableCell}>
-                      {formatCurrency(commodity.customPrice)}
-                    </Text>
-                  </View>
-                  <View style={styles.tableColChange}>
-                    {commodity.priceChangePercent !== undefined ? (
-                      <Text
-                        style={[
-                          styles.tableCell,
-                          commodity.priceChangePercent >= 0
-                            ? styles.increase
-                            : styles.decrease,
-                        ]}
-                      >
-                        {commodity.priceChangePercent >= 0 ? "+" : ""}
-                        {commodity.priceChangePercent.toFixed(2)}%
-                      </Text>
-                    ) : (
-                      <Text style={styles.tableCell}>-</Text>
-                    )}
-                  </View>
-                </>
+              {columns.currentPrice && (
+                <View
+                  style={{ ...styles.tableColPrice, width: columnWidths.other }}
+                >
+                  <Text style={styles.tableCell}>
+                    {formatCurrency(commodity.currentPrice)}
+                  </Text>
+                </View>
               )}
 
-              {!showComparison && (
-                <View style={styles.tableColPrice}>
+              {columns.suggestedPrice && (
+                <View
+                  style={{ ...styles.tableColPrice, width: columnWidths.other }}
+                >
+                  <Text style={styles.tableCell}>
+                    {formatCurrency(commodity.suggestedPrice)}
+                  </Text>
+                </View>
+              )}
+
+              {showComparison && columns.comparisonPrice && (
+                <View
+                  style={{ ...styles.tableColPrice, width: columnWidths.other }}
+                >
+                  <Text style={styles.tableCell}>
+                    {formatCurrency(commodity.comparisonPrice)}
+                  </Text>
+                </View>
+              )}
+
+              {columns.customPrice && (
+                <View
+                  style={{ ...styles.tableColPrice, width: columnWidths.other }}
+                >
                   <Text style={styles.tableCell}>
                     {formatCurrency(commodity.customPrice)}
                   </Text>
+                </View>
+              )}
+
+              {columns.margin && (
+                <View
+                  style={{ ...styles.tableColPrice, width: columnWidths.other }}
+                >
+                  <Text style={styles.tableCell}>
+                    {commodity.margin !== undefined
+                      ? `${commodity.margin.toFixed(2)}%`
+                      : "-"}
+                  </Text>
+                </View>
+              )}
+
+              {showComparison && columns.change && (
+                <View
+                  style={{
+                    ...styles.tableColChange,
+                    width: columnWidths.other,
+                  }}
+                >
+                  {commodity.priceChangePercent !== undefined ? (
+                    <Text
+                      style={[
+                        styles.tableCell,
+                        commodity.priceChangePercent >= 0
+                          ? styles.increase
+                          : styles.decrease,
+                      ]}
+                    >
+                      {commodity.priceChangePercent >= 0 ? "+" : ""}
+                      {commodity.priceChangePercent.toFixed(2)}%
+                    </Text>
+                  ) : (
+                    <Text style={styles.tableCell}>-</Text>
+                  )}
                 </View>
               )}
             </View>

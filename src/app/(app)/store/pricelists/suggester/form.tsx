@@ -101,6 +101,17 @@ export default function Form({ categories }: FormProps) {
     useState<string>("");
   const [customerName, setCustomerName] = useState("");
 
+  // Add state for PDF column selection
+  const [pdfColumns, setPdfColumns] = useState({
+    product: true, // Always required - Product name
+    currentPrice: false, // Default unchecked - Current average cost
+    suggestedPrice: false, // Default unchecked - Suggested price
+    customPrice: true, // Always required - Custom price that will be used
+    margin: false, // Default unchecked - Margin percentage
+    change: false, // Default unchecked - Price change percentage
+    comparisonPrice: false, // Default unchecked - Price from comparison pricelist
+  });
+
   // Calculate price based on cost and margin
   const calculatePriceWithMargin = (cost: number, margin: number) => {
     return cost * (1 + margin / 100);
@@ -138,10 +149,13 @@ export default function Form({ categories }: FormProps) {
     setMarginInputValue(e.target.value);
   };
 
-  // Format number as currency
-  const formatCurrency = (value: number | undefined): string => {
+  // Format number as currency with options for decimal places
+  const formatCurrency = (
+    value: number | undefined,
+    options = { dp: 2 }
+  ): string => {
     if (value === undefined) return "";
-    return `Ksh ${value.toFixed(2)}`;
+    return `Ksh ${value.toFixed(options.dp)}`;
   };
 
   // Parse currency string back to number
@@ -388,21 +402,51 @@ export default function Form({ categories }: FormProps) {
     });
   };
 
+  // Custom price input with improved event handling
   const handlePriceChange = (commodityId: string, value: string) => {
     const numValue = parseCurrencyValue(value);
+
+    // Skip update if value is invalid (prevent NaN issues)
+    if (isNaN(numValue)) return;
+
     setCommodities((prev) =>
       prev.map((c: any) => {
         if (c.id === commodityId) {
           // Update custom price and recalculate margin if current price exists
           let updatedMargin = c.margin;
           if (c.currentPrice && c.currentPrice > 0) {
-            updatedMargin = (numValue / c.currentPrice - 1) * 100;
+            // Calculate margin to 2 decimal places
+            updatedMargin = parseFloat(
+              ((numValue / c.currentPrice - 1) * 100).toFixed(2)
+            );
           }
           return { ...c, customPrice: numValue, margin: updatedMargin };
         }
         return c;
       })
     );
+  };
+
+  // Handle PDF column selection changes
+  const handlePdfColumnChange = (column: keyof typeof pdfColumns) => {
+    try {
+      // Don't allow disabling required columns
+      if (
+        (column === "product" || column === "customPrice") &&
+        pdfColumns[column]
+      ) {
+        return;
+      }
+
+      // Create a fresh copy to avoid state mutation issues
+      setPdfColumns((prev) => ({
+        ...prev,
+        [column]: !prev[column],
+      }));
+    } catch (err) {
+      console.error("Error updating PDF columns:", err);
+      toast.error("Failed to update column selection");
+    }
   };
 
   const handleUsePrices = () => {
@@ -722,7 +766,9 @@ export default function Form({ categories }: FormProps) {
                             className="pl-9"
                             value={
                               commodity.customPrice !== undefined
-                                ? formatCurrency(commodity.customPrice)
+                                ? formatCurrency(commodity.customPrice, {
+                                    dp: 0,
+                                  })
                                 : ""
                             }
                             onChange={(e) =>
@@ -730,9 +776,27 @@ export default function Form({ categories }: FormProps) {
                             }
                             disabled={commodity.loading}
                             onFocus={(e) => {
-                              // Optional: Select all text when focused for easy editing
+                              // Clear formatting completely when focusing to allow editing the raw number
+                              if (commodity.customPrice !== undefined) {
+                                // Set raw value without any formatting
+                                (e.target as HTMLInputElement).value =
+                                  commodity.customPrice.toString();
+                              }
                               e.target.select();
                             }}
+                            onBlur={(e) => {
+                              // Re-format on blur only if there's a value to avoid immediately overriding user input
+                              if (commodity.customPrice !== undefined) {
+                                (e.target as HTMLInputElement).value =
+                                  formatCurrency(commodity.customPrice, {
+                                    dp: 0,
+                                  });
+                              }
+                            }}
+                            // Add key props to prevent browser autocomplete/caching issues
+                            key={`price-${commodity.id}`}
+                            // Make sure input allows sufficient width for price values
+                            style={{ minWidth: "120px" }}
                           />
                           {commodity.customPrice === undefined && (
                             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
@@ -841,6 +905,7 @@ export default function Form({ categories }: FormProps) {
                       </Button>
                     </TabsContent>
 
+                    {/* Update the PDF tab content in the dialog */}
                     <TabsContent value="pdf" className="mt-4 space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="customer-name">Customer Name</Label>
@@ -851,6 +916,99 @@ export default function Form({ categories }: FormProps) {
                           onChange={(e) => setCustomerName(e.target.value)}
                         />
                       </div>
+
+                      <div className="space-y-2">
+                        <Label>Columns to Include</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="column-product"
+                              checked={pdfColumns.product}
+                              disabled={true}
+                            />
+                            <Label htmlFor="column-product">Product</Label>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="column-currentPrice"
+                              checked={pdfColumns.currentPrice}
+                              onCheckedChange={() =>
+                                handlePdfColumnChange("currentPrice")
+                              }
+                            />
+                            <Label htmlFor="column-currentPrice">
+                              Current Avg. Cost
+                            </Label>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="column-suggestedPrice"
+                              checked={pdfColumns.suggestedPrice}
+                              onCheckedChange={() =>
+                                handlePdfColumnChange("suggestedPrice")
+                              }
+                            />
+                            <Label htmlFor="column-suggestedPrice">
+                              Suggested Price
+                            </Label>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="column-customPrice"
+                              checked={pdfColumns.customPrice}
+                              disabled={true}
+                            />
+                            <Label htmlFor="column-customPrice">
+                              Custom Price
+                            </Label>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="column-margin"
+                              checked={pdfColumns.margin}
+                              onCheckedChange={() =>
+                                handlePdfColumnChange("margin")
+                              }
+                            />
+                            <Label htmlFor="column-margin">Margin (%)</Label>
+                          </div>
+
+                          {compareWithPricelist && (
+                            <>
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id="column-change"
+                                  checked={pdfColumns.change}
+                                  onCheckedChange={() =>
+                                    handlePdfColumnChange("change")
+                                  }
+                                />
+                                <Label htmlFor="column-change">
+                                  Change (%)
+                                </Label>
+                              </div>
+
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id="column-comparisonPrice"
+                                  checked={pdfColumns.comparisonPrice}
+                                  onCheckedChange={() =>
+                                    handlePdfColumnChange("comparisonPrice")
+                                  }
+                                />
+                                <Label htmlFor="column-comparisonPrice">
+                                  Current Price (Comparison)
+                                </Label>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
                       <div className="pt-2">
                         <PDFDownloadLink
                           document={
@@ -860,6 +1018,15 @@ export default function Form({ categories }: FormProps) {
                               showComparison={
                                 compareWithPricelist && !!selectedPricelistId
                               }
+                              columns={{
+                                product: true, // Always include product
+                                currentPrice: pdfColumns.currentPrice,
+                                suggestedPrice: pdfColumns.suggestedPrice,
+                                customPrice: true, // Always include the final price
+                                margin: pdfColumns.margin,
+                                change: pdfColumns.change,
+                                comparisonPrice: pdfColumns.comparisonPrice,
+                              }}
                               date={new Date().toLocaleDateString()}
                             />
                           }
